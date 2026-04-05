@@ -17,6 +17,10 @@ export class UsersService {
     });
   }
 
+
+
+  
+
   async validatePassword(hash: string, plain: string) {
     return bcrypt.compare(plain, hash);
   }
