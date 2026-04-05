@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  username     String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  documents    Document[]
+}
+
+model Contract {
+  id          String        @id @default(cuid())
+  sellerName  String?
+  buyerName   String?
+  type        String?
+  status      String        @default("draft")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  ownerId     String?
+  documents   Document[]
+  logs        ContractLog[]
+}
+
+model Document {
+  id           String    @id @default(cuid())
+  originalName String
+  storageKey   String    @unique
+  mimeType     String?
+  size         Int?
+  contractId   String?
+  contract     Contract? @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  uploadedById String
+  uploadedBy   User      @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+}
+
+model ContractLog {
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  action     String
+  fromValue  String?
+  toValue    String?
+  createdAt  DateTime @default(now())
+}
