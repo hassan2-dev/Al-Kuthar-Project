@@ -17,11 +17,29 @@
   --border: #e5e7eb;
   --input-border: #dbe2ea;
   --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+
+  /* Al Kuthar brand palette */
+  --ak-bg:           #F6F3EE;
+  --ak-bg-soft:      #EEE9E2;
+  --ak-card:         #FFFFFF;
+  --ak-card-border:  #E6DFD6;
+  --ak-gold:         #C8A97E;
+  --ak-gold-soft:    #E2CBA0;
+  --ak-gold-light:   #F3E4C7;
+  --ak-gold-deep:    #A68A64;
+  --ak-text:         #3D342F;
+  --ak-text-sec:     #7A6E63;
+  --ak-text-muted:   #A89C90;
+  --ak-placeholder:  #B8ABA1;
+  --ak-shadow-soft:  0 4px 20px rgba(0,0,0,0.06);
+  --ak-shadow-med:   0 8px 32px rgba(0,0,0,0.10);
+  --ak-gold-glow:    0 0 0 3px rgba(200,169,126,0.25);
+  --ak-gold-grad:    linear-gradient(135deg, #D4B483 0%, #C8A97E 40%, #A68A64 100%);
 }
 
 body {
   direction: rtl;
-  font-family: Arial, sans-serif;
+  font-family: "Almarai", Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
 }
@@ -42,59 +60,333 @@ button {
   cursor: pointer;
 }
 
-.login-page {
+/* ═══════════════════════════════════════════
+   Al Kuthar — Login Page  (split layout)
+═══════════════════════════════════════════ */
+.lp-page {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: #eef2f7;
-  padding: 24px;
+  justify-content: center;
+  background-color: var(--ak-bg-soft);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 50%   0%, rgba(200,169,126,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at   0% 100%, rgba(200,169,126,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 35% at 100% 100%, rgba(200,169,126,0.07) 0%, transparent 55%);
+  padding: 24px 16px;
+  font-family: "Almarai", Arial, sans-serif;
+  direction: rtl;
 }
 
-.login-card {
+/* ── Two-column card shell ── */
+.lp-card {
   width: 100%;
-  max-width: 420px;
-  background: white;
-  padding: 32px;
-  border-radius: 20px;
-  box-shadow: var(--shadow);
+  max-width: 860px;
+  min-height: 520px;
+  display: flex;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow:
+    0 32px 80px rgba(61,52,47,0.14),
+    0  4px 20px rgba(61,52,47,0.07);
+}
+
+/* ══════════════════════════
+   Left — brand panel
+══════════════════════════ */
+.lp-left {
+  flex: 0 0 42%;
+  background: var(--ak-bg);
+  background-image:
+    radial-gradient(ellipse 130% 80% at 70% 20%, rgba(200,169,126,0.26) 0%, transparent 60%),
+    radial-gradient(ellipse  80% 60% at 15% 85%, rgba(200,169,126,0.14) 0%, transparent 55%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 52px 36px;
+  overflow: hidden;
+}
+
+/* decorative blurred circles */
+.lp-left-deco-top {
+  position: absolute;
+  top: -70px;
+  right: -70px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,169,126,0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.lp-left-deco-bot {
+  position: absolute;
+  bottom: -90px;
+  left: -55px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,169,126,0.16) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.lp-left-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.login-card h1 {
+  align-items: center;
+  gap: 18px;
   text-align: center;
-  margin-bottom: 8px;
-  font-size: 42px;
 }
 
-.login-card input {
+.lp-left-logo {
+  width: 210px;
+  max-width: 90%;
+  height: auto;
+  filter: drop-shadow(0 8px 20px rgba(200,169,126,0.32));
+}
+
+.lp-left-divider {
+  width: 52px;
+  height: 2px;
+  background: var(--ak-gold-grad);
+  border-radius: 2px;
+}
+
+.lp-left-ar {
+  margin: 0;
+  font-family: "Almarai", "Segoe UI", sans-serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  line-height: 1.7;
+  color: var(--ak-text);
+  unicode-bidi: isolate;
+  letter-spacing: 0.1px;
+}
+
+.lp-left-en {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ak-gold-deep);
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+}
+
+/* ══════════════════════════
+   Right — form panel
+══════════════════════════ */
+.lp-right {
+  flex: 1;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 52px 48px;
+}
+
+/* mobile-only brand block */
+.lp-mobile-brand {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.lp-mobile-logo {
+  width: 130px;
+  height: auto;
+  filter: drop-shadow(0 3px 10px rgba(200,169,126,0.25));
+}
+
+.lp-mobile-ar {
+  margin: 0;
+  font-family: "Almarai", "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: var(--ak-text-sec);
+  unicode-bidi: isolate;
+}
+
+.lp-right-header {
+  margin-bottom: 28px;
+}
+
+.lp-right-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ak-text);
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+
+.lp-right-sub {
+  font-size: 14px;
+  color: var(--ak-text-muted);
+  margin: 0;
+}
+
+/* ── Form ── */
+.lp-form {
   width: 100%;
-  padding: 14px 16px;
-  border: 1px solid var(--input-border);
-  border-radius: 16px;
-  background: white;
-  outline: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.login-card input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(66, 84, 208, 0.1);
+.lp-field {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.login-card button {
-  width: 100%;
-  padding: 14px 16px;
+.lp-field-icon {
+  position: absolute;
+  right: 16px;
+  left: auto;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.lp-toggle-pass {
+  position: absolute;
+  left: 14px;
+  right: auto;
+  background: none;
   border: none;
-  border-radius: 16px;
-  background: var(--primary);
-  color: white;
-  font-size: 18px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0.65;
 }
 
-.login-card button:hover {
-  background: var(--primary-hover);
+.lp-toggle-pass:hover { opacity: 1; }
+
+.lp-input {
+  width: 100%;
+  /* right-side icon space | left-side toggle space */
+  padding: 14px 46px 14px 44px;
+  border: 1.5px solid var(--ak-card-border);
+  border-radius: 14px;
+  background: #FAFAF8;
+  font-size: 14.5px;
+  color: var(--ak-text);
+  outline: none;
+  text-align: right;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.lp-input::placeholder { color: var(--ak-placeholder); }
+
+.lp-input:focus {
+  border-color: var(--ak-gold);
+  box-shadow: var(--ak-gold-glow);
+  background: #fff;
+}
+
+/* ── Meta row ── */
+.lp-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.lp-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--ak-text-sec);
+  cursor: pointer;
+  user-select: none;
+}
+
+.lp-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ak-gold);
+  cursor: pointer;
+}
+
+.lp-forgot {
+  font-size: 13.5px;
+  color: var(--ak-gold-deep);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.lp-forgot:hover { color: var(--ak-gold); }
+
+/* ── Button ── */
+.lp-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 50px;
+  background: var(--ak-gold-grad);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(200,169,126,0.42);
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.lp-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(200,169,126,0.52);
+}
+
+.lp-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 12px rgba(200,169,126,0.35);
+}
+
+.lp-btn-arrow { display: flex; align-items: center; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .lp-card {
+    flex-direction: column;
+    border-radius: 26px;
+    max-width: 440px;
+  }
+
+  .lp-left {
+    display: none;
+  }
+
+  .lp-mobile-brand {
+    display: flex;
+  }
+
+  .lp-right {
+    padding: 40px 28px 36px;
+  }
+}
+
+@media (max-width: 900px) and (min-width: 701px) {
+  .lp-right {
+    padding: 44px 36px;
+  }
+
+  .lp-left {
+    flex: 0 0 38%;
+  }
 }
 
 .app-shell {
