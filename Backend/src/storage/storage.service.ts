@@ -16,13 +16,19 @@ export class StorageService {
 
   constructor(private readonly config: ConfigService) {
     const accountId = config.get<string>("R2_ACCOUNT_ID");
+    const endpointRaw = config.get<string>("R2_ENDPOINT");
+    const endpoint =
+      endpointRaw?.replace(/\/$/, "") ??
+      (accountId
+        ? `https://${accountId}.r2.cloudflarestorage.com`
+        : undefined);
     const accessKeyId = config.get<string>("R2_ACCESS_KEY_ID");
     const secretAccessKey = config.get<string>("R2_SECRET_ACCESS_KEY");
     const bucket = config.get<string>("R2_BUCKET_NAME");
-    if (accountId && accessKeyId && secretAccessKey && bucket) {
+    if (endpoint && accessKeyId && secretAccessKey && bucket) {
       this.client = new S3Client({
         region: "auto",
-        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+        endpoint,
         credentials: { accessKeyId, secretAccessKey },
       });
       this.bucket = bucket;
@@ -36,7 +42,7 @@ export class StorageService {
   assertConfigured() {
     if (!this.client || !this.bucket) {
       throw new ServiceUnavailableException(
-        "R2 is not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME.",
+        "R2 is not configured. Set R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, and R2_ENDPOINT (or R2_ACCOUNT_ID).",
       );
     }
   }
