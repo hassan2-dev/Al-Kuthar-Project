@@ -1,18 +1,55 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SignaturePad from "../components/SignaturePad";
 
+/** Fields that must be filled before تأكيد or طباعة. */
+const REQUIRED_SALE_FIELDS = [
+  "partyOneSeller",
+  "sellerAddress",
+  "partyTwoBuyer",
+  "buyerAddress",
+  "propertyType",
+  "propertyNumberSequence",
+  "mahala",
+  "agreedPrice",
+  "depositPaid",
+  "remainingAmount",
+  "sellerPenalty",
+  "buyerPenaltyPercent",
+  "feesOnParty",
+  "contractDay",
+  "contractMonth",
+  "contractYear",
+  "bottomName1",
+  "bottomAddress1",
+  "bottomName2",
+  "bottomAddress2",
+  "sellerSignature",
+  "buyerSignature",
+];
+
+function isFieldEmpty(value) {
+  if (value == null) return true;
+  return String(value).trim() === "";
+}
+
+function collectMissingFields(form) {
+  return REQUIRED_SALE_FIELDS.filter((key) => isFieldEmpty(form[key]));
+}
+
 /** Defined at module scope so React does not remount inputs on every parent re-render (fixes one-char-then-blur). */
-function ContractBlank({ name, size = "md", type = "text", value, onChange }) {
+function ContractBlank({ name, size = "md", type = "text", value, onChange, hasError }) {
   return (
     <input
-      className={`sc-blank sc-blank--${size}`}
+      className={`sc-blank sc-blank--${size}${hasError ? " sc-blank--error" : ""}`}
       type={type}
       name={name}
       value={value}
       onChange={onChange}
       dir="rtl"
       inputMode={type === "number" ? "numeric" : "text"}
+      data-sale-field={name}
+      aria-invalid={hasError || undefined}
     />
   );
 }
@@ -50,6 +87,11 @@ export default function SaleContract() {
   });
 
   const [status, setStatus] = useState("مسودة");
+  const [invalidFields, setInvalidFields] = useState(() => new Set());
+  /** True after user attempts تأكيد or طباعة — used so clearing a signature re-applies error state. */
+  const validationAttemptedRef = useRef(false);
+
+  const fieldInvalid = useCallback((name) => invalidFields.has(name), [invalidFields]);
 
   useEffect(() => {
     const savedForm = localStorage.getItem("saleContractDraft");
@@ -61,27 +103,67 @@ export default function SaleContract() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setInvalidFields((prev) => {
+      if (!prev.has(name)) return prev;
+      const next = new Set(prev);
+      next.delete(name);
+      return next;
+    });
   };
 
   const handleSignatureChange = useCallback((name, dataUrl) => {
     setForm((prev) => ({ ...prev, [name]: dataUrl }));
+    if (dataUrl && String(dataUrl).trim()) {
+      setInvalidFields((prev) => {
+        if (!prev.has(name)) return prev;
+        const next = new Set(prev);
+        next.delete(name);
+        return next;
+      });
+    } else if (!String(dataUrl || "").trim() && validationAttemptedRef.current) {
+      setInvalidFields((prev) => {
+        const next = new Set(prev);
+        next.add(name);
+        return next;
+      });
+    }
+  }, []);
+
+  const applyValidationAndScroll = useCallback((formSnapshot) => {
+    validationAttemptedRef.current = true;
+    const missing = collectMissingFields(formSnapshot);
+    setInvalidFields(new Set(missing));
+    if (missing.length > 0) {
+      queueMicrotask(() => {
+        const el = document.querySelector(`[data-sale-field="${missing[0]}"]`);
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      return false;
+    }
+    return true;
   }, []);
 
   const handleSaveDraft = () => {
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", "مسودة");
     setStatus("مسودة");
+    setInvalidFields(new Set());
+    validationAttemptedRef.current = false;
   };
 
   const handleConfirm = () => {
+    if (!applyValidationAndScroll(form)) return;
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", "مؤكد");
     setStatus("مؤكد");
+    setInvalidFields(new Set());
   };
 
   const handleGoToPrint = () => {
+    if (!applyValidationAndScroll(form)) return;
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", status);
+    setInvalidFields(new Set());
     navigate("/sale-contract/print");
   };
 
@@ -170,53 +252,58 @@ export default function SaleContract() {
 
       <div className="sc-inner">
 
-        {/* شريط العنوان */}
-        <div className="sc-topbar">
-          <button className="sc-back" onClick={() => navigate("/dashboard")} aria-label="رجوع">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <circle cx="9" cy="9" r="8" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.5"/>
-              <path d="M8 6l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>رجوع</span>
-          </button>
-
-          <div className="sc-topbar-center">
-            <img src="/logo-icon.png" alt="الكوثر" className="sc-logo" />
-            <h1 className="sc-title">عقد بيع</h1>
-          </div>
-
-          <span className={`sc-status-badge ${status === "مؤكد" ? "sc-status-badge--confirmed" : ""}`}>
-            {status}
-          </span>
-        </div>
-
-        {/* أزرار الإجراءات */}
-        <div className="sc-actions">
-          <button className="sc-btn sc-btn--ghost" onClick={handleSaveDraft}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M2 2h9l3 3v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.4"/>
-              <path d="M11 2v4H4V2M5 10h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
-            حفظ كمسودة
-          </button>
-          <button className="sc-btn sc-btn--ghost" onClick={handleConfirm}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4"/>
-              <path d="M5 8l2.5 2.5L11 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            تأكيد العقد
-          </button>
-          <button className="sc-btn sc-btn--gold" onClick={handleGoToPrint}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
-              <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>
-            </svg>
-            فتح صفحة الطباعة
-          </button>
-        </div>
-
         {/* وثيقة العقد */}
         <div className="sc-contract-doc" dir="rtl">
+
+          {/* شريط الأدوات */}
+          <div className="sc-contract-toolbar" dir="rtl">
+            <button
+              type="button"
+              className="sc-toolbar-back"
+              onClick={() => navigate("/dashboard")}
+              aria-label="رجوع"
+            >
+              <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <circle cx="9" cy="9" r="8" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.5"/>
+                <path d="M8 6l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              رجوع
+            </button>
+
+            <div className="sc-toolbar-actions">
+              <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleSaveDraft}>
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 2h9l3 3v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.4"/>
+                  <path d="M11 2v4H4V2M5 10h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+                حفظ كمسودة
+              </button>
+              <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleConfirm}>
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4"/>
+                  <path d="M5 8l2.5 2.5L11 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                تأكيد العقد
+              </button>
+              <button type="button" className="sc-tbtn sc-tbtn--gold" onClick={handleGoToPrint}>
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+                  <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>
+                </svg>
+                طباعة
+              </button>
+            </div>
+
+            <span className={`sc-status-badge ${status === "مؤكد" ? "sc-status-badge--confirmed" : ""}`}>
+              {status}
+            </span>
+          </div>
+
+          {invalidFields.size > 0 && (
+            <p className="sc-contract-validation-alert" role="alert">
+              يرجى تعبئة جميع الحقول المطلوبة المميزة باللون الأحمر.
+            </p>
+          )}
 
           {/* رأس الوثيقة */}
           <div className="sc-contract-doc-header">
@@ -235,16 +322,16 @@ export default function SaleContract() {
               <p className="sc-doc-para">
                 <span className="sc-doc-label">الطرف الأول البائع:</span>
                 {" "}السيد /{" "}
-                <ContractBlank name="partyOneSeller" size="lg" value={form.partyOneSeller} onChange={handleChange} />
+                <ContractBlank name="partyOneSeller" size="lg" value={form.partyOneSeller} onChange={handleChange} hasError={fieldInvalid("partyOneSeller")} />
                 {" "}المقيم في /{" "}
-                <ContractBlank name="sellerAddress" size="lg" value={form.sellerAddress} onChange={handleChange} />
+                <ContractBlank name="sellerAddress" size="lg" value={form.sellerAddress} onChange={handleChange} hasError={fieldInvalid("sellerAddress")} />
               </p>
               <p className="sc-doc-para">
                 <span className="sc-doc-label">الطرف الثاني المشتري:</span>
                 {" "}السيد /{" "}
-                <ContractBlank name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer} onChange={handleChange} />
+                <ContractBlank name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer} onChange={handleChange} hasError={fieldInvalid("partyTwoBuyer")} />
                 {" "}المقيم في /{" "}
-                <ContractBlank name="buyerAddress" size="lg" value={form.buyerAddress} onChange={handleChange} />
+                <ContractBlank name="buyerAddress" size="lg" value={form.buyerAddress} onChange={handleChange} hasError={fieldInvalid("buyerAddress")} />
               </p>
             </div>
 
@@ -255,11 +342,11 @@ export default function SaleContract() {
               <h3 className="sc-doc-clause-title">أولاً — المبيع</h3>
               <p className="sc-doc-para">
                 باع الطرف الأول إلى الطرف الثاني عقاره من نوع{" "}
-                <ContractBlank name="propertyType" size="sm" value={form.propertyType} onChange={handleChange} />
+                <ContractBlank name="propertyType" size="sm" value={form.propertyType} onChange={handleChange} hasError={fieldInvalid("propertyType")} />
                 {" "}ذي الرقم والتسلسل{" "}
-                <ContractBlank name="propertyNumberSequence" size="sm" value={form.propertyNumberSequence} onChange={handleChange} />
+                <ContractBlank name="propertyNumberSequence" size="sm" value={form.propertyNumberSequence} onChange={handleChange} hasError={fieldInvalid("propertyNumberSequence")} />
                 {" "}الواقع في محلة{" "}
-                <ContractBlank name="mahala" size="md" value={form.mahala} onChange={handleChange} />.
+                <ContractBlank name="mahala" size="md" value={form.mahala} onChange={handleChange} hasError={fieldInvalid("mahala")} />.
               </p>
             </div>
 
@@ -270,26 +357,26 @@ export default function SaleContract() {
               <h3 className="sc-doc-clause-title">ثانياً — الثمن والالتزامات المالية</h3>
               <p className="sc-doc-para">
                 اتفق الطرفان على بدل البيع وقدره{" "}
-                <ContractBlank name="agreedPrice" size="md" type="number" value={form.agreedPrice} onChange={handleChange} />
+                <ContractBlank name="agreedPrice" size="md" type="number" value={form.agreedPrice} onChange={handleChange} hasError={fieldInvalid("agreedPrice")} />
                 {" "}دينار عراقي، وقد قبض البائع عربوناً مقداره{" "}
-                <ContractBlank name="depositPaid" size="md" type="number" value={form.depositPaid} onChange={handleChange} />
+                <ContractBlank name="depositPaid" size="md" type="number" value={form.depositPaid} onChange={handleChange} hasError={fieldInvalid("depositPaid")} />
                 {" "}دينار. ويكون المبلغ المتبقي{" "}
-                <ContractBlank name="remainingAmount" size="md" type="number" value={form.remainingAmount} onChange={handleChange} />
+                <ContractBlank name="remainingAmount" size="md" type="number" value={form.remainingAmount} onChange={handleChange} hasError={fieldInvalid("remainingAmount")} />
                 {" "}دينار يُسدَّد عند إتمام إجراءات نقل الملكية الرسمية.
               </p>
               <p className="sc-doc-para">
                 إذا نكل البائع عن تنفيذ هذا العقد يلتزم بدفع{" "}
-                <ContractBlank name="sellerPenalty" size="md" type="number" value={form.sellerPenalty} onChange={handleChange} />
+                <ContractBlank name="sellerPenalty" size="md" type="number" value={form.sellerPenalty} onChange={handleChange} hasError={fieldInvalid("sellerPenalty")} />
                 {" "}دينار للمشتري تعويضاً عن الضرر.
               </p>
               <p className="sc-doc-para">
                 إذا نكل المشتري عن إتمام الصفقة يفقد العربون المدفوع، ويلتزم بدفع نسبة{" "}
-                <ContractBlank name="buyerPenaltyPercent" size="xs" type="number" value={form.buyerPenaltyPercent} onChange={handleChange} />
+                <ContractBlank name="buyerPenaltyPercent" size="xs" type="number" value={form.buyerPenaltyPercent} onChange={handleChange} hasError={fieldInvalid("buyerPenaltyPercent")} />
                 {" "}% إضافية تضميناً للبائع.
               </p>
               <p className="sc-doc-para">
                 تكون الرسوم والضرائب المترتبة على هذه الصفقة بعهدة{" "}
-                <ContractBlank name="feesOnParty" size="md" value={form.feesOnParty} onChange={handleChange} />.
+                <ContractBlank name="feesOnParty" size="md" value={form.feesOnParty} onChange={handleChange} hasError={fieldInvalid("feesOnParty")} />.
               </p>
             </div>
 
@@ -325,11 +412,11 @@ export default function SaleContract() {
               <h3 className="sc-doc-clause-title">رابعاً — التاريخ</h3>
               <p className="sc-doc-para">
                 حُرِّرَ هذا العقد في اليوم{" "}
-                <ContractBlank name="contractDay" size="xs" type="number" value={form.contractDay} onChange={handleChange} />
+                <ContractBlank name="contractDay" size="xs" type="number" value={form.contractDay} onChange={handleChange} hasError={fieldInvalid("contractDay")} />
                 {" "}من شهر{" "}
-                <ContractBlank name="contractMonth" size="sm" value={form.contractMonth} onChange={handleChange} />
+                <ContractBlank name="contractMonth" size="sm" value={form.contractMonth} onChange={handleChange} hasError={fieldInvalid("contractMonth")} />
                 {" "}لسنة{" "}
-                <ContractBlank name="contractYear" size="sm" type="number" value={form.contractYear} onChange={handleChange} />.
+                <ContractBlank name="contractYear" size="sm" type="number" value={form.contractYear} onChange={handleChange} hasError={fieldInvalid("contractYear")} />.
               </p>
             </div>
 
@@ -343,11 +430,11 @@ export default function SaleContract() {
                   <p className="sc-doc-sig-role">الطرف الأول — البائع</p>
                   <p className="sc-doc-sig-line">
                     <span>الاسم:</span>
-                    <ContractBlank name="bottomName1" size="md" value={form.bottomName1} onChange={handleChange} />
+                    <ContractBlank name="bottomName1" size="md" value={form.bottomName1} onChange={handleChange} hasError={fieldInvalid("bottomName1")} />
                   </p>
                   <p className="sc-doc-sig-line">
                     <span>العنوان:</span>
-                    <ContractBlank name="bottomAddress1" size="md" value={form.bottomAddress1} onChange={handleChange} />
+                    <ContractBlank name="bottomAddress1" size="md" value={form.bottomAddress1} onChange={handleChange} hasError={fieldInvalid("bottomAddress1")} />
                   </p>
                   <div className="sc-doc-sig-block">
                     <span className="sc-doc-sig-block-label">التوقيع:</span>
@@ -355,6 +442,7 @@ export default function SaleContract() {
                       name="sellerSignature"
                       value={form.sellerSignature}
                       onSignatureChange={handleSignatureChange}
+                      invalid={fieldInvalid("sellerSignature")}
                     />
                   </div>
                 </div>
@@ -362,11 +450,11 @@ export default function SaleContract() {
                   <p className="sc-doc-sig-role">الطرف الثاني — المشتري</p>
                   <p className="sc-doc-sig-line">
                     <span>الاسم:</span>
-                    <ContractBlank name="bottomName2" size="md" value={form.bottomName2} onChange={handleChange} />
+                    <ContractBlank name="bottomName2" size="md" value={form.bottomName2} onChange={handleChange} hasError={fieldInvalid("bottomName2")} />
                   </p>
                   <p className="sc-doc-sig-line">
                     <span>العنوان:</span>
-                    <ContractBlank name="bottomAddress2" size="md" value={form.bottomAddress2} onChange={handleChange} />
+                    <ContractBlank name="bottomAddress2" size="md" value={form.bottomAddress2} onChange={handleChange} hasError={fieldInvalid("bottomAddress2")} />
                   </p>
                   <div className="sc-doc-sig-block">
                     <span className="sc-doc-sig-block-label">التوقيع:</span>
@@ -374,6 +462,7 @@ export default function SaleContract() {
                       name="buyerSignature"
                       value={form.buyerSignature}
                       onSignatureChange={handleSignatureChange}
+                      invalid={fieldInvalid("buyerSignature")}
                     />
                   </div>
                 </div>

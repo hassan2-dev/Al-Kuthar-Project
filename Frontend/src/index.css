@@ -896,60 +896,6 @@ button {
   gap: 18px;
 }
 
-/* ── Top bar ── */
-.sc-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: rgba(255,255,255,0.88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1.5px solid var(--ak-card-border);
-  border-radius: 20px;
-  padding: 12px 20px;
-  box-shadow: 0 4px 20px rgba(61,52,47,0.06);
-}
-
-.sc-back {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  color: var(--ak-text-sec);
-  font-size: 14px;
-  font-family: var(--font-ar);
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 10px;
-  transition: background 0.18s, color 0.18s;
-}
-
-.sc-back:hover {
-  background: var(--ak-gold-light);
-  color: var(--ak-gold-deep);
-}
-
-.sc-topbar-center {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sc-logo {
-  width: 38px;
-  height: auto;
-  filter: drop-shadow(0 2px 6px rgba(200,169,126,0.35));
-}
-
-.sc-title {
-  font-size: clamp(18px, 2.2vw, 24px);
-  font-weight: 700;
-  color: var(--ak-text);
-  letter-spacing: 0.01em;
-}
-
 .sc-status-badge {
   font-size: 13px;
   font-weight: 600;
@@ -967,9 +913,92 @@ button {
   border-color: #a8d5b5;
 }
 
-/* ── Action buttons row ── */
+/* ── Contract toolbar (inside the card) ── */
+.sc-contract-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 18px;
+  margin-bottom: 28px;
+  border-bottom: 1.5px solid var(--ak-card-border);
+  flex-wrap: wrap;
+}
+
+.sc-toolbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1.5px solid var(--ak-card-border);
+  border-radius: 10px;
+  color: var(--ak-text-sec);
+  font-size: 13px;
+  font-family: var(--font-ar);
+  font-weight: 600;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sc-toolbar-back:hover {
+  background: var(--ak-gold-light);
+  color: var(--ak-gold-deep);
+  border-color: var(--ak-gold-soft);
+}
+
+.sc-toolbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex: 1;
+}
+
+.sc-tbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: var(--font-ar);
+  font-weight: 600;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+}
+
+.sc-tbtn--ghost {
+  background: var(--ak-bg);
+  border-color: var(--ak-card-border);
+  color: var(--ak-text-sec);
+}
+
+.sc-tbtn--ghost:hover {
+  background: var(--ak-gold-light);
+  border-color: var(--ak-gold-soft);
+  color: var(--ak-gold-deep);
+  transform: translateY(-1px);
+}
+
+.sc-tbtn--gold {
+  background: var(--ak-gold-grad);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(200,169,126,0.38);
+}
+
+.sc-tbtn--gold:hover {
+  box-shadow: 0 8px 22px rgba(200,169,126,0.52);
+  transform: translateY(-1px);
+}
+
+/* legacy — kept for any remaining refs */
 .sc-actions {
   display: flex;
+  justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
 }
@@ -1111,14 +1140,17 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .sc-topbar {
-    flex-wrap: wrap;
-    gap: 8px;
+  .sc-contract-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
   }
 
-  .sc-topbar-center {
-    order: -1;
-    width: 100%;
+  .sc-toolbar-actions {
+    justify-content: center;
+  }
+
+  .sc-toolbar-back {
     justify-content: center;
   }
 }
@@ -1134,6 +1166,25 @@ button {
   box-shadow: 0 8px 40px rgba(61,52,47,0.08);
   direction: rtl;
   line-height: 2;
+}
+
+.sc-contract-validation-alert {
+  margin: -8px 0 20px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-ar);
+  text-align: center;
+  color: #b71c1c;
+  background: rgba(183, 28, 28, 0.08);
+  border: 1.5px solid rgba(183, 28, 28, 0.35);
+}
+
+.sc-contract-status-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
 }
 
 /* ── Document header (new) ── */
@@ -1302,6 +1353,11 @@ button {
   box-shadow: inset 0 1px 3px rgba(61, 52, 47, 0.06);
 }
 
+.sc-signature-pad--invalid .sc-signature-pad__canvas {
+  border-color: #c62828;
+  box-shadow: inset 0 1px 3px rgba(61, 52, 47, 0.06), 0 0 0 2px rgba(198, 40, 40, 0.2);
+}
+
 .sc-signature-pad__clear {
   margin-top: 6px;
   align-self: flex-end;
@@ -1468,6 +1524,17 @@ button {
 .sc-blank:focus {
   border-bottom-color: var(--ak-gold);
   background: rgba(200,169,126,0.10);
+}
+
+.sc-blank--error {
+  border-bottom-color: #c62828 !important;
+  background: rgba(198, 40, 40, 0.07) !important;
+  box-shadow: 0 0 0 1px rgba(198, 40, 40, 0.2);
+}
+
+.sc-blank--error:focus {
+  border-bottom-color: #b71c1c;
+  background: rgba(198, 40, 40, 0.09);
 }
 
 .sc-blank--sm  { width: 70px;  }
