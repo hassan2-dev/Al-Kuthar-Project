@@ -1,5 +1,21 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SignaturePad from "../components/SignaturePad";
+
+/** Defined at module scope so React does not remount inputs on every parent re-render (fixes one-char-then-blur). */
+function ContractBlank({ name, size = "md", type = "text", value, onChange }) {
+  return (
+    <input
+      className={`sc-blank sc-blank--${size}`}
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      dir="rtl"
+      inputMode={type === "number" ? "numeric" : "text"}
+    />
+  );
+}
 
 export default function SaleContract() {
   const navigate = useNavigate();
@@ -7,16 +23,14 @@ export default function SaleContract() {
   const [form, setForm] = useState({
     partyOneSeller: "",
     partyTwoBuyer: "",
-    sellerName: "",
     sellerAddress: "",
+    buyerAddress: "",
     propertyType: "",
     propertyNumberSequence: "",
     mahala: "",
     agreedPrice: "",
     depositPaid: "",
     sellerPenalty: "",
-    buyerName: "",
-    buyerAddress: "",
     remainingAmount: "",
     buyerPenaltyPercent: "",
     feesOnParty: "",
@@ -48,6 +62,10 @@ export default function SaleContract() {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
+
+  const handleSignatureChange = useCallback((name, dataUrl) => {
+    setForm((prev) => ({ ...prev, [name]: dataUrl }));
+  }, []);
 
   const handleSaveDraft = () => {
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
@@ -197,128 +215,189 @@ export default function SaleContract() {
           </button>
         </div>
 
-        {/* حقول النموذج */}
-        <div className="sc-form">
+        {/* وثيقة العقد */}
+        <div className="sc-contract-doc" dir="rtl">
 
-          {/* أطراف العقد */}
-          <div className="sc-section">
-            <div className="sc-section-head">
-              <span className="sc-section-icon">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <circle cx="6.5" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
-                  <path d="M1 15c0-3 2.5-5 5.5-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                  <circle cx="12.5" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
-                  <path d="M17 15c0-3-2.5-5-5.5-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                </svg>
-              </span>
-              <h3>أطراف العقد</h3>
-            </div>
-            <div className="sc-grid">
-              <input className="sc-input" name="partyOneSeller" placeholder="الطرف الأول البائع" value={form.partyOneSeller} onChange={handleChange} />
-              <input className="sc-input" name="partyTwoBuyer" placeholder="الطرف الثاني المشتري" value={form.partyTwoBuyer} onChange={handleChange} />
-              <input className="sc-input" name="sellerName" placeholder="اسم البائع" value={form.sellerName} onChange={handleChange} />
-              <input className="sc-input" name="sellerAddress" placeholder="عنوان البائع" value={form.sellerAddress} onChange={handleChange} />
-              <input className="sc-input" name="buyerName" placeholder="اسم المشتري" value={form.buyerName} onChange={handleChange} />
-              <input className="sc-input" name="buyerAddress" placeholder="عنوان المشتري" value={form.buyerAddress} onChange={handleChange} />
+          {/* رأس الوثيقة */}
+          <div className="sc-contract-doc-header">
+            <p className="sc-bismillah">بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ</p>
+            <div className="sc-contract-doc-title-row">
+              <div className="sc-contract-doc-ornament" />
+              <h2 className="sc-contract-doc-title">عقد بيع</h2>
+              <div className="sc-contract-doc-ornament" />
             </div>
           </div>
 
-          {/* بيانات الملك */}
-          <div className="sc-section">
-            <div className="sc-section-head">
-              <span className="sc-section-icon">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M2 8L9 2l7 6v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8z" stroke="currentColor" strokeWidth="1.4"/>
-                  <rect x="6.5" y="10" width="5" height="7" rx="1" stroke="currentColor" strokeWidth="1.3"/>
-                </svg>
-              </span>
-              <h3>بيانات الملك</h3>
-            </div>
-            <div className="sc-grid sc-grid--3">
-              <input className="sc-input" name="propertyType" placeholder="نوع الملك" value={form.propertyType} onChange={handleChange} />
-              <input className="sc-input" name="propertyNumberSequence" placeholder="الرقم والتسلسل" value={form.propertyNumberSequence} onChange={handleChange} />
-              <input className="sc-input" name="mahala" placeholder="المحلة" value={form.mahala} onChange={handleChange} />
-            </div>
-          </div>
+          <div className="sc-contract-doc-body">
 
-          {/* المبالغ والالتزامات */}
-          <div className="sc-section">
-            <div className="sc-section-head">
-              <span className="sc-section-icon">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.4"/>
-                  <path d="M9 5v1.5M9 11.5V13M6.5 8.5C6.5 7.4 7.6 6.5 9 6.5s2.5.9 2.5 2c0 2-2.5 2-2.5 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                </svg>
-              </span>
-              <h3>المبالغ والالتزامات</h3>
+            {/* أطراف العقد */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-doc-label">الطرف الأول البائع:</span>
+                {" "}السيد /{" "}
+                <ContractBlank name="partyOneSeller" size="lg" value={form.partyOneSeller} onChange={handleChange} />
+                {" "}المقيم في /{" "}
+                <ContractBlank name="sellerAddress" size="lg" value={form.sellerAddress} onChange={handleChange} />
+              </p>
+              <p className="sc-doc-para">
+                <span className="sc-doc-label">الطرف الثاني المشتري:</span>
+                {" "}السيد /{" "}
+                <ContractBlank name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer} onChange={handleChange} />
+                {" "}المقيم في /{" "}
+                <ContractBlank name="buyerAddress" size="lg" value={form.buyerAddress} onChange={handleChange} />
+              </p>
             </div>
-            <div className="sc-grid">
-              <input className="sc-input" name="agreedPrice" placeholder="بدل البيع المتفق عليه" value={form.agreedPrice} onChange={handleChange} />
-              <input className="sc-input" name="depositPaid" placeholder="العربون المقبوض" value={form.depositPaid} onChange={handleChange} />
-              <input className="sc-input" name="sellerPenalty" placeholder="تضمينات المشتري عند نكول البائع" value={form.sellerPenalty} onChange={handleChange} />
-              <input className="sc-input" name="remainingAmount" placeholder="باقي المبلغ" value={form.remainingAmount} onChange={handleChange} />
-              <input className="sc-input" name="buyerPenaltyPercent" placeholder="نسبة تضمينات المشتري %" value={form.buyerPenaltyPercent} onChange={handleChange} />
-              <input className="sc-input" name="feesOnParty" placeholder="الرسوم بعهدة الطرف" value={form.feesOnParty} onChange={handleChange} />
-            </div>
-          </div>
 
-          {/* تاريخ العقد */}
-          <div className="sc-section">
-            <div className="sc-section-head">
-              <span className="sc-section-icon">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <rect x="2" y="4" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
-                  <path d="M2 8h14M6 2v4M12 2v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                </svg>
-              </span>
-              <h3>تاريخ العقد</h3>
-            </div>
-            <div className="sc-grid sc-grid--3">
-              <input className="sc-input" name="contractDay" placeholder="اليوم" value={form.contractDay} onChange={handleChange} />
-              <input className="sc-input" name="contractMonth" placeholder="الشهر" value={form.contractMonth} onChange={handleChange} />
-              <input className="sc-input" name="contractYear" placeholder="السنة" value={form.contractYear} onChange={handleChange} />
-            </div>
-          </div>
+            <div className="sc-doc-divider" />
 
-          {/* فقرات إضافية */}
-          <div className="sc-section">
-            <div className="sc-section-head">
-              <span className="sc-section-icon">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M3 4h12M3 8h12M3 12h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-              </span>
-              <h3>فقرات إضافية</h3>
+            {/* أولاً — المبيع */}
+            <div className="sc-doc-clause">
+              <h3 className="sc-doc-clause-title">أولاً — المبيع</h3>
+              <p className="sc-doc-para">
+                باع الطرف الأول إلى الطرف الثاني عقاره من نوع{" "}
+                <ContractBlank name="propertyType" size="sm" value={form.propertyType} onChange={handleChange} />
+                {" "}ذي الرقم والتسلسل{" "}
+                <ContractBlank name="propertyNumberSequence" size="sm" value={form.propertyNumberSequence} onChange={handleChange} />
+                {" "}الواقع في محلة{" "}
+                <ContractBlank name="mahala" size="md" value={form.mahala} onChange={handleChange} />.
+              </p>
             </div>
-            <div className="sc-grid sc-grid--1">
-              <textarea className="sc-input sc-textarea" name="extraClause1" placeholder="الفقرة الإضافية الأولى" value={form.extraClause1} onChange={handleChange} rows="3" />
-              <textarea className="sc-input sc-textarea" name="extraClause2" placeholder="الفقرة الإضافية الثانية" value={form.extraClause2} onChange={handleChange} rows="3" />
-            </div>
-          </div>
 
-          {/* التواقيع والشهود */}
-          <div className="sc-section">
-            <div className="sc-section-head">
-              <span className="sc-section-icon">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M3 14c2-4 4-7 5-7s1.5 2 3 2 2-1 4-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                </svg>
-              </span>
-              <h3>التواقيع والشهود</h3>
-            </div>
-            <div className="sc-grid">
-              <input className="sc-input" name="bottomName1" placeholder="الاسم الأول" value={form.bottomName1} onChange={handleChange} />
-              <input className="sc-input" name="bottomName2" placeholder="الاسم الثاني" value={form.bottomName2} onChange={handleChange} />
-              <input className="sc-input" name="bottomAddress1" placeholder="العنوان الأول" value={form.bottomAddress1} onChange={handleChange} />
-              <input className="sc-input" name="bottomAddress2" placeholder="العنوان الثاني" value={form.bottomAddress2} onChange={handleChange} />
-              <input className="sc-input" name="sellerSignature" placeholder="توقيع البائع" value={form.sellerSignature} onChange={handleChange} />
-              <input className="sc-input" name="buyerSignature" placeholder="توقيع المشتري" value={form.buyerSignature} onChange={handleChange} />
-              <input className="sc-input" name="witness1" placeholder="الشاهد الأول" value={form.witness1} onChange={handleChange} />
-              <input className="sc-input" name="witness2" placeholder="الشاهد الثاني" value={form.witness2} onChange={handleChange} />
-            </div>
-          </div>
+            <div className="sc-doc-divider" />
 
+            {/* ثانياً — الثمن والالتزامات */}
+            <div className="sc-doc-clause">
+              <h3 className="sc-doc-clause-title">ثانياً — الثمن والالتزامات المالية</h3>
+              <p className="sc-doc-para">
+                اتفق الطرفان على بدل البيع وقدره{" "}
+                <ContractBlank name="agreedPrice" size="md" type="number" value={form.agreedPrice} onChange={handleChange} />
+                {" "}دينار عراقي، وقد قبض البائع عربوناً مقداره{" "}
+                <ContractBlank name="depositPaid" size="md" type="number" value={form.depositPaid} onChange={handleChange} />
+                {" "}دينار. ويكون المبلغ المتبقي{" "}
+                <ContractBlank name="remainingAmount" size="md" type="number" value={form.remainingAmount} onChange={handleChange} />
+                {" "}دينار يُسدَّد عند إتمام إجراءات نقل الملكية الرسمية.
+              </p>
+              <p className="sc-doc-para">
+                إذا نكل البائع عن تنفيذ هذا العقد يلتزم بدفع{" "}
+                <ContractBlank name="sellerPenalty" size="md" type="number" value={form.sellerPenalty} onChange={handleChange} />
+                {" "}دينار للمشتري تعويضاً عن الضرر.
+              </p>
+              <p className="sc-doc-para">
+                إذا نكل المشتري عن إتمام الصفقة يفقد العربون المدفوع، ويلتزم بدفع نسبة{" "}
+                <ContractBlank name="buyerPenaltyPercent" size="xs" type="number" value={form.buyerPenaltyPercent} onChange={handleChange} />
+                {" "}% إضافية تضميناً للبائع.
+              </p>
+              <p className="sc-doc-para">
+                تكون الرسوم والضرائب المترتبة على هذه الصفقة بعهدة{" "}
+                <ContractBlank name="feesOnParty" size="md" value={form.feesOnParty} onChange={handleChange} />.
+              </p>
+            </div>
+
+            <div className="sc-doc-divider" />
+
+            {/* ثالثاً — شروط إضافية */}
+            <div className="sc-doc-clause">
+              <h3 className="sc-doc-clause-title">ثالثاً — شروط إضافية</h3>
+              <textarea
+                className="sc-blank-area"
+                name="extraClause1"
+                value={form.extraClause1}
+                onChange={handleChange}
+                placeholder="الشرط الإضافي الأول..."
+                rows={2}
+                dir="rtl"
+              />
+              <textarea
+                className="sc-blank-area"
+                name="extraClause2"
+                value={form.extraClause2}
+                onChange={handleChange}
+                placeholder="الشرط الإضافي الثاني..."
+                rows={2}
+                dir="rtl"
+              />
+            </div>
+
+            <div className="sc-doc-divider" />
+
+            {/* رابعاً — التاريخ */}
+            <div className="sc-doc-clause">
+              <h3 className="sc-doc-clause-title">رابعاً — التاريخ</h3>
+              <p className="sc-doc-para">
+                حُرِّرَ هذا العقد في اليوم{" "}
+                <ContractBlank name="contractDay" size="xs" type="number" value={form.contractDay} onChange={handleChange} />
+                {" "}من شهر{" "}
+                <ContractBlank name="contractMonth" size="sm" value={form.contractMonth} onChange={handleChange} />
+                {" "}لسنة{" "}
+                <ContractBlank name="contractYear" size="sm" type="number" value={form.contractYear} onChange={handleChange} />.
+              </p>
+            </div>
+
+            <div className="sc-doc-divider" />
+
+            {/* التواقيع */}
+            <div className="sc-doc-clause">
+              <h3 className="sc-doc-clause-title">التواقيع</h3>
+              <div className="sc-doc-sigs">
+                <div className="sc-doc-sig-col">
+                  <p className="sc-doc-sig-role">الطرف الأول — البائع</p>
+                  <p className="sc-doc-sig-line">
+                    <span>الاسم:</span>
+                    <ContractBlank name="bottomName1" size="md" value={form.bottomName1} onChange={handleChange} />
+                  </p>
+                  <p className="sc-doc-sig-line">
+                    <span>العنوان:</span>
+                    <ContractBlank name="bottomAddress1" size="md" value={form.bottomAddress1} onChange={handleChange} />
+                  </p>
+                  <div className="sc-doc-sig-block">
+                    <span className="sc-doc-sig-block-label">التوقيع:</span>
+                    <SignaturePad
+                      name="sellerSignature"
+                      value={form.sellerSignature}
+                      onSignatureChange={handleSignatureChange}
+                    />
+                  </div>
+                </div>
+                <div className="sc-doc-sig-col">
+                  <p className="sc-doc-sig-role">الطرف الثاني — المشتري</p>
+                  <p className="sc-doc-sig-line">
+                    <span>الاسم:</span>
+                    <ContractBlank name="bottomName2" size="md" value={form.bottomName2} onChange={handleChange} />
+                  </p>
+                  <p className="sc-doc-sig-line">
+                    <span>العنوان:</span>
+                    <ContractBlank name="bottomAddress2" size="md" value={form.bottomAddress2} onChange={handleChange} />
+                  </p>
+                  <div className="sc-doc-sig-block">
+                    <span className="sc-doc-sig-block-label">التوقيع:</span>
+                    <SignaturePad
+                      name="buyerSignature"
+                      value={form.buyerSignature}
+                      onSignatureChange={handleSignatureChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="sc-doc-divider" />
+
+            {/* الشهود */}
+            <div className="sc-doc-clause">
+              <h3 className="sc-doc-clause-title">الشهود</h3>
+              <p className="sc-doc-sig-line">
+                <span>الشاهد الأول:</span>
+                <ContractBlank name="witness1" size="lg" value={form.witness1} onChange={handleChange} />
+              </p>
+              <p className="sc-doc-sig-line" style={{ marginTop: "12px" }}>
+                <span>الشاهد الثاني:</span>
+                <ContractBlank name="witness2" size="lg" value={form.witness2} onChange={handleChange} />
+              </p>
+            </div>
+
+          </div>
         </div>
+
       </div>
     </div>
   );

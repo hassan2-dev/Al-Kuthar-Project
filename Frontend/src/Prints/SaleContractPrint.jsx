@@ -150,7 +150,16 @@ export default function SaleContractPrint() {
               العنوان: <strong>{fill(form.bottomAddress1)}</strong>
             </p>
             <p>
-              توقيع البائع: <strong>{fill(form.sellerSignature)}</strong>
+              توقيع البائع:{" "}
+              {form.sellerSignature?.startsWith("data:image") ? (
+                <img
+                  src={form.sellerSignature}
+                  alt=""
+                  className="print-signature-img"
+                />
+              ) : (
+                <strong>{fill(form.sellerSignature)}</strong>
+              )}
             </p>
             <p>
               الشاهد: <strong>{fill(form.witness1)}</strong>
@@ -165,7 +174,16 @@ export default function SaleContractPrint() {
               العنوان: <strong>{fill(form.bottomAddress2)}</strong>
             </p>
             <p>
-              توقيع المشتري: <strong>{fill(form.buyerSignature)}</strong>
+              توقيع المشتري:{" "}
+              {form.buyerSignature?.startsWith("data:image") ? (
+                <img
+                  src={form.buyerSignature}
+                  alt=""
+                  className="print-signature-img"
+                />
+              ) : (
+                <strong>{fill(form.buyerSignature)}</strong>
+              )}
             </p>
             <p>
               الشاهد: <strong>{fill(form.witness2)}</strong>
