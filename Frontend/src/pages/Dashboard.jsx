@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -143,10 +144,14 @@ export default function Dashboard() {
 
       <div className="db-inner">
 
+        {/* زر الوضع الداكن */}
+        <div className="db-theme-row">
+          <ThemeToggle />
+        </div>
+
         {/* الشعار */}
         <div className="db-brand">
           <img src="/logo-mark.png" alt="الكوثر" className="db-brand-logo" />
-          <div className="db-brand-divider" />
         </div>
 
         {/* البطاقات */}

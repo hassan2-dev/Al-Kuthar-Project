@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -123,6 +124,11 @@ export default function Login() {
         <line x1="0" y1="520" x2="340" y2="520" stroke="rgba(200,169,126,0.15)" strokeWidth="1"/>
       </svg>
 
+      {/* Theme toggle */}
+      <div className="lp-theme-btn">
+        <ThemeToggle />
+      </div>
+
       <div className="lp-card">
 
         {/* ── Left brand panel ── */}
@@ -130,12 +136,12 @@ export default function Login() {
           <div className="lp-left-deco-top" />
           <div className="lp-left-deco-bot" />
           <div className="lp-left-content">
-            <img src="/logo-mark.png" alt="Al Kuthar" className="lp-left-logo" />
+            <img src="/logo-mark.png" alt="الكوثر" className="lp-left-logo" />
             <div className="lp-left-divider" />
             <p className="lp-left-ar" dir="rtl" lang="ar">
-              للعقارات و الاستشارات العقارية
+              للعقارات والاستشارات العقارية
             </p>
-            <p className="lp-left-en">العقارات والاستشارات</p>
+            <span className="lp-left-tag">نظام إدارة العقود</span>
           </div>
         </div>
 
@@ -144,10 +150,7 @@ export default function Login() {
 
           {/* logo shown only on mobile */}
           <div className="lp-mobile-brand">
-            <img src="/logo-mark.png" alt="Al Kuthar" className="lp-mobile-logo" />
-            <p className="lp-mobile-ar" dir="rtl" lang="ar">
-              للعقارات و الاستشارات العقارية
-            </p>
+            <img src="/logo-mark.png" alt="الكوثر" className="lp-mobile-logo" />
           </div>
 
           <div className="lp-right-header">
@@ -160,8 +163,8 @@ export default function Login() {
             {/* Email */}
             <div className="lp-field">
               <span className="lp-field-icon">
-                <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
-                  <path d="M1 1h16v12H1V1zm0 0l8 7 8-7" stroke="#B8ABA1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <svg width="17" height="13" viewBox="0 0 18 14" fill="none">
+                  <path d="M1 1h16v12H1V1zm0 0l8 7 8-7" stroke="var(--ak-gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </span>
               <input
@@ -175,10 +178,10 @@ export default function Login() {
             {/* Password */}
             <div className="lp-field">
               <span className="lp-field-icon">
-                <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
-                  <rect x="1" y="7" width="14" height="10" rx="2" stroke="#B8ABA1" strokeWidth="1.6"/>
-                  <path d="M4 7V5a4 4 0 0 1 8 0v2" stroke="#B8ABA1" strokeWidth="1.6" strokeLinecap="round"/>
-                  <circle cx="8" cy="12" r="1.2" fill="#B8ABA1"/>
+                <svg width="15" height="17" viewBox="0 0 16 18" fill="none">
+                  <rect x="1" y="7" width="14" height="10" rx="2" stroke="var(--ak-gold)" strokeWidth="1.6"/>
+                  <path d="M4 7V5a4 4 0 0 1 8 0v2" stroke="var(--ak-gold)" strokeWidth="1.6" strokeLinecap="round"/>
+                  <circle cx="8" cy="12" r="1.2" fill="var(--ak-gold)"/>
                 </svg>
               </span>
               <input
@@ -196,12 +199,12 @@ export default function Login() {
               >
                 {showPass ? (
                   <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
-                    <path d="M1 7s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="#B8ABA1" strokeWidth="1.5"/>
-                    <circle cx="9" cy="7" r="2.2" stroke="#B8ABA1" strokeWidth="1.5"/>
+                    <path d="M1 7s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="var(--ak-text-muted)" strokeWidth="1.5"/>
+                    <circle cx="9" cy="7" r="2.2" stroke="var(--ak-text-muted)" strokeWidth="1.5"/>
                   </svg>
                 ) : (
                   <svg width="18" height="16" viewBox="0 0 18 16" fill="none">
-                    <path d="M1 1l16 14M7.6 3.3C8 3.1 8.5 3 9 3c5 0 8 5 8 5s-.9 1.5-2.4 3M3.4 5.4C2.1 6.6 1 8 1 8s3 5 8 5c1.3 0 2.5-.3 3.5-.9" stroke="#B8ABA1" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M1 1l16 14M7.6 3.3C8 3.1 8.5 3 9 3c5 0 8 5 8 5s-.9 1.5-2.4 3M3.4 5.4C2.1 6.6 1 8 1 8s3 5 8 5c1.3 0 2.5-.3 3.5-.9" stroke="var(--ak-text-muted)" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                 )}
               </button>
@@ -221,7 +224,7 @@ export default function Login() {
               <span>تسجيل الدخول</span>
               <span className="lp-btn-arrow">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <circle cx="9" cy="9" r="8.25" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5"/>
+                  <circle cx="9" cy="9" r="8.25" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5"/>
                   <path d="M7 9h4M9 7l2 2-2 2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </span>
