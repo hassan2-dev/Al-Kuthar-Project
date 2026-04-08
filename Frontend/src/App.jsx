@@ -1,12 +1,15 @@
 import { Routes, Route } from "react-router-dom";
+import { useTheme } from "./hooks/useTheme";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import SaleContract from "./pages/SaleContract";
 import SaleContractPrint from "./Prints/SaleContractPrint";
 import RentContract from "./pages/RentContract";
+import RentContractPrint from "./Prints/RentContractPrint";
 import Archive from "./pages/Archive";
 
 function App() {
+  useTheme(); // applies data-theme to <html> on mount + when toggled
   return (
     <Routes>
       <Route path="/" element={<Login />} />
@@ -14,6 +17,7 @@ function App() {
       <Route path="/sale-contract" element={<SaleContract />} />
       <Route path="/sale-contract/print" element={<SaleContractPrint />} />
       <Route path="/rent-contract" element={<RentContract />} />
+      <Route path="/rent-contract/print" element={<RentContractPrint />} />
       <Route path="/archive" element={<Archive />} />
     </Routes>
   );

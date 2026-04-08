@@ -1,55 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SignaturePad from "../components/SignaturePad";
+import ThemeToggle from "../components/ThemeToggle";
 
-/** Fields that must be filled before تأكيد or طباعة. */
-const REQUIRED_SALE_FIELDS = [
-  "partyOneSeller",
-  "sellerAddress",
-  "partyTwoBuyer",
-  "buyerAddress",
-  "propertyType",
-  "propertyNumberSequence",
-  "mahala",
-  "agreedPrice",
-  "depositPaid",
-  "remainingAmount",
-  "sellerPenalty",
-  "buyerPenaltyPercent",
-  "feesOnParty",
-  "contractDay",
-  "contractMonth",
-  "contractYear",
-  "bottomName1",
-  "bottomAddress1",
-  "bottomName2",
-  "bottomAddress2",
-  "sellerSignature",
-  "buyerSignature",
-];
-
-function isFieldEmpty(value) {
-  if (value == null) return true;
-  return String(value).trim() === "";
-}
-
-function collectMissingFields(form) {
-  return REQUIRED_SALE_FIELDS.filter((key) => isFieldEmpty(form[key]));
-}
-
-/** Defined at module scope so React does not remount inputs on every parent re-render (fixes one-char-then-blur). */
-function ContractBlank({ name, size = "md", type = "text", value, onChange, hasError }) {
+/** Inline underline input — defined at module scope to prevent remount on every render. */
+function B({ name, size = "md", value, onChange }) {
   return (
     <input
-      className={`sc-blank sc-blank--${size}${hasError ? " sc-blank--error" : ""}`}
-      type={type}
+      className={`sc-blank sc-blank--${size}`}
+      type="text"
       name={name}
       value={value}
       onChange={onChange}
       dir="rtl"
-      inputMode={type === "number" ? "numeric" : "text"}
-      data-sale-field={name}
-      aria-invalid={hasError || undefined}
+      inputMode="text"
     />
   );
 }
@@ -59,111 +22,56 @@ export default function SaleContract() {
 
   const [form, setForm] = useState({
     partyOneSeller: "",
+    sellerCity: "",
+    sellerProfession: "",
     partyTwoBuyer: "",
-    sellerAddress: "",
-    buyerAddress: "",
+    buyerCity: "",
+    buyerProfession: "",
     propertyType: "",
-    propertyNumberSequence: "",
+    propertyNumber: "",
     mahala: "",
     agreedPrice: "",
     depositPaid: "",
-    sellerPenalty: "",
     remainingAmount: "",
-    buyerPenaltyPercent: "",
+    sellerPenalty: "",
+    buyerPenalty: "",
     feesOnParty: "",
-    contractDay: "",
-    contractMonth: "",
+    brokerFeePercent: "",
     contractYear: "",
-    extraClause1: "",
-    extraClause2: "",
-    bottomName1: "",
-    bottomName2: "",
-    bottomAddress1: "",
-    bottomAddress2: "",
-    sellerSignature: "",
-    buyerSignature: "",
-    witness1: "",
-    witness2: "",
+    extraClauses: "",
   });
 
   const [status, setStatus] = useState("مسودة");
-  const [invalidFields, setInvalidFields] = useState(() => new Set());
-  /** True after user attempts تأكيد or طباعة — used so clearing a signature re-applies error state. */
-  const validationAttemptedRef = useRef(false);
-
-  const fieldInvalid = useCallback((name) => invalidFields.has(name), [invalidFields]);
 
   useEffect(() => {
     const savedForm = localStorage.getItem("saleContractDraft");
     const savedStatus = localStorage.getItem("saleContractStatus");
-    if (savedForm) setForm(JSON.parse(savedForm));
+    if (savedForm) {
+      try { setForm(JSON.parse(savedForm)); } catch { /* ignore */ }
+    }
     if (savedStatus) setStatus(savedStatus);
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    setInvalidFields((prev) => {
-      if (!prev.has(name)) return prev;
-      const next = new Set(prev);
-      next.delete(name);
-      return next;
-    });
   };
-
-  const handleSignatureChange = useCallback((name, dataUrl) => {
-    setForm((prev) => ({ ...prev, [name]: dataUrl }));
-    if (dataUrl && String(dataUrl).trim()) {
-      setInvalidFields((prev) => {
-        if (!prev.has(name)) return prev;
-        const next = new Set(prev);
-        next.delete(name);
-        return next;
-      });
-    } else if (!String(dataUrl || "").trim() && validationAttemptedRef.current) {
-      setInvalidFields((prev) => {
-        const next = new Set(prev);
-        next.add(name);
-        return next;
-      });
-    }
-  }, []);
-
-  const applyValidationAndScroll = useCallback((formSnapshot) => {
-    validationAttemptedRef.current = true;
-    const missing = collectMissingFields(formSnapshot);
-    setInvalidFields(new Set(missing));
-    if (missing.length > 0) {
-      queueMicrotask(() => {
-        const el = document.querySelector(`[data-sale-field="${missing[0]}"]`);
-        el?.scrollIntoView({ behavior: "smooth", block: "center" });
-      });
-      return false;
-    }
-    return true;
-  }, []);
 
   const handleSaveDraft = () => {
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", "مسودة");
     setStatus("مسودة");
-    setInvalidFields(new Set());
-    validationAttemptedRef.current = false;
   };
 
   const handleConfirm = () => {
-    if (!applyValidationAndScroll(form)) return;
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", "مؤكد");
     setStatus("مؤكد");
-    setInvalidFields(new Set());
   };
 
   const handleGoToPrint = () => {
-    if (!applyValidationAndScroll(form)) return;
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", status);
-    setInvalidFields(new Set());
     navigate("/sale-contract/print");
   };
 
@@ -251,25 +159,25 @@ export default function SaleContract() {
       </svg>
 
       <div className="sc-inner">
-
-        {/* وثيقة العقد */}
         <div className="sc-contract-doc" dir="rtl">
 
-          {/* شريط الأدوات */}
+          {/* ── شريط الأدوات ── */}
           <div className="sc-contract-toolbar" dir="rtl">
-            <button
-              type="button"
-              className="sc-toolbar-back"
-              onClick={() => navigate("/dashboard")}
-              aria-label="رجوع"
-            >
-              <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                <circle cx="9" cy="9" r="8" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.5"/>
-                <path d="M8 6l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              رجوع
-            </button>
-
+            <div className="sc-toolbar-start">
+              <button
+                type="button"
+                className="sc-toolbar-back"
+                onClick={() => navigate("/dashboard")}
+                aria-label="رجوع"
+              >
+                <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <circle cx="9" cy="9" r="8" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.5"/>
+                  <path d="M8 6l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                رجوع
+              </button>
+              <h1 className="sc-toolbar-contract-type">عقد بيع</h1>
+            </div>
             <div className="sc-toolbar-actions">
               <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleSaveDraft}>
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
@@ -293,200 +201,204 @@ export default function SaleContract() {
                 طباعة
               </button>
             </div>
-
             <span className={`sc-status-badge ${status === "مؤكد" ? "sc-status-badge--confirmed" : ""}`}>
               {status}
             </span>
+            <ThemeToggle />
           </div>
 
-          {invalidFields.size > 0 && (
-            <p className="sc-contract-validation-alert" role="alert">
-              يرجى تعبئة جميع الحقول المطلوبة المميزة باللون الأحمر.
-            </p>
-          )}
-
-          {/* رأس الوثيقة */}
-          <div className="sc-contract-doc-header">
-            <p className="sc-bismillah">بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ</p>
-            <div className="sc-contract-doc-title-row">
-              <div className="sc-contract-doc-ornament" />
-              <h2 className="sc-contract-doc-title">عقد بيع</h2>
-              <div className="sc-contract-doc-ornament" />
-            </div>
-          </div>
-
+          {/* ── محتوى العقد ── */}
           <div className="sc-contract-doc-body">
 
-            {/* أطراف العقد */}
-            <div className="sc-doc-clause">
-              <p className="sc-doc-para">
-                <span className="sc-doc-label">الطرف الأول البائع:</span>
-                {" "}السيد /{" "}
-                <ContractBlank name="partyOneSeller" size="lg" value={form.partyOneSeller} onChange={handleChange} hasError={fieldInvalid("partyOneSeller")} />
-                {" "}المقيم في /{" "}
-                <ContractBlank name="sellerAddress" size="lg" value={form.sellerAddress} onChange={handleChange} hasError={fieldInvalid("sellerAddress")} />
-              </p>
-              <p className="sc-doc-para">
-                <span className="sc-doc-label">الطرف الثاني المشتري:</span>
-                {" "}السيد /{" "}
-                <ContractBlank name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer} onChange={handleChange} hasError={fieldInvalid("partyTwoBuyer")} />
-                {" "}المقيم في /{" "}
-                <ContractBlank name="buyerAddress" size="lg" value={form.buyerAddress} onChange={handleChange} hasError={fieldInvalid("buyerAddress")} />
-              </p>
-            </div>
-
-            <div className="sc-doc-divider" />
-
-            {/* أولاً — المبيع */}
-            <div className="sc-doc-clause">
-              <h3 className="sc-doc-clause-title">أولاً — المبيع</h3>
-              <p className="sc-doc-para">
-                باع الطرف الأول إلى الطرف الثاني عقاره من نوع{" "}
-                <ContractBlank name="propertyType" size="sm" value={form.propertyType} onChange={handleChange} hasError={fieldInvalid("propertyType")} />
-                {" "}ذي الرقم والتسلسل{" "}
-                <ContractBlank name="propertyNumberSequence" size="sm" value={form.propertyNumberSequence} onChange={handleChange} hasError={fieldInvalid("propertyNumberSequence")} />
-                {" "}الواقع في محلة{" "}
-                <ContractBlank name="mahala" size="md" value={form.mahala} onChange={handleChange} hasError={fieldInvalid("mahala")} />.
-              </p>
-            </div>
-
-            <div className="sc-doc-divider" />
-
-            {/* ثانياً — الثمن والالتزامات */}
-            <div className="sc-doc-clause">
-              <h3 className="sc-doc-clause-title">ثانياً — الثمن والالتزامات المالية</h3>
-              <p className="sc-doc-para">
-                اتفق الطرفان على بدل البيع وقدره{" "}
-                <ContractBlank name="agreedPrice" size="md" type="number" value={form.agreedPrice} onChange={handleChange} hasError={fieldInvalid("agreedPrice")} />
-                {" "}دينار عراقي، وقد قبض البائع عربوناً مقداره{" "}
-                <ContractBlank name="depositPaid" size="md" type="number" value={form.depositPaid} onChange={handleChange} hasError={fieldInvalid("depositPaid")} />
-                {" "}دينار. ويكون المبلغ المتبقي{" "}
-                <ContractBlank name="remainingAmount" size="md" type="number" value={form.remainingAmount} onChange={handleChange} hasError={fieldInvalid("remainingAmount")} />
-                {" "}دينار يُسدَّد عند إتمام إجراءات نقل الملكية الرسمية.
-              </p>
-              <p className="sc-doc-para">
-                إذا نكل البائع عن تنفيذ هذا العقد يلتزم بدفع{" "}
-                <ContractBlank name="sellerPenalty" size="md" type="number" value={form.sellerPenalty} onChange={handleChange} hasError={fieldInvalid("sellerPenalty")} />
-                {" "}دينار للمشتري تعويضاً عن الضرر.
-              </p>
-              <p className="sc-doc-para">
-                إذا نكل المشتري عن إتمام الصفقة يفقد العربون المدفوع، ويلتزم بدفع نسبة{" "}
-                <ContractBlank name="buyerPenaltyPercent" size="xs" type="number" value={form.buyerPenaltyPercent} onChange={handleChange} hasError={fieldInvalid("buyerPenaltyPercent")} />
-                {" "}% إضافية تضميناً للبائع.
-              </p>
-              <p className="sc-doc-para">
-                تكون الرسوم والضرائب المترتبة على هذه الصفقة بعهدة{" "}
-                <ContractBlank name="feesOnParty" size="md" value={form.feesOnParty} onChange={handleChange} hasError={fieldInvalid("feesOnParty")} />.
-              </p>
-            </div>
-
-            <div className="sc-doc-divider" />
-
-            {/* ثالثاً — شروط إضافية */}
-            <div className="sc-doc-clause">
-              <h3 className="sc-doc-clause-title">ثالثاً — شروط إضافية</h3>
-              <textarea
-                className="sc-blank-area"
-                name="extraClause1"
-                value={form.extraClause1}
-                onChange={handleChange}
-                placeholder="الشرط الإضافي الأول..."
-                rows={2}
-                dir="rtl"
-              />
-              <textarea
-                className="sc-blank-area"
-                name="extraClause2"
-                value={form.extraClause2}
-                onChange={handleChange}
-                placeholder="الشرط الإضافي الثاني..."
-                rows={2}
-                dir="rtl"
-              />
-            </div>
-
-            <div className="sc-doc-divider" />
-
-            {/* رابعاً — التاريخ */}
-            <div className="sc-doc-clause">
-              <h3 className="sc-doc-clause-title">رابعاً — التاريخ</h3>
-              <p className="sc-doc-para">
-                حُرِّرَ هذا العقد في اليوم{" "}
-                <ContractBlank name="contractDay" size="xs" type="number" value={form.contractDay} onChange={handleChange} hasError={fieldInvalid("contractDay")} />
-                {" "}من شهر{" "}
-                <ContractBlank name="contractMonth" size="sm" value={form.contractMonth} onChange={handleChange} hasError={fieldInvalid("contractMonth")} />
-                {" "}لسنة{" "}
-                <ContractBlank name="contractYear" size="sm" type="number" value={form.contractYear} onChange={handleChange} hasError={fieldInvalid("contractYear")} />.
-              </p>
-            </div>
-
-            <div className="sc-doc-divider" />
-
-            {/* التواقيع */}
-            <div className="sc-doc-clause">
-              <h3 className="sc-doc-clause-title">التواقيع</h3>
-              <div className="sc-doc-sigs">
-                <div className="sc-doc-sig-col">
-                  <p className="sc-doc-sig-role">الطرف الأول — البائع</p>
-                  <p className="sc-doc-sig-line">
-                    <span>الاسم:</span>
-                    <ContractBlank name="bottomName1" size="md" value={form.bottomName1} onChange={handleChange} hasError={fieldInvalid("bottomName1")} />
-                  </p>
-                  <p className="sc-doc-sig-line">
-                    <span>العنوان:</span>
-                    <ContractBlank name="bottomAddress1" size="md" value={form.bottomAddress1} onChange={handleChange} hasError={fieldInvalid("bottomAddress1")} />
-                  </p>
-                  <div className="sc-doc-sig-block">
-                    <span className="sc-doc-sig-block-label">التوقيع:</span>
-                    <SignaturePad
-                      name="sellerSignature"
-                      value={form.sellerSignature}
-                      onSignatureChange={handleSignatureChange}
-                      invalid={fieldInvalid("sellerSignature")}
-                    />
-                  </div>
+            {/* الفريقين — شبكة أعمدة متساوية بين الصفين */}
+            <div className="sc-doc-clause sc-doc-clause--parties">
+              <div className="sc-party-grid" role="group" aria-label="بيانات الفريقين للعقد">
+                <strong className="sc-party-col-label">الفريق الأول البائع السيد:</strong>
+                <div className="sc-party-col-input">
+                  <B name="partyOneSeller" size="lg" value={form.partyOneSeller} onChange={handleChange} />
                 </div>
-                <div className="sc-doc-sig-col">
-                  <p className="sc-doc-sig-role">الطرف الثاني — المشتري</p>
-                  <p className="sc-doc-sig-line">
-                    <span>الاسم:</span>
-                    <ContractBlank name="bottomName2" size="md" value={form.bottomName2} onChange={handleChange} hasError={fieldInvalid("bottomName2")} />
-                  </p>
-                  <p className="sc-doc-sig-line">
-                    <span>العنوان:</span>
-                    <ContractBlank name="bottomAddress2" size="md" value={form.bottomAddress2} onChange={handleChange} hasError={fieldInvalid("bottomAddress2")} />
-                  </p>
-                  <div className="sc-doc-sig-block">
-                    <span className="sc-doc-sig-block-label">التوقيع:</span>
-                    <SignaturePad
-                      name="buyerSignature"
-                      value={form.buyerSignature}
-                      onSignatureChange={handleSignatureChange}
-                      invalid={fieldInvalid("buyerSignature")}
-                    />
-                  </div>
+                <div className="sc-party-field-group">
+                  <span className="sc-party-mini-label">الساكن:</span>
+                  <B name="sellerCity" size="md" value={form.sellerCity} onChange={handleChange} />
+                </div>
+                <div className="sc-party-field-group">
+                  <span className="sc-party-mini-label">المهنة:</span>
+                  <B name="sellerProfession" size="md" value={form.sellerProfession} onChange={handleChange} />
+                </div>
+
+                <strong className="sc-party-col-label">الفريق الثاني المشتري السيد:</strong>
+                <div className="sc-party-col-input">
+                  <B name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer} onChange={handleChange} />
+                </div>
+                <div className="sc-party-field-group">
+                  <span className="sc-party-mini-label">الساكن:</span>
+                  <B name="buyerCity" size="md" value={form.buyerCity} onChange={handleChange} />
+                </div>
+                <div className="sc-party-field-group">
+                  <span className="sc-party-mini-label">المهنة:</span>
+                  <B name="buyerProfession" size="md" value={form.buyerProfession} onChange={handleChange} />
                 </div>
               </div>
             </div>
 
             <div className="sc-doc-divider" />
 
-            {/* الشهود */}
+            <p className="sc-doc-para">
+              لقد تم الاتفاق بين الفريقين على عقد هذه المقاولة بالشروط التالية :
+            </p>
+
+            {/* أولاً */}
             <div className="sc-doc-clause">
-              <h3 className="sc-doc-clause-title">الشهود</h3>
-              <p className="sc-doc-sig-line">
-                <span>الشاهد الأول:</span>
-                <ContractBlank name="witness1" size="lg" value={form.witness1} onChange={handleChange} />
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">أولاً :</span>{" "}
+                يعترف الفريق الأول بأنه قد باع الى الفريق الثاني الملك المفصل في فيما يلي :
               </p>
-              <p className="sc-doc-sig-line" style={{ marginTop: "12px" }}>
-                <span>الشاهد الثاني:</span>
-                <ContractBlank name="witness2" size="lg" value={form.witness2} onChange={handleChange} />
+              <div className="sc-field-rows" dir="rtl" role="group" aria-label="بيانات الملك">
+                <span className="sc-field-grid__label">نوع الملك</span>
+                <div className="sc-field-grid__input">
+                  <B name="propertyType" size="md" value={form.propertyType} onChange={handleChange} />
+                </div>
+                <span className="sc-field-grid__label">الرقم والتسلسل</span>
+                <div className="sc-field-grid__input">
+                  <B name="propertyNumber" size="md" value={form.propertyNumber} onChange={handleChange} />
+                </div>
+                <span className="sc-field-grid__label">المحلة</span>
+                <div className="sc-field-grid__input">
+                  <B name="mahala" size="md" value={form.mahala} onChange={handleChange} />
+                </div>
+              </div>
+            </div>
+
+            {/* ثانياً */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">ثانياً :</span>{" "}
+                ان بدل البيع المتفق عليه هو{" "}
+                <B name="agreedPrice" size="lg" value={form.agreedPrice} onChange={handleChange} />
               </p>
+              <p className="sc-doc-para">
+                ويعترف الفريق الأول بأنه قد قبض من الفريق الثاني عربوناً قدره{" "}
+                <B name="depositPaid" size="md" value={form.depositPaid} onChange={handleChange} />
+              </p>
+              <p className="sc-doc-para">
+                والباقي{" "}
+                <B name="remainingAmount" size="md" value={form.remainingAmount} onChange={handleChange} />
+              </p>
+              <p className="sc-doc-para">
+                واما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،
+              </p>
+            </div>
+
+            {/* ثالثاً */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">ثالثاً :</span>{" "}
+                اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزما بأعادة
+                العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره{" "}
+                <B name="sellerPenalty" size="md" value={form.sellerPenalty} onChange={handleChange} />
+                {" "}ديناراً بدون حاجة الى إنذار رسمي
+              </p>
+            </div>
+
+            {/* رابعاً */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">رابعاً :</span>{" "}
+                يعترف الفريق الثاني بأنه قد قبل الشراء بالشروط المذكورة أنفاً ويتعهد
+                بتأدية قصور البدل المبيع الى الفريق الأول عند اكماله المعامله والتقرير
+                في دائرة التسجيل العقاري. واذا نكل عن الشراء وتأدية قصور البدل فأنه
+                يتعهد بتأدية تضمينات قدرها{" "}
+                <B name="buyerPenalty" size="md" value={form.buyerPenalty} onChange={handleChange} />
+                {" "}ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون
+                وان الفريق الثاني له الحق ان يقرر الملك بأسم من يشاء
+              </p>
+            </div>
+
+            {/* خامساً */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">خامساً :</span>{" "}
+                ان جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق{" "}
+                <B name="feesOnParty" size="md" value={form.feesOnParty} onChange={handleChange} />
+              </p>
+            </div>
+
+            {/* سادساً */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">سادساً :</span>{" "}
+                اما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك
+                هي في عهدة الفريق الأول
+              </p>
+            </div>
+
+            {/* سابعاً */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">سابعاً :</span>{" "}
+                يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها ({" "}
+                <B name="brokerFeePercent" size="xs" value={form.brokerFeePercent} onChange={handleChange} />
+                {" "}% ) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه
+                المقاولة. واذا نكل احد الفريقين عن تنفيذ شروط هذا العقد يتعهد بتأدية
+                ضعفي الدلالة المذكورة اعلاه كما انه في حالة تراضي بين الفريقين وقوع
+                تراضي على ابطال هذا العقد فأنهما يكونان ملزمين بتأديتهما الدلاليه
+                المذكورة مهما بلغت.
+              </p>
+            </div>
+
+            <div className="sc-doc-divider" />
+
+            {/* الخاتمة */}
+            <p className="sc-doc-closing">
+              فبناء على حصول التراضي والايجاب والقبول حرر هذا العقد.
+            </p>
+
+            <p className="sc-doc-para">
+              البصرة في تاريخ{" "}
+              <input
+                type="date"
+                className="sc-blank sc-blank--date"
+                name="contractYear"
+                value={form.contractYear}
+                onChange={handleChange}
+                dir="ltr"
+              />
+            </p>
+
+            {/* فقرات إضافية — قبل التواقيع كما في النموذج الورقي */}
+            <div className="sc-doc-divider" />
+            <div className="sc-doc-clause sc-doc-clause--extra">
+              <h3 className="sc-doc-clause-title">فقرات إضافية</h3>
+              <textarea
+                className="sc-blank-area"
+                name="extraClauses"
+                value={form.extraClauses}
+                onChange={handleChange}
+                rows={4}
+                dir="rtl"
+                placeholder="فقرات إضافية..."
+              />
+            </div>
+
+            {/* التواقيع — مساحة فارغة بدل SignaturePad (مكوّن ../components/SignaturePad) */}
+            <div className="sc-doc-sigs" style={{ marginTop: "28px" }}>
+              <div className="sc-doc-sig-col">
+                <p className="sc-doc-sig-role">الفريق الأول</p>
+                <div className="sc-doc-sig-block">
+                  <div className="sc-signature-placeholder" aria-label="مكان التوقيع" />
+                </div>
+              </div>
+              <div className="sc-doc-sig-divider" />
+              <div className="sc-doc-sig-col">
+                <p className="sc-doc-sig-role">الفريق الثاني</p>
+                <div className="sc-doc-sig-block">
+                  <div className="sc-signature-placeholder" aria-label="مكان التوقيع" />
+                </div>
+              </div>
             </div>
 
           </div>
         </div>
-
       </div>
     </div>
   );

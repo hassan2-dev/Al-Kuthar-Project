@@ -13,7 +13,7 @@ function getCanvasCoords(canvas, clientX, clientY) {
 /**
  * Empty box for drawing a signature; stores a PNG data URL in parent state.
  */
-export default function SignaturePad({ name, value, onSignatureChange, className = "", invalid = false }) {
+export default function SignaturePad({ name, value, onSignatureChange, className = "" }) {
   const canvasRef = useRef(null);
   const drawingRef = useRef(false);
   const lastRef = useRef({ x: 0, y: 0 });
@@ -120,10 +120,7 @@ export default function SignaturePad({ name, value, onSignatureChange, className
   );
 
   return (
-    <div
-      className={`sc-signature-pad ${invalid ? "sc-signature-pad--invalid" : ""} ${className}`.trim()}
-      data-sale-field={name}
-    >
+    <div className={`sc-signature-pad ${className}`.trim()}>
       <canvas
         ref={canvasRef}
         className="sc-signature-pad__canvas"
