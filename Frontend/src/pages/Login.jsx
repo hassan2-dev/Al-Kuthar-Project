@@ -1,14 +1,42 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
+import { loginUser } from "../api/authApi";
+import { TOKEN_STORAGE_KEY } from "../api/axiosInstance";
 
 export default function Login() {
   const navigate = useNavigate();
   const [showPass, setShowPass] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    navigate("/dashboard");
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const data = await loginUser({ username, password });
+      const token = data?.token || data?.jwt || data?.accessToken;
+
+      if (!token) {
+        throw new Error("لم يتم استلام رمز الدخول من الخادم");
+      }
+
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      navigate("/dashboard");
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "فشل تسجيل الدخول، تحقق من البيانات";
+      setErrorMessage(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -160,7 +188,7 @@ export default function Login() {
 
           <form onSubmit={handleLogin} className="lp-form">
 
-            {/* Email */}
+            {/* Username */}
             <div className="lp-field">
               <span className="lp-field-icon">
                 <svg width="17" height="13" viewBox="0 0 18 14" fill="none">
@@ -168,9 +196,11 @@ export default function Login() {
                 </svg>
               </span>
               <input
-                type="email"
-                placeholder="أدخل بريدك الإلكتروني"
+                type="text"
+                placeholder="أدخل اسم المستخدم"
                 className="lp-input"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -188,6 +218,8 @@ export default function Login() {
                 type={showPass ? "text" : "password"}
                 placeholder="أدخل كلمة المرور"
                 className="lp-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
               <button
@@ -219,9 +251,13 @@ export default function Login() {
               <a href="#" className="lp-forgot">نسيت كلمة المرور؟</a>
             </div>
 
+            {errorMessage ? (
+              <p style={{ color: "#c86464", margin: 0, textAlign: "center" }}>{errorMessage}</p>
+            ) : null}
+
             {/* Submit */}
-            <button type="submit" className="lp-btn">
-              <span>تسجيل الدخول</span>
+            <button type="submit" className="lp-btn" disabled={isSubmitting}>
+              <span>{isSubmitting ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}</span>
               <span className="lp-btn-arrow">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                   <circle cx="9" cy="9" r="8.25" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5"/>

@@ -4,7 +4,9 @@ import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.enableCors();
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -12,8 +14,11 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
-  const port = process.env.PORT ? Number(process.env.PORT) : 5000;
-  await app.listen(port);
+
+  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+
+  // ✅ هذا السطر المهم
+  await app.listen(port, '0.0.0.0');
 }
 
 bootstrap();

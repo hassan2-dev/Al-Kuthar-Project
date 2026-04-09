@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { contracts } from "../data/contracts";
 import ThemeToggle from "../components/ThemeToggle";
+import { listContracts } from "../api/contractsApi";
 
 const TYPE_ICONS = {
   "عقد بيع": (
@@ -91,10 +91,55 @@ function ContractRow({ contract, onView }) {
 
 export default function Archive() {
   const navigate = useNavigate();
+  const [contracts, setContracts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("الكل");
   const [filterStatus, setFilterStatus] = useState("الكل");
   const [sortBy, setSortBy] = useState("date-desc");
+
+  useEffect(() => {
+    const fetchContracts = async () => {
+      setLoading(true);
+      setErrorMessage("");
+
+      try {
+        const response = await listContracts({
+          page: 1,
+          limit: 100,
+          sort: "createdAt",
+          order: "desc",
+        });
+
+        const rawList = response?.items || response?.data || response?.contracts || [];
+        const mapped = rawList.map((contract) => {
+          const rawStatus = String(contract.status || "").toLowerCase();
+
+          return {
+            id: contract.id,
+            sellerName: contract.sellerName || contract.seller_name || "",
+            buyerName: contract.buyerName || contract.buyer_name || "",
+            type: contract.type || "غير محدد",
+            status: rawStatus === "confirmed" ? "مؤكد" : "مسودة",
+            date: new Date(contract.createdAt || contract.updatedAt || contract.date || Date.now()).toLocaleDateString("ar-EG"),
+          };
+        });
+
+        setContracts(mapped);
+      } catch (error) {
+        const message =
+          error?.response?.data?.message ||
+          error?.message ||
+          "تعذر تحميل العقود من الخادم";
+        setErrorMessage(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContracts();
+  }, []);
 
   const filtered = useMemo(() => {
     let list = [...contracts];
@@ -234,7 +279,19 @@ export default function Archive() {
 
         {/* قائمة العقود */}
         <div className="arc-list">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="arc-empty">
+              <p>جارٍ تحميل العقود...</p>
+            </div>
+          ) : null}
+
+          {!loading && errorMessage ? (
+            <div className="arc-empty">
+              <p>{errorMessage}</p>
+            </div>
+          ) : null}
+
+          {!loading && !errorMessage && filtered.length === 0 ? (
             <div className="arc-empty">
               <svg width="54" height="54" viewBox="0 0 54 54" fill="none" aria-hidden="true">
                 <circle cx="27" cy="27" r="25" stroke="var(--ak-gold-soft)" strokeWidth="2"/>
@@ -242,7 +299,9 @@ export default function Archive() {
               </svg>
               <p>لا توجد عقود مطابقة للبحث</p>
             </div>
-          ) : (
+          ) : null}
+
+          {!loading && !errorMessage && filtered.length > 0 ? (
             filtered.map((contract) => (
               <ContractRow
                 key={contract.id}
@@ -250,7 +309,7 @@ export default function Archive() {
                 onView={() => {}}
               />
             ))
-          )}
+          ) : null}
         </div>
 
       </div>
