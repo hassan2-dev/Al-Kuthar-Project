@@ -5,9 +5,8 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const allowedOrigins = new Set([
-    "*"
-  ]);
+  const allowedOrigins = new Set(["*"]);
+  const allowAllOrigins = allowedOrigins.has("*");
 
   app.enableCors({
     origin: (
@@ -15,7 +14,12 @@ async function bootstrap() {
       callback: (error: Error | null, allow?: boolean) => void,
     ) => {
       // Allow server-to-server or tools that don't send Origin.
-      if (!origin || allowedOrigins.has(origin) || origin === "null") {
+      if (
+        !origin ||
+        allowAllOrigins ||
+        allowedOrigins.has(origin) ||
+        origin === "null"
+      ) {
         callback(null, true);
         return;
       }
