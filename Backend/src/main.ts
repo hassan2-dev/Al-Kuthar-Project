@@ -7,6 +7,9 @@ async function bootstrap() {
 
   const allowedOrigins = new Set([
     "https://www.al-kuthar.com",
+    "https://al-kuthar.com",
+    "https://www.al-kawthar.com",
+    "https://al-kawthar.com",
     "http://localhost:3000",
     "http://localhost:5173",
     "http://127.0.0.1:3000",
