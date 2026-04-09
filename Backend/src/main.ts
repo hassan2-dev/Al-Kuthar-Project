@@ -6,14 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const allowedOrigins = new Set([
-    "https://www.al-kuthar.com",
-    "https://al-kuthar.com",
-    "https://www.al-kawthar.com",
-    "https://al-kawthar.com",
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
+    "*"
   ]);
 
   app.enableCors({
@@ -22,7 +15,7 @@ async function bootstrap() {
       callback: (error: Error | null, allow?: boolean) => void,
     ) => {
       // Allow server-to-server or tools that don't send Origin.
-      if (!origin || allowedOrigins.has(origin)) {
+      if (!origin || allowedOrigins.has(origin) || origin === "null") {
         callback(null, true);
         return;
       }
