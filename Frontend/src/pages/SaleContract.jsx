@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
+import { confirmContract, createContract } from "../api/contractsApi";
+import { uploadDocument } from "../api/documentsApi";
 
 /** Inline underline input — defined at module scope to prevent remount on every render. */
 function B({ name, size = "md", value, onChange }) {
@@ -42,6 +44,10 @@ export default function SaleContract() {
   });
 
   const [status, setStatus] = useState("مسودة");
+  const [savedContractId, setSavedContractId] = useState(null);
+  const [apiMessage, setApiMessage] = useState("");
+  const [apiError, setApiError] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
     const savedForm = localStorage.getItem("saleContractDraft");
@@ -50,23 +56,88 @@ export default function SaleContract() {
       try { setForm(JSON.parse(savedForm)); } catch { /* ignore */ }
     }
     if (savedStatus) setStatus(savedStatus);
+    const storedContractId = localStorage.getItem("saleContractId");
+    if (storedContractId) setSavedContractId(storedContractId);
   }, []);
+
+  const getContractIdFromResponse = (response) =>
+    response?.id || response?.contract?.id || response?.data?.id || null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
+    setApiMessage("");
+    setApiError("");
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", "مسودة");
-    setStatus("مسودة");
+    try {
+      const created = await createContract({
+        sellerName: form.partyOneSeller,
+        buyerName: form.partyTwoBuyer,
+        type: "عقد بيع",
+      });
+      const contractId = getContractIdFromResponse(created);
+      if (contractId) {
+        setSavedContractId(contractId);
+        localStorage.setItem("saleContractId", String(contractId));
+      }
+      setStatus("مسودة");
+      setApiMessage("تم حفظ المسودة على الخادم");
+    } catch (error) {
+      setApiError(error?.response?.data?.message || "فشل حفظ المسودة على الخادم");
+      setStatus("مسودة");
+    }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    setApiMessage("");
+    setApiError("");
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", "مؤكد");
-    setStatus("مؤكد");
+    try {
+      let contractId = savedContractId;
+
+      if (!contractId) {
+        const created = await createContract({
+          sellerName: form.partyOneSeller,
+          buyerName: form.partyTwoBuyer,
+          type: "عقد بيع",
+        });
+        contractId = getContractIdFromResponse(created);
+      }
+
+      if (contractId) {
+        await confirmContract(contractId);
+        setSavedContractId(contractId);
+        localStorage.setItem("saleContractId", String(contractId));
+      }
+
+      setStatus("مؤكد");
+      setApiMessage("تم تأكيد العقد على الخادم");
+    } catch (error) {
+      setApiError(error?.response?.data?.message || "فشل تأكيد العقد على الخادم");
+      setStatus("مؤكد");
+    }
+  };
+
+  const handleUploadDocument = async () => {
+    if (!selectedFile) {
+      setApiError("اختر ملف قبل الرفع");
+      return;
+    }
+
+    setApiMessage("");
+    setApiError("");
+    try {
+      await uploadDocument(selectedFile, { contractId: savedContractId || undefined });
+      setApiMessage("تم رفع الملف إلى R2 بنجاح");
+      setSelectedFile(null);
+    } catch (error) {
+      setApiError(error?.response?.data?.message || "فشل رفع الملف");
+    }
   };
 
   const handleGoToPrint = () => {
@@ -200,12 +271,29 @@ export default function SaleContract() {
                 </svg>
                 طباعة
               </button>
+              <label className="sc-tbtn sc-tbtn--ghost" style={{ cursor: "pointer" }}>
+                اختيار ملف
+                <input
+                  type="file"
+                  style={{ display: "none" }}
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                />
+              </label>
+              <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleUploadDocument}>
+                رفع الملف
+              </button>
             </div>
             <span className={`sc-status-badge ${status === "مؤكد" ? "sc-status-badge--confirmed" : ""}`}>
               {status}
             </span>
             <ThemeToggle />
           </div>
+          {apiMessage ? (
+            <p style={{ color: "#2e7d32", margin: "10px 0 0", textAlign: "center" }}>{apiMessage}</p>
+          ) : null}
+          {apiError ? (
+            <p style={{ color: "#c86464", margin: "10px 0 0", textAlign: "center" }}>{apiError}</p>
+          ) : null}
 
           {/* ── محتوى العقد ── */}
           <div className="sc-contract-doc-body">
