@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import { loginUser } from "../api/authApi";
-import { TOKEN_STORAGE_KEY } from "../api/axiosInstance";
+import { setAuthToken } from "../api/axiosInstance";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -23,10 +23,10 @@ export default function Login() {
       const token = data?.token || data?.jwt || data?.accessToken;
 
       if (!token) {
-        throw new Error("لم يتم استلام رمز الدخول من الخادم");
+        throw new Error("لم يتم استلام رمز الدخول. تحقق من الاتصال وحاول مرة أخرى.");
       }
 
-      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      setAuthToken(token);
       navigate("/dashboard");
     } catch (error) {
       const message =

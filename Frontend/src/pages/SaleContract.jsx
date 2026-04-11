@@ -1,8 +1,42 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
+import Toast from "../components/Toast";
 import { confirmContract, createContract } from "../api/contractsApi";
-import { uploadDocument } from "../api/documentsApi";
+import {
+  isSaleContractFormComplete,
+  SALE_FORM_INCOMPLETE_MSG,
+} from "../utils/contractFormValidation";
+
+const GENERIC_ERROR_MSG = "تعذر إتمام العملية. حاول مرة أخرى.";
+
+const INITIAL_SALE_FORM = {
+  partyOneSeller: "",
+  sellerCity: "",
+  sellerProfession: "",
+  partyTwoBuyer: "",
+  buyerCity: "",
+  buyerProfession: "",
+  propertyType: "",
+  propertyNumber: "",
+  mahala: "",
+  agreedPrice: "",
+  depositPaid: "",
+  remainingAmount: "",
+  sellerPenalty: "",
+  buyerPenalty: "",
+  feesOnParty: "",
+  brokerFeePercent: "",
+  contractYear: "",
+  extraClauses: "",
+};
+
+function clearSaleContractLocalDraft() {
+  localStorage.removeItem("saleContractDraft");
+  localStorage.removeItem("saleContractStatus");
+  localStorage.removeItem("saleContractId");
+}
 
 /** Inline underline input — defined at module scope to prevent remount on every render. */
 function B({ name, size = "md", value, onChange }) {
@@ -22,32 +56,17 @@ function B({ name, size = "md", value, onChange }) {
 export default function SaleContract() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    partyOneSeller: "",
-    sellerCity: "",
-    sellerProfession: "",
-    partyTwoBuyer: "",
-    buyerCity: "",
-    buyerProfession: "",
-    propertyType: "",
-    propertyNumber: "",
-    mahala: "",
-    agreedPrice: "",
-    depositPaid: "",
-    remainingAmount: "",
-    sellerPenalty: "",
-    buyerPenalty: "",
-    feesOnParty: "",
-    brokerFeePercent: "",
-    contractYear: "",
-    extraClauses: "",
-  });
+  const [form, setForm] = useState(() => ({ ...INITIAL_SALE_FORM }));
 
   const [status, setStatus] = useState("مسودة");
   const [savedContractId, setSavedContractId] = useState(null);
-  const [apiMessage, setApiMessage] = useState("");
-  const [apiError, setApiError] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [toast, setToast] = useState({ open: false, message: "", variant: "success" });
+
+  const showToast = (message, variant = "success") => {
+    setToast({ open: true, message, variant });
+  };
+
+  const closeToast = () => setToast((t) => ({ ...t, open: false }));
 
   useEffect(() => {
     const savedForm = localStorage.getItem("saleContractDraft");
@@ -69,14 +88,17 @@ export default function SaleContract() {
   };
 
   const handleSaveDraft = async () => {
-    setApiMessage("");
-    setApiError("");
+    closeToast();
+    if (!isSaleContractFormComplete(form)) {
+      showToast(SALE_FORM_INCOMPLETE_MSG, "error");
+      return;
+    }
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", "مسودة");
     try {
       const created = await createContract({
-        sellerName: form.partyOneSeller,
-        buyerName: form.partyTwoBuyer,
+        sellerName: form.partyOneSeller.trim(),
+        buyerName: form.partyTwoBuyer.trim(),
         type: "عقد بيع",
       });
       const contractId = getContractIdFromResponse(created);
@@ -85,16 +107,22 @@ export default function SaleContract() {
         localStorage.setItem("saleContractId", String(contractId));
       }
       setStatus("مسودة");
-      setApiMessage("تم حفظ المسودة على الخادم");
-    } catch (error) {
-      setApiError(error?.response?.data?.message || "فشل حفظ المسودة على الخادم");
+      showToast("تم حفظ المسودة بنجاح", "success");
+      setForm({ ...INITIAL_SALE_FORM });
+      setSavedContractId(null);
+      clearSaleContractLocalDraft();
+    } catch {
+      showToast(GENERIC_ERROR_MSG, "error");
       setStatus("مسودة");
     }
   };
 
   const handleConfirm = async () => {
-    setApiMessage("");
-    setApiError("");
+    closeToast();
+    if (!isSaleContractFormComplete(form)) {
+      showToast(SALE_FORM_INCOMPLETE_MSG, "error");
+      return;
+    }
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", "مؤكد");
     try {
@@ -102,8 +130,8 @@ export default function SaleContract() {
 
       if (!contractId) {
         const created = await createContract({
-          sellerName: form.partyOneSeller,
-          buyerName: form.partyTwoBuyer,
+          sellerName: form.partyOneSeller.trim(),
+          buyerName: form.partyTwoBuyer.trim(),
           type: "عقد بيع",
         });
         contractId = getContractIdFromResponse(created);
@@ -115,28 +143,14 @@ export default function SaleContract() {
         localStorage.setItem("saleContractId", String(contractId));
       }
 
+      setStatus("مسودة");
+      showToast("تم تأكيد العقد بنجاح", "success");
+      setForm({ ...INITIAL_SALE_FORM });
+      setSavedContractId(null);
+      clearSaleContractLocalDraft();
+    } catch {
+      showToast(GENERIC_ERROR_MSG, "error");
       setStatus("مؤكد");
-      setApiMessage("تم تأكيد العقد على الخادم");
-    } catch (error) {
-      setApiError(error?.response?.data?.message || "فشل تأكيد العقد على الخادم");
-      setStatus("مؤكد");
-    }
-  };
-
-  const handleUploadDocument = async () => {
-    if (!selectedFile) {
-      setApiError("اختر ملف قبل الرفع");
-      return;
-    }
-
-    setApiMessage("");
-    setApiError("");
-    try {
-      await uploadDocument(selectedFile, { contractId: savedContractId || undefined });
-      setApiMessage("تم رفع الملف إلى R2 بنجاح");
-      setSelectedFile(null);
-    } catch (error) {
-      setApiError(error?.response?.data?.message || "فشل رفع الملف");
     }
   };
 
@@ -271,29 +285,18 @@ export default function SaleContract() {
                 </svg>
                 طباعة
               </button>
-              <label className="sc-tbtn sc-tbtn--ghost" style={{ cursor: "pointer" }}>
-                اختيار ملف
-                <input
-                  type="file"
-                  style={{ display: "none" }}
-                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                />
-              </label>
-              <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleUploadDocument}>
-                رفع الملف
-              </button>
             </div>
             <span className={`sc-status-badge ${status === "مؤكد" ? "sc-status-badge--confirmed" : ""}`}>
               {status}
             </span>
             <ThemeToggle />
           </div>
-          {apiMessage ? (
-            <p style={{ color: "#2e7d32", margin: "10px 0 0", textAlign: "center" }}>{apiMessage}</p>
-          ) : null}
-          {apiError ? (
-            <p style={{ color: "#c86464", margin: "10px 0 0", textAlign: "center" }}>{apiError}</p>
-          ) : null}
+          <Toast
+            open={toast.open}
+            message={toast.message}
+            variant={toast.variant}
+            onClose={closeToast}
+          />
 
           {/* ── محتوى العقد ── */}
           <div className="sc-contract-doc-body">

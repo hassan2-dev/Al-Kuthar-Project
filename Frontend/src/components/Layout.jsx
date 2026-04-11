@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import LogoutButton from "./LogoutButton";
 
 const navItems = [
   {
@@ -84,13 +85,7 @@ export default function Layout({ title, children }) {
 
         {/* Footer logout hint */}
         <div className="sidebar-footer">
-          <Link to="/" className="sidebar-logout">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M11 11l3-3-3-3M14 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span>تسجيل الخروج</span>
-          </Link>
+          <LogoutButton className="sidebar-logout" />
         </div>
       </aside>
 

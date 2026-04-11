@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
+import LogoutButton from "../components/LogoutButton";
 import { listContracts } from "../api/contractsApi";
 
 const TYPE_ICONS = {
@@ -115,6 +116,7 @@ export default function Archive() {
         const rawList = response?.items || response?.data || response?.contracts || [];
         const mapped = rawList.map((contract) => {
           const rawStatus = String(contract.status || "").toLowerCase();
+          const created = new Date(contract.createdAt || contract.updatedAt || contract.date || Date.now());
 
           return {
             id: contract.id,
@@ -122,7 +124,8 @@ export default function Archive() {
             buyerName: contract.buyerName || contract.buyer_name || "",
             type: contract.type || "غير محدد",
             status: rawStatus === "confirmed" ? "مؤكد" : "مسودة",
-            date: new Date(contract.createdAt || contract.updatedAt || contract.date || Date.now()).toLocaleDateString("ar-EG"),
+            date: created.toLocaleDateString("ar-EG"),
+            sortTime: created.getTime(),
           };
         });
 
@@ -131,7 +134,7 @@ export default function Archive() {
         const message =
           error?.response?.data?.message ||
           error?.message ||
-          "تعذر تحميل العقود من الخادم";
+          "تعذر تحميل قائمة العقود. حاول مرة أخرى.";
         setErrorMessage(message);
       } finally {
         setLoading(false);
@@ -155,12 +158,14 @@ export default function Archive() {
     if (filterType !== "الكل") list = list.filter((c) => c.type === filterType);
     if (filterStatus !== "الكل") list = list.filter((c) => c.status === filterStatus);
     list.sort((a, b) => {
-      if (sortBy === "date-desc") return new Date(b.date) - new Date(a.date);
-      if (sortBy === "date-asc") return new Date(a.date) - new Date(b.date);
+      const ta = a.sortTime ?? 0;
+      const tb = b.sortTime ?? 0;
+      if (sortBy === "date-desc") return tb - ta;
+      if (sortBy === "date-asc") return ta - tb;
       return 0;
     });
     return list;
-  }, [search, filterType, filterStatus, sortBy]);
+  }, [contracts, search, filterType, filterStatus, sortBy]);
 
   return (
     <div className="arc-page">
@@ -216,8 +221,9 @@ export default function Archive() {
               <h1 className="arc-title">الأرشيف</h1>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
             <span className="arc-count-badge">{filtered.length} عقد</span>
+            <LogoutButton className="arc-logout-btn" />
             <ThemeToggle />
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
+import LogoutButton from "../components/LogoutButton";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -146,6 +147,7 @@ export default function Dashboard() {
 
         {/* زر الوضع الداكن */}
         <div className="db-theme-row">
+          <LogoutButton className="db-logout-btn" />
           <ThemeToggle />
         </div>
 

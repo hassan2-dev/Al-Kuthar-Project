@@ -269,6 +269,111 @@
   transform: rotate(20deg) scale(1.05);
 }
 
+/* Toast — إشعار نجاح / خطأ */
+.ak-toast {
+  position: fixed;
+  bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10050;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: min(440px, calc(100vw - 28px));
+  padding: 14px 16px 14px 14px;
+  border-radius: 14px;
+  font-family: var(--font-ar);
+  font-size: 15px;
+  line-height: 1.45;
+  box-shadow: var(--ak-shadow-med);
+  border: 1px solid var(--ak-card-border);
+  animation: ak-toast-in 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes ak-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.ak-toast--success {
+  background: linear-gradient(135deg, #f4faf5 0%, #eef6f0 100%);
+  color: var(--ak-text);
+  border-color: rgba(46, 125, 79, 0.28);
+}
+
+.ak-toast--error {
+  background: linear-gradient(135deg, #fdf6f5 0%, #faeeec 100%);
+  color: var(--ak-text);
+  border-color: rgba(200, 100, 100, 0.35);
+}
+
+[data-theme="dark"] .ak-toast--success {
+  background: linear-gradient(135deg, rgba(46, 125, 79, 0.22) 0%, rgba(30, 42, 36, 0.95) 100%);
+  border-color: rgba(107, 207, 147, 0.35);
+}
+
+[data-theme="dark"] .ak-toast--error {
+  background: linear-gradient(135deg, rgba(180, 80, 80, 0.2) 0%, rgba(42, 28, 28, 0.95) 100%);
+  border-color: rgba(232, 140, 140, 0.35);
+}
+
+.ak-toast-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ak-toast--success .ak-toast-icon {
+  background: rgba(46, 125, 79, 0.18);
+  color: #2e7d4f;
+}
+
+.ak-toast--error .ak-toast-icon {
+  background: rgba(200, 100, 100, 0.2);
+  color: #b54a4a;
+}
+
+.ak-toast-msg {
+  margin: 0;
+  flex: 1;
+  padding-top: 2px;
+}
+
+.ak-toast-close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ak-text-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ak-toast-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--ak-text);
+}
+
+[data-theme="dark"] .ak-toast-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 body {
   direction: rtl;
   font-family: var(--font-ar);
@@ -778,8 +883,13 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   padding: 11px 14px;
+  border: none;
   border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
   color: rgba(238,233,226,0.50);
   font-size: 14px;
   transition: background 0.18s, color 0.18s;
@@ -1001,17 +1111,63 @@ button {
   align-items: center;
 }
 
-/* Theme toggle row on dashboard — top-left corner */
+/* Theme toggle + logout — top-left corner */
 .db-theme-row {
   position: absolute;
   top: clamp(10px, 1.8vh, 22px);
   left: clamp(14px, 2.5vw, 28px);
   z-index: 10;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.db-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ak-card-border);
+  background: var(--ak-bg-soft);
+  color: var(--ak-text-sec);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+
+.db-logout-btn:hover {
+  background: rgba(200, 169, 126, 0.12);
+  border-color: var(--ak-gold-soft);
+  color: var(--ak-gold);
 }
 
 /* ══════════════════════════════════════════════
    Archive Page
 ══════════════════════════════════════════════ */
+
+.arc-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ak-card-border);
+  background: var(--ak-bg-soft);
+  color: var(--ak-text-sec);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+
+.arc-logout-btn:hover {
+  background: rgba(200, 169, 126, 0.12);
+  border-color: var(--ak-gold-soft);
+  color: var(--ak-gold);
+}
 
 /* Page shell — same background as db-page */
 .arc-page {
