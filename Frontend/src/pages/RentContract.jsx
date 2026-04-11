@@ -8,6 +8,8 @@ import {
   isRentContractFormComplete,
   RENT_FORM_INCOMPLETE_MSG,
 } from "../utils/contractFormValidation";
+import { rentContractToArchiveFile } from "../utils/buildContractDocumentFile";
+import { tryUploadContractArchive } from "../utils/contractAttachmentUpload";
 
 const GENERIC_ERROR_MSG = "تعذر إتمام العملية. حاول مرة أخرى.";
 
@@ -110,7 +112,15 @@ export default function RentContract() {
         localStorage.setItem("rentContractId", String(contractId));
       }
       setStatus("مسودة");
-      showToast("تم حفظ المسودة بنجاح", "success");
+      const docFile = rentContractToArchiveFile(form, contractId, "مسودة");
+      const uploadResult = await tryUploadContractArchive(docFile, contractId);
+      if (uploadResult === "ok") {
+        showToast("تم حفظ المسودة وتخزين نسخة العقد بنجاح", "success");
+      } else if (uploadResult === "fail") {
+        showToast("تم حفظ المسودة. تعذر تخزين نسخة العقد.", "error");
+      } else {
+        showToast("تم حفظ المسودة بنجاح", "success");
+      }
       setForm({ ...INITIAL_RENT_FORM });
       setSavedContractId(null);
       clearRentContractLocalDraft();
@@ -149,7 +159,15 @@ export default function RentContract() {
       }
 
       setStatus("مسودة");
-      showToast("تم تأكيد العقد بنجاح", "success");
+      const docFile = rentContractToArchiveFile(form, contractId, "مؤكد");
+      const uploadResult = await tryUploadContractArchive(docFile, contractId);
+      if (uploadResult === "ok") {
+        showToast("تم تأكيد العقد وتخزين نسخة العقد بنجاح", "success");
+      } else if (uploadResult === "fail") {
+        showToast("تم تأكيد العقد. تعذر تخزين نسخة العقد.", "error");
+      } else {
+        showToast("تم تأكيد العقد بنجاح", "success");
+      }
       setForm({ ...INITIAL_RENT_FORM });
       setSavedContractId(null);
       clearRentContractLocalDraft();

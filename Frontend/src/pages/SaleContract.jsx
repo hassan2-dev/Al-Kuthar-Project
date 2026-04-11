@@ -8,6 +8,8 @@ import {
   isSaleContractFormComplete,
   SALE_FORM_INCOMPLETE_MSG,
 } from "../utils/contractFormValidation";
+import { saleContractToArchiveFile } from "../utils/buildContractDocumentFile";
+import { tryUploadContractArchive } from "../utils/contractAttachmentUpload";
 
 const GENERIC_ERROR_MSG = "تعذر إتمام العملية. حاول مرة أخرى.";
 
@@ -61,7 +63,6 @@ export default function SaleContract() {
   const [status, setStatus] = useState("مسودة");
   const [savedContractId, setSavedContractId] = useState(null);
   const [toast, setToast] = useState({ open: false, message: "", variant: "success" });
-
   const showToast = (message, variant = "success") => {
     setToast({ open: true, message, variant });
   };
@@ -107,7 +108,15 @@ export default function SaleContract() {
         localStorage.setItem("saleContractId", String(contractId));
       }
       setStatus("مسودة");
-      showToast("تم حفظ المسودة بنجاح", "success");
+      const docFile = saleContractToArchiveFile(form, contractId, "مسودة");
+      const uploadResult = await tryUploadContractArchive(docFile, contractId);
+      if (uploadResult === "ok") {
+        showToast("تم حفظ المسودة وتخزين نسخة العقد بنجاح", "success");
+      } else if (uploadResult === "fail") {
+        showToast("تم حفظ المسودة. تعذر تخزين نسخة العقد.", "error");
+      } else {
+        showToast("تم حفظ المسودة بنجاح", "success");
+      }
       setForm({ ...INITIAL_SALE_FORM });
       setSavedContractId(null);
       clearSaleContractLocalDraft();
@@ -144,7 +153,15 @@ export default function SaleContract() {
       }
 
       setStatus("مسودة");
-      showToast("تم تأكيد العقد بنجاح", "success");
+      const docFile = saleContractToArchiveFile(form, contractId, "مؤكد");
+      const uploadResult = await tryUploadContractArchive(docFile, contractId);
+      if (uploadResult === "ok") {
+        showToast("تم تأكيد العقد وتخزين نسخة العقد بنجاح", "success");
+      } else if (uploadResult === "fail") {
+        showToast("تم تأكيد العقد. تعذر تخزين نسخة العقد.", "error");
+      } else {
+        showToast("تم تأكيد العقد بنجاح", "success");
+      }
       setForm({ ...INITIAL_SALE_FORM });
       setSavedContractId(null);
       clearSaleContractLocalDraft();
