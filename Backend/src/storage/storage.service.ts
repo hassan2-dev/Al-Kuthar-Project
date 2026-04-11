@@ -4,12 +4,13 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { Injectable, ServiceUnavailableException } from "@nestjs/common";
+import { Injectable, Logger, ServiceUnavailableException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { randomBytes } from "crypto";
 
 @Injectable()
 export class StorageService {
+  private readonly logger = new Logger(StorageService.name);
   private readonly client: S3Client | null;
   private readonly bucket: string | null;
   private readonly publicBase: string | null;
@@ -25,11 +26,15 @@ export class StorageService {
     const accessKeyId = config.get<string>("R2_ACCESS_KEY_ID");
     const secretAccessKey = config.get<string>("R2_SECRET_ACCESS_KEY");
     const bucket = config.get<string>("R2_BUCKET_NAME");
+    const forcePathStyle =
+      config.get<string>("R2_FORCE_PATH_STYLE") === "true" ||
+      config.get<string>("R2_FORCE_PATH_STYLE") === "1";
     if (endpoint && accessKeyId && secretAccessKey && bucket) {
       this.client = new S3Client({
         region: "auto",
         endpoint,
         credentials: { accessKeyId, secretAccessKey },
+        forcePathStyle,
       });
       this.bucket = bucket;
     } else {
@@ -55,14 +60,23 @@ export class StorageService {
 
   async putObject(key: string, body: Buffer, contentType?: string) {
     this.assertConfigured();
-    await this.client!.send(
-      new PutObjectCommand({
-        Bucket: this.bucket!,
-        Key: key,
-        Body: body,
-        ContentType: contentType,
-      }),
-    );
+    try {
+      await this.client!.send(
+        new PutObjectCommand({
+          Bucket: this.bucket!,
+          Key: key,
+          Body: body,
+          ContentType: contentType,
+        }),
+      );
+      this.logger.log(`R2 PutObject ok: ${this.bucket}/${key}`);
+    } catch (err) {
+      this.logger.error(
+        `R2 PutObject failed (bucket=${this.bucket}, key=${key})`,
+        err instanceof Error ? err.stack : String(err),
+      );
+      throw err;
+    }
   }
 
   /** Returns a time-limited URL to download the object. */
