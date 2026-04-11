@@ -8,7 +8,7 @@ import {
   isSaleContractFormComplete,
   SALE_FORM_INCOMPLETE_MSG,
 } from "../utils/contractFormValidation";
-import { saleContractToArchiveFile } from "../utils/buildContractDocumentFile";
+import { saleContractToPdfFile } from "../utils/contractPdfArchive";
 import { tryUploadContractArchive } from "../utils/contractAttachmentUpload";
 
 const GENERIC_ERROR_MSG = "تعذر إتمام العملية. حاول مرة أخرى.";
@@ -108,12 +108,17 @@ export default function SaleContract() {
         localStorage.setItem("saleContractId", String(contractId));
       }
       setStatus("مسودة");
-      const docFile = saleContractToArchiveFile(form, contractId, "مسودة");
-      const uploadResult = await tryUploadContractArchive(docFile, contractId);
+      let uploadResult = "none";
+      try {
+        const docFile = await saleContractToPdfFile(form, contractId, "مسودة");
+        uploadResult = await tryUploadContractArchive(docFile, contractId);
+      } catch {
+        uploadResult = "fail";
+      }
       if (uploadResult === "ok") {
-        showToast("تم حفظ المسودة وتخزين نسخة العقد بنجاح", "success");
+        showToast("تم حفظ المسودة وتخزين نسخة PDF بنجاح", "success");
       } else if (uploadResult === "fail") {
-        showToast("تم حفظ المسودة. تعذر تخزين نسخة العقد.", "error");
+        showToast("تم حفظ المسودة. تعذر تخزين ملف PDF.", "error");
       } else {
         showToast("تم حفظ المسودة بنجاح", "success");
       }
@@ -153,12 +158,17 @@ export default function SaleContract() {
       }
 
       setStatus("مسودة");
-      const docFile = saleContractToArchiveFile(form, contractId, "مؤكد");
-      const uploadResult = await tryUploadContractArchive(docFile, contractId);
+      let uploadResult = "none";
+      try {
+        const docFile = await saleContractToPdfFile(form, contractId, "مؤكد");
+        uploadResult = await tryUploadContractArchive(docFile, contractId);
+      } catch {
+        uploadResult = "fail";
+      }
       if (uploadResult === "ok") {
-        showToast("تم تأكيد العقد وتخزين نسخة العقد بنجاح", "success");
+        showToast("تم تأكيد العقد وتخزين نسخة PDF بنجاح", "success");
       } else if (uploadResult === "fail") {
-        showToast("تم تأكيد العقد. تعذر تخزين نسخة العقد.", "error");
+        showToast("تم تأكيد العقد. تعذر تخزين ملف PDF.", "error");
       } else {
         showToast("تم تأكيد العقد بنجاح", "success");
       }

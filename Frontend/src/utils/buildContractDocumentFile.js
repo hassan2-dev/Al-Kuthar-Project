@@ -1,4 +1,4 @@
-/** تحويل نص العقد إلى ملف HTML لرفعه كنسخة أرشيفية (نفس محتوى الطباعة تقريباً). */
+/** بناء مستند HTML لعقد البيع/الإيجار (يُستخدم للطباعة الضمنية وتحويل PDF). */
 
 function esc(s) {
   return String(s ?? "")
@@ -32,9 +32,12 @@ function wrapHtml(title, statusLine, inner) {
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>${esc(title)}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    body{font-family:'Segoe UI',Tahoma,'Arial Unicode MS',sans-serif;direction:rtl;padding:28px;max-width:920px;margin:0 auto;
-      line-height:1.65;color:#1a1a1a;font-size:15px}
+    body{font-family:'El Messiri','Segoe UI',Tahoma,sans-serif;direction:rtl;padding:28px;max-width:920px;margin:0 auto;
+      line-height:1.65;color:#1a1a1a;font-size:15px;background:#fff}
     h1{text-align:center;font-size:1.55rem;margin:0 0 8px}
     .meta{color:#555;font-size:13px;text-align:center;margin-bottom:22px}
     .grid{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:10px 18px;align-items:baseline;margin:14px 0}
@@ -59,8 +62,9 @@ function wrapHtml(title, statusLine, inner) {
  * @param {Record<string,string>} form
  * @param {string} contractId
  * @param {"مسودة"|"مؤكد"} docStatus
+ * @returns {string} مستند HTML كامل
  */
-export function saleContractToArchiveFile(form, contractId, docStatus) {
+export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
   const statusLine = `عقد بيع — ${docStatus} — معرّف: ${contractId}`;
   const inner = `
   <h1>عقد بيع</h1>
@@ -103,20 +107,16 @@ export function saleContractToArchiveFile(form, contractId, docStatus) {
     <div class="sig"><p><strong>الفريق الثاني</strong></p><div class="sigbox"></div></div>
   </div>`;
 
-  const html = wrapHtml("عقد بيع", statusLine, inner);
-  const safeId = String(contractId).replace(/[^\w-]/g, "");
-  const tag = docStatus === "مؤكد" ? "مؤكد" : "مسودة";
-  return new File([html], `عقد-بيع-${safeId}-${tag}.html`, {
-    type: "text/html;charset=utf-8",
-  });
+  return wrapHtml("عقد بيع", statusLine, inner);
 }
 
 /**
  * @param {Record<string,string>} form
  * @param {string} contractId
  * @param {"مسودة"|"مؤكد"} docStatus
+ * @returns {string} مستند HTML كامل
  */
-export function rentContractToArchiveFile(form, contractId, docStatus) {
+export function buildRentContractArchiveHtml(form, contractId, docStatus) {
   const statusLine = `عقد إيجار — ${docStatus} — معرّف: ${contractId}`;
   const inner = `
   <h1>(( عقد إيجار ))</h1>
@@ -174,10 +174,5 @@ export function rentContractToArchiveFile(form, contractId, docStatus) {
     </div>
   </div>`;
 
-  const html = wrapHtml("عقد إيجار", statusLine, inner);
-  const safeId = String(contractId).replace(/[^\w-]/g, "");
-  const tag = docStatus === "مؤكد" ? "مؤكد" : "مسودة";
-  return new File([html], `عقد-إيجار-${safeId}-${tag}.html`, {
-    type: "text/html;charset=utf-8",
-  });
+  return wrapHtml("عقد إيجار", statusLine, inner);
 }

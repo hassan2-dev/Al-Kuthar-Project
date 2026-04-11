@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import LogoutButton from "../components/LogoutButton";
 import { listContracts } from "../api/contractsApi";
+import { getDocumentDownloadUrl, listDocuments } from "../api/documentsApi";
 
 const TYPE_ICONS = {
   "عقد بيع": (
@@ -20,7 +21,7 @@ const TYPE_ICONS = {
   ),
 };
 
-function ContractRow({ contract, onView }) {
+function ContractRow({ contract, onView, onDownloadPdf, isDownloadingPdf }) {
   const isConfirmed = contract.status === "مؤكد";
   const isSale = contract.type === "عقد بيع";
 
@@ -76,14 +77,15 @@ function ContractRow({ contract, onView }) {
         <button
           type="button"
           className="arc-btn arc-btn--print"
-          onClick={() => {}}
-          aria-label="طباعة العقد"
+          disabled={isDownloadingPdf}
+          onClick={() => onDownloadPdf(contract)}
+          aria-label="تحميل نسخة PDF المحفوظة"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
             <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>
           </svg>
-          طباعة
+          {isDownloadingPdf ? "..." : "PDF"}
         </button>
       </div>
     </div>
@@ -99,6 +101,8 @@ export default function Archive() {
   const [filterType, setFilterType] = useState("الكل");
   const [filterStatus, setFilterStatus] = useState("الكل");
   const [sortBy, setSortBy] = useState("date-desc");
+  const [docLoadingId, setDocLoadingId] = useState(null);
+  const [docError, setDocError] = useState("");
 
   useEffect(() => {
     const fetchContracts = async () => {
@@ -166,6 +170,47 @@ export default function Archive() {
     });
     return list;
   }, [contracts, search, filterType, filterStatus, sortBy]);
+
+  const handleDownloadPdf = async (contract) => {
+    setDocError("");
+    setDocLoadingId(contract.id);
+    try {
+      const res = await listDocuments({ contractId: contract.id });
+      const raw = res?.items ?? res?.documents ?? res?.data ?? res;
+      const list = Array.isArray(raw) ? raw : [];
+      if (!list.length) {
+        setDocError("لا توجد نسخة PDF محفوظة لهذا العقد بعد.");
+        return;
+      }
+      const sorted = [...list].sort((a, b) => {
+        const ta = new Date(a.createdAt || a.created_at || 0).getTime();
+        const tb = new Date(b.createdAt || b.created_at || 0).getTime();
+        return tb - ta;
+      });
+      const doc = sorted[0];
+      const id = doc?.id ?? doc?.documentId;
+      if (!id) {
+        setDocError("تعذر تحديد الملف.");
+        return;
+      }
+      const dl = await getDocumentDownloadUrl(id);
+      const url =
+        dl?.url ??
+        dl?.downloadUrl ??
+        dl?.signedUrl ??
+        dl?.data?.url ??
+        (typeof dl === "string" ? dl : null);
+      if (url) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      } else {
+        setDocError("تعذر الحصول على رابط التحميل.");
+      }
+    } catch {
+      setDocError("تعذر جلب الملف. تحقق من الاتصال.");
+    } finally {
+      setDocLoadingId(null);
+    }
+  };
 
   return (
     <div className="arc-page">
@@ -283,6 +328,12 @@ export default function Archive() {
           </select>
         </div>
 
+        {docError ? (
+          <p className="arc-doc-hint" role="status">
+            {docError}
+          </p>
+        ) : null}
+
         {/* قائمة العقود */}
         <div className="arc-list">
           {loading ? (
@@ -313,6 +364,8 @@ export default function Archive() {
                 key={contract.id}
                 contract={contract}
                 onView={() => {}}
+                onDownloadPdf={handleDownloadPdf}
+                isDownloadingPdf={docLoadingId === contract.id}
               />
             ))
           ) : null}

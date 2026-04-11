@@ -1330,6 +1330,23 @@ button {
   box-shadow: var(--ak-gold-glow);
 }
 
+.arc-doc-hint {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(200, 100, 100, 0.1);
+  border: 1px solid rgba(200, 100, 100, 0.28);
+  color: #a05050;
+  font-size: 14px;
+  text-align: center;
+}
+
+[data-theme="dark"] .arc-doc-hint {
+  background: rgba(232, 140, 140, 0.12);
+  border-color: rgba(232, 140, 140, 0.35);
+  color: #e8a0a0;
+}
+
 /* ── Contract rows list ── */
 .arc-list {
   display: flex;
@@ -1467,6 +1484,13 @@ button {
   cursor: pointer;
   border: 1.5px solid transparent;
   transition: background 0.18s, border-color 0.18s, transform 0.15s;
+}
+
+.arc-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .arc-btn--view {
