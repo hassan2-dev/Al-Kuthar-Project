@@ -101,7 +101,7 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
   <div class="clause"><p><strong>سابعاً :</strong> يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها (<strong>${fill(form.brokerFeePercent)}</strong> % ) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة.</p></div>
   <p><strong>فبناء على حصول التراضي والايجاب والقبول حرر هذا العقد.</strong></p>
   <p>البصرة في تاريخ <strong>${fillDate(form.contractYear)}</strong></p>
-  <div class="extra"><h3>فقرات إضافية</h3><pre>${esc(form.extraClauses?.trim() || "................")}</pre></div>
+  <div class="extra"><h3>ملاحظات إضافية</h3><pre>${esc(form.extraClauses?.trim() || "................")}</pre></div>
   <div class="sigs">
     <div class="sig"><p><strong>الفريق الأول</strong></p><div class="sigbox"></div></div>
     <div class="sig"><p><strong>الفريق الثاني</strong></p><div class="sigbox"></div></div>
@@ -150,7 +150,7 @@ export function buildRentContractArchiveHtml(form, contractId, docStatus) {
   <div class="clause"><p><strong>خامساً :</strong> لا يجوز للمستأجر تغير نوع مهنته حسب الاتفاق الأول عند التأجير الا بعد حصوله
     على موافقة المؤجر التحريرية وبعكسه يفسخ هذا العقد وللمؤجر الحق بطلب التخلية
     الفورية.</p></div>
-  <div class="extra"><h3>فقرات إضافية</h3><pre>${esc(form.extraClauses?.trim() || "................")}</pre></div>
+  <div class="extra"><h3>ملاحظات إضافية</h3><pre>${esc(form.extraClauses?.trim() || "................")}</pre></div>
   <div class="sigs">
     <div class="sig">
       <p><strong>المستأجر</strong></p>

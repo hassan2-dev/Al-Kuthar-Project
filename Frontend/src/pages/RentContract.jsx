@@ -457,9 +457,9 @@ export default function RentContract() {
 
             <div className="sc-doc-divider" />
 
-            {/* فقرات إضافية */}
+            {/* ملاحظات إضافية */}
             <div className="sc-doc-clause sc-doc-clause--extra">
-              <h3 className="sc-doc-clause-title">فقرات إضافية</h3>
+              <h3 className="sc-doc-clause-title">ملاحظات إضافية</h3>
               <textarea
                 className="sc-blank-area"
                 name="extraClauses"
@@ -467,7 +467,7 @@ export default function RentContract() {
                 onChange={handleChange}
                 rows={4}
                 dir="rtl"
-                placeholder="فقرات إضافية..."
+                placeholder="ملاحظات إضافية..."
               />
             </div>
 
