@@ -26,67 +26,74 @@ function ContractRow({ contract, onView, onDownloadPdf, isDownloadingPdf }) {
   const isSale = contract.type === "عقد بيع";
 
   return (
-    <div className="arc-row" dir="rtl">
-      <div className={`arc-row-type-badge ${isSale ? "arc-row-type-badge--sale" : "arc-row-type-badge--rent"}`}>
-        <span className="arc-row-type-icon">{TYPE_ICONS[contract.type] ?? TYPE_ICONS["عقد بيع"]}</span>
-        <span className="arc-row-type-label">{contract.type}</span>
-      </div>
+    <div className={`arc-card ${isSale ? "arc-card--sale" : "arc-card--rent"}`} dir="rtl">
+      {/* Stacked paper layers behind */}
+      <div className="arc-card-paper arc-card-paper--back" />
+      <div className="arc-card-paper arc-card-paper--mid" />
 
-      <div className="arc-row-parties">
-        <span className="arc-row-party-name">{contract.sellerName}</span>
-        <span className="arc-row-party-sep">←</span>
-        <span className="arc-row-party-name">{contract.buyerName}</span>
-      </div>
+      {/* Card body */}
+      <div className="arc-card-body">
+        {/* Inner content */}
+        <div className="arc-card-inner">
+          {/* Top: icon + status */}
+          <div className="arc-card-top">
+            <span className="arc-card-icon">{TYPE_ICONS[contract.type] ?? TYPE_ICONS["عقد بيع"]}</span>
+            <span className={`arc-card-status ${isConfirmed ? "arc-card-status--confirmed" : "arc-card-status--draft"}`}>
+              {contract.status}
+            </span>
+          </div>
 
-      <div className="arc-row-date">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
-          <path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-        </svg>
-        {contract.date}
-      </div>
+          {/* Parties */}
+          <div className="arc-card-parties">
+            <span className="arc-card-party">{contract.sellerName || "—"}</span>
+            <span className="arc-card-sep">·</span>
+            <span className="arc-card-party">{contract.buyerName || "—"}</span>
+          </div>
 
-      <div className={`arc-row-status ${isConfirmed ? "arc-row-status--confirmed" : "arc-row-status--draft"}`}>
-        {isConfirmed ? (
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.4"/>
-            <path d="M3.5 6l2 2L8.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        ) : (
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.4"/>
-            <path d="M6 3.5v3l1.5 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-          </svg>
-        )}
-        {contract.status}
-      </div>
+          {/* Title */}
+          <h3 className="arc-card-title">{contract.type}</h3>
 
-      <div className="arc-row-actions">
-        <button
-          type="button"
-          className="arc-btn arc-btn--view"
-          onClick={() => onView(contract)}
-          aria-label="عرض العقد"
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" strokeWidth="1.5"/>
-            <circle cx="8" cy="8" r="2.2" stroke="currentColor" strokeWidth="1.5"/>
-          </svg>
-          عرض
-        </button>
-        <button
-          type="button"
-          className="arc-btn arc-btn--print"
-          disabled={isDownloadingPdf}
-          onClick={() => onDownloadPdf(contract)}
-          aria-label="تحميل نسخة PDF المحفوظة"
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
-            <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>
-          </svg>
-          {isDownloadingPdf ? "..." : "PDF"}
-        </button>
+          {/* Date */}
+          <div className="arc-card-date">
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            {contract.date}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="arc-card-divider" />
+
+        {/* Actions */}
+        <div className="arc-card-actions">
+          <button
+            type="button"
+            className="arc-card-btn arc-card-btn--view"
+            onClick={() => onView(contract)}
+            aria-label="عرض العقد"
+          >
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" strokeWidth="1.5"/>
+              <circle cx="8" cy="8" r="2.2" stroke="currentColor" strokeWidth="1.5"/>
+            </svg>
+            عرض
+          </button>
+          <button
+            type="button"
+            className="arc-card-btn arc-card-btn--pdf"
+            disabled={isDownloadingPdf}
+            onClick={() => onDownloadPdf(contract)}
+            aria-label="تحميل PDF"
+          >
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+              <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>
+            </svg>
+            {isDownloadingPdf ? "..." : "PDF"}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -335,7 +342,7 @@ export default function Archive() {
         ) : null}
 
         {/* قائمة العقود */}
-        <div className="arc-list">
+        <div className="arc-grid">
           {loading ? (
             <div className="arc-empty">
               <p>جارٍ تحميل العقود...</p>

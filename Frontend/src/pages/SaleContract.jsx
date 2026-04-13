@@ -483,10 +483,10 @@ export default function SaleContract() {
               />
             </p>
 
-            {/* فقرات إضافية — قبل التواقيع كما في النموذج الورقي */}
+            {/* ملاحظات إضافية — قبل التواقيع كما في النموذج الورقي */}
             <div className="sc-doc-divider" />
             <div className="sc-doc-clause sc-doc-clause--extra">
-              <h3 className="sc-doc-clause-title">فقرات إضافية</h3>
+              <h3 className="sc-doc-clause-title">ملاحظات إضافية</h3>
               <textarea
                 className="sc-blank-area"
                 name="extraClauses"
@@ -494,7 +494,7 @@ export default function SaleContract() {
                 onChange={handleChange}
                 rows={4}
                 dir="rtl"
-                placeholder="فقرات إضافية..."
+                placeholder="ملاحظات إضافية..."
               />
             </div>
 
