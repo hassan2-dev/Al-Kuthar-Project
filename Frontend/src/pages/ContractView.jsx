@@ -208,10 +208,12 @@ export default function ContractView() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({});
+  const [originalForm, setOriginalForm] = useState({});
   const [contractType, setContractType] = useState("عقد إيجار");
   const [status, setStatus] = useState("مسودة");
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
   const [toast, setToast] = useState({ open: false, message: "", variant: "success" });
 
   const showToast = (message, variant = "success") =>
@@ -226,6 +228,8 @@ export default function ContractView() {
         const raw = await getContractById(id);
         const data = raw?.contract || raw?.data || raw || {};
         setForm(data);
+        setOriginalForm(data);
+        setIsDirty(false);
         setContractType(data.type || "عقد إيجار");
         const rawStatus = String(data.status || "").toLowerCase();
         setStatus(rawStatus === "confirmed" ? "مؤكد" : data.status === "مؤكد" ? "مؤكد" : "مسودة");
@@ -240,13 +244,22 @@ export default function ContractView() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => {
+      const updated = { ...prev, [name]: value };
+      const dirty = Object.keys({ ...originalForm, ...updated }).some(
+        (k) => (updated[k] ?? "") !== (originalForm[k] ?? "")
+      );
+      setIsDirty(dirty);
+      return updated;
+    });
   };
 
   const handleSave = async () => {
     closeToast();
     try {
       await updateContract(id, { ...form, type: contractType });
+      setOriginalForm({ ...form, type: contractType });
+      setIsDirty(false);
       showToast("تم حفظ التعديلات بنجاح", "success");
     } catch {
       showToast(GENERIC_ERROR, "error");
@@ -258,6 +271,8 @@ export default function ContractView() {
     try {
       await updateContract(id, { ...form, type: contractType });
       await confirmContract(id);
+      setOriginalForm({ ...form, type: contractType });
+      setIsDirty(false);
       setStatus("مؤكد");
       showToast("تم تأكيد العقد بنجاح", "success");
     } catch {
@@ -380,13 +395,15 @@ export default function ContractView() {
             </div>
 
             <div className="sc-toolbar-actions">
-              <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleSave}>
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                  <path d="M2 2h9l3 3v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.4"/>
-                  <path d="M11 2v4H4V2M5 10h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                </svg>
-                حفظ
-              </button>
+              {isDirty && (
+                <button type="button" className="sc-tbtn sc-tbtn--save" onClick={handleSave}>
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 2h9l3 3v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.4"/>
+                    <path d="M11 2v4H4V2M5 10h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                  </svg>
+                  حفظ التعديلات
+                </button>
+              )}
 
               {isConfirmed ? (
                 <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleRevert}>

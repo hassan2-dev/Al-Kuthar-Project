@@ -996,7 +996,18 @@ button {
 
 @media (max-width: 520px) {
   .db-buildings {
-    display: none;
+    display: block;
+    width: 110px;
+    height: 200px;
+    opacity: 0.40;
+  }
+}
+
+@media (max-width: 380px) {
+  .db-buildings {
+    width: 80px;
+    height: 160px;
+    opacity: 0.30;
   }
 }
 
@@ -1990,6 +2001,29 @@ button {
 .sc-tbtn--gold:hover {
   box-shadow: 0 8px 22px rgba(200,169,126,0.52);
   transform: translateY(-1px);
+}
+
+.sc-tbtn--save {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
+  border-color: #16a34a;
+  box-shadow: 0 4px 14px rgba(34,197,94,0.35);
+  animation: cv-save-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+.sc-tbtn--save:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  box-shadow: 0 8px 22px rgba(34,197,94,0.48);
+  transform: translateY(-1px);
+}
+
+@keyframes cv-save-pop {
+  from { opacity: 0; transform: scale(0.82) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+[data-theme="dark"] .sc-tbtn--save {
+  box-shadow: 0 4px 14px rgba(34,197,94,0.25);
 }
 
 /* legacy — kept for any remaining refs */
@@ -4559,4 +4593,359 @@ button {
     size: A4 portrait;
     margin: 6mm;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GLOBAL RESPONSIVE LAYER
+   Breakpoints: 1024 | 768 | 600 | 480 | 360
+══════════════════════════════════════════════════════════════ */
+
+/* ── Shared: keep blanks from overflowing on narrow screens ── */
+@media (max-width: 768px) {
+  .sc-blank--lg { width: clamp(110px, 40vw, 200px); max-width: 100%; }
+  .sc-blank--md { width: clamp(80px,  28vw, 140px); max-width: 100%; }
+  .sc-blank--sm { width: clamp(50px,  18vw,  70px); max-width: 100%; }
+
+  .sc-contract-doc {
+    padding: clamp(14px, 3vw, 28px) clamp(12px, 3.5vw, 32px);
+  }
+
+  .sc-contract-doc-body {
+    padding: clamp(12px, 2.5vw, 24px) clamp(10px, 2vw, 20px);
+  }
+
+  .sc-doc-para { font-size: 14px; line-height: 2; }
+}
+
+@media (max-width: 480px) {
+  .sc-blank--lg { width: 100%; display: block; }
+  .sc-blank--md { width: min(130px, 100%); }
+
+  .sc-contract-doc {
+    padding: 12px 10px;
+    border-radius: 14px;
+  }
+
+  .sc-doc-para { font-size: 13.5px; line-height: 1.9; }
+  .sc-clause-num { font-size: 13.5px; }
+}
+
+/* ────────────────────────────────────────────────
+   Login page
+──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .lp-card {
+    border-radius: 18px;
+    max-width: 100%;
+  }
+  .lp-right {
+    padding: 28px 18px 26px;
+  }
+  .lp-title { font-size: 22px; }
+  .lp-sub   { font-size: 13px; }
+  .lp-input { font-size: 14px; padding: 11px 14px; }
+  .lp-btn   { padding: 13px 20px; font-size: 15px; }
+}
+
+/* ────────────────────────────────────────────────
+   Dashboard page
+──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .db-page {
+    padding: clamp(14px, 2.5vh, 28px) clamp(12px, 3vw, 24px) clamp(32px, 5vh, 64px);
+  }
+
+  .db-inner {
+    max-width: 100%;
+    gap: clamp(16px, 2.5vh, 28px);
+  }
+
+  .db-brand-logo {
+    width: clamp(140px, 38vw, 220px);
+  }
+
+  .db-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.6vw, 16px);
+  }
+
+  .db-card {
+    padding: clamp(14px, 2vh, 22px) clamp(12px, 1.8vw, 20px);
+    gap: clamp(10px, 1.4vw, 16px);
+  }
+
+  .db-card-title  { font-size: clamp(13px, 1.8vw, 17px); }
+  .db-card-desc   { font-size: clamp(11px, 1.2vw, 13px); }
+
+  /* Switch from absolute to in-flow so controls never overlap the logo */
+  .db-theme-row {
+    position: static;
+    align-self: stretch;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 2px;
+    margin-bottom: -8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .db-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .db-card--wide { grid-column: auto; }
+
+  .db-brand-logo { width: clamp(120px, 50vw, 180px); }
+
+  .db-card-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .db-theme-row {
+    gap: 6px;
+    margin-bottom: -6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .db-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 14px;
+  }
+  .db-card-arrow { display: none; }
+}
+
+/* ────────────────────────────────────────────────
+   Archive page
+──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .arc-inner { gap: 16px; }
+
+  .arc-header { gap: 10px; }
+
+  .arc-header-start { gap: 10px; }
+
+  .arc-title { font-size: clamp(18px, 4vw, 24px); }
+
+  .arc-title-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+  }
+
+  .arc-count-badge { font-size: 12px; padding: 4px 10px; }
+
+  .arc-filters { gap: 8px; }
+
+  .arc-select { font-size: 13px; padding: 8px 10px; min-width: 0; }
+}
+
+@media (max-width: 560px) {
+  .arc-page { padding: clamp(20px, 3.5vh, 40px) clamp(12px, 3.5vw, 20px); }
+
+  .arc-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .arc-header > div:last-child {
+    align-self: flex-end;
+  }
+
+  .arc-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .arc-search-wrap,
+  .arc-select { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .arc-grid { gap: 12px; }
+
+  .arc-card-body { padding: 14px 14px 0; }
+
+  .arc-card-actions { padding: 10px 14px 12px; gap: 6px; }
+
+  .arc-card-btn { font-size: 12px; padding: 7px 10px; }
+}
+
+/* ────────────────────────────────────────────────
+   Sale / Rent Contract creation pages
+──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sc-page {
+    padding: clamp(18px, 3vh, 36px) clamp(12px, 3vw, 24px);
+  }
+
+  .sc-contract-toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+  }
+
+  .sc-toolbar-start { flex-wrap: wrap; }
+
+  .sc-toolbar-contract-type { font-size: clamp(15px, 2.2vw, 20px); }
+
+  .sc-tbtn { font-size: 12px; padding: 7px 12px; }
+
+  .sc-section { padding: clamp(12px, 2vw, 20px); }
+
+  .sc-grid,
+  .sc-grid--3 { grid-template-columns: 1fr 1fr; gap: 10px; }
+}
+
+@media (max-width: 640px) {
+  .sc-contract-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sc-toolbar-start,
+  .sc-toolbar-actions {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .sc-grid,
+  .sc-grid--3 { grid-template-columns: 1fr; }
+
+  .sc-tbtn { font-size: 11.5px; padding: 7px 10px; gap: 4px; }
+  .sc-tbtn svg { width: 13px; height: 13px; }
+
+  .sc-toolbar-back { font-size: 12px; padding: 6px 10px; }
+
+  .sc-section-head h3 { font-size: 14px; }
+
+  .sc-rent-fields-grid { grid-template-columns: 1fr; }
+  .sc-rent-field-label { justify-self: start; }
+
+  .sc-rent-field-value--inline {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+/* ── Signature area responsive ── */
+@media (max-width: 600px) {
+  .sc-rent-sig-section {
+    grid-template-columns: 1fr;
+  }
+  .sc-rent-sig-divider {
+    width: 100%;
+    height: 1.5px;
+  }
+  .sc-rent-party-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ────────────────────────────────────────────────
+   Contract Print page (cp-)  — screen only
+   (print media rules are above, these are for
+    the screen preview on small devices)
+──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .cp-sheet { margin: 0 auto; }
+  .cp-content { padding: 18px 20px 24px; }
+}
+
+@media (max-width: 680px) {
+  .cp-page { padding: 16px 10px 40px; }
+
+  .cp-toolbar { padding: 0 2px; }
+
+  /* Stack header: logo on top, meta below */
+  .cp-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 12px;
+  }
+
+  .cp-header-brand { width: auto; justify-content: center; }
+  .cp-logo-img     { width: 72px; }
+
+  .cp-header-meta  {
+    width: auto;
+    align-items: center;
+    text-align: center;
+  }
+
+  .cp-title { font-size: 20px; }
+
+  /* Stack parties */
+  .cp-parties-wrap {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .cp-parties-vdivider {
+    width: 100%;
+    height: 1.5px;
+    background: rgba(200,169,126,0.35);
+    margin: 0;
+  }
+
+  /* Stack signatures */
+  .cp-sigs,
+  .cp-rent-sigs {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cp-page { padding: 10px 4px 30px; }
+
+  .cp-content { padding: 12px 14px 18px; }
+
+  .cp-clause { font-size: 12.5px; line-height: 1.9; }
+  .cp-pv, .cp-pl { font-size: 12px; }
+
+  .cp-inner-border { margin: 6px 8px 8px; }
+
+  .cp-rent-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cp-rent-label { justify-self: start; }
+
+  .cp-prop-grid {
+    grid-template-columns: auto 1fr;
+  }
+}
+
+/* ────────────────────────────────────────────────
+   General small-screen polish
+──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  html { font-size: 15px; }
+
+  /* status badges */
+  .sc-status-badge { font-size: 11px; padding: 4px 10px; }
+
+  /* Toast */
+  .toast { font-size: 13px; padding: 10px 14px; max-width: calc(100vw - 24px); }
+}
+
+@media (max-width: 360px) {
+  html { font-size: 14px; }
+
+  .sc-page,
+  .arc-page,
+  .db-page { padding-left: 8px; padding-right: 8px; }
+
+  .sc-tbtn { padding: 6px 8px; font-size: 11px; }
+
+  .arc-card-btn { padding: 6px 8px; font-size: 11px; }
 }
