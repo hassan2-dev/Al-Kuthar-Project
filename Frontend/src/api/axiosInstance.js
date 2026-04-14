@@ -6,10 +6,41 @@ const baseURL = rawBaseUrl.replace(/\/+$/, "");
 export const TOKEN_STORAGE_KEY = "ak-token";
 export const REMEMBER_ME_STORAGE_KEY = "ak-remember-me";
 
+function parseJwtPayload(token) {
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const normalized = payload.padEnd(Math.ceil(payload.length / 4) * 4, "=");
+    const decoded = atob(normalized);
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
+function isExpiredToken(token) {
+  const payload = parseJwtPayload(token);
+  if (!payload?.exp) return false;
+  const now = Math.floor(Date.now() / 1000);
+  return payload.exp <= now;
+}
+
 export function getAuthToken() {
   const localToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-  if (localToken) return localToken;
-  return sessionStorage.getItem(TOKEN_STORAGE_KEY);
+  if (localToken) {
+    if (isExpiredToken(localToken)) {
+      clearAuthToken();
+      return null;
+    }
+    return localToken;
+  }
+  const sessionToken = sessionStorage.getItem(TOKEN_STORAGE_KEY);
+  if (sessionToken && isExpiredToken(sessionToken)) {
+    clearAuthToken();
+    return null;
+  }
+  return sessionToken;
 }
 
 export function setAuthToken(token, rememberMe = true) {
@@ -47,5 +78,18 @@ axiosInstance.interceptors.request.use((config) => {
 
   return config;
 });
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      clearAuthToken();
+      if (typeof window !== "undefined" && window.location.pathname !== "/") {
+        window.location.replace("/");
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 export default axiosInstance;
