@@ -122,7 +122,7 @@ export default function SaleContractPrint() {
                     <strong className={fieldClass("cp-pv", form.partyOneSeller)}>{fill(form.partyOneSeller)}</strong>
                     <span className="cp-pl">السكن :</span>
                     <strong className={fieldClass("cp-pv", form.sellerCity)}>{fill(form.sellerCity)}</strong>
-                    <span className="cp-pl">المهنة :</span>
+                    <span className="cp-pl">رقم الهاتف :</span>
                     <strong className={fieldClass("cp-pv", form.sellerProfession)}>{fill(form.sellerProfession)}</strong>
                   </div>
                 </div>
@@ -134,7 +134,7 @@ export default function SaleContractPrint() {
                     <strong className={fieldClass("cp-pv", form.partyTwoBuyer)}>{fill(form.partyTwoBuyer)}</strong>
                     <span className="cp-pl">السكن :</span>
                     <strong className={fieldClass("cp-pv", form.buyerCity)}>{fill(form.buyerCity)}</strong>
-                    <span className="cp-pl">المهنة :</span>
+                    <span className="cp-pl">رقم الهاتف :</span>
                     <strong className={fieldClass("cp-pv", form.buyerProfession)}>{fill(form.buyerProfession)}</strong>
                   </div>
                 </div>
@@ -201,8 +201,7 @@ export default function SaleContractPrint() {
                       في دائرة التسجيل العقاري. واذا نكل عن الشراء وتأدية قصور البدل فأنه
                       يتعهد بتأدية تضمينات قدرها{" "}
                       <strong className={fieldClass("cp-val", form.buyerPenalty)}>{fill(form.buyerPenalty)}</strong>{" "}
-                      ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون
-                      وإن الفريق الثاني له الحق أن يقرر الملك بأسم من يشاء.
+                      ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون.
                     </p>
                   </div>
                 </div>
@@ -210,7 +209,15 @@ export default function SaleContractPrint() {
                 <div className="cp-clause">
                   <div className="cp-clause-body">
                     <p>
-                      <strong className="cp-clause-lead">خامساً :</strong> إن جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق{" "}
+                      <strong className="cp-clause-lead">خامساً :</strong> يحق للمشتري تسجيل العقار بأسمه او بأسم من يشاء.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="cp-clause">
+                  <div className="cp-clause-body">
+                    <p>
+                      <strong className="cp-clause-lead">سادساً :</strong> إن جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق{" "}
                       <strong className={fieldClass("cp-val", form.feesOnParty)}>{fill(form.feesOnParty)}</strong>.
                     </p>
                   </div>
@@ -219,8 +226,9 @@ export default function SaleContractPrint() {
                 <div className="cp-clause">
                   <div className="cp-clause-body">
                     <p>
-                      <strong className="cp-clause-lead">سادساً :</strong> أما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك
-                      هي في عهدة الفريق الأول.
+                      <strong className="cp-clause-lead">سابعاً :</strong> أما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك
+                      هي في عهدة الفريق{" "}
+                      <strong className={fieldClass("cp-val", form.taxFeesOnParty)}>{fill(form.taxFeesOnParty)}</strong>.
                     </p>
                   </div>
                 </div>
@@ -228,7 +236,7 @@ export default function SaleContractPrint() {
                 <div className="cp-clause">
                   <div className="cp-clause-body">
                     <p>
-                      <strong className="cp-clause-lead">سابعاً :</strong> يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها ({" "}
+                      <strong className="cp-clause-lead">ثامناً :</strong> يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها ({" "}
                       <strong className={fieldClass("cp-val", form.brokerFeePercent)}>{fill(form.brokerFeePercent)}</strong>
                       {" "}%) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة.
                       واذا نكل احد الفريقين عن تنفيذ شروط هذا العقد يتعهد بتأدية ضعفي الدلالة

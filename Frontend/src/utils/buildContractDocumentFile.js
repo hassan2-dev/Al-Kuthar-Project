@@ -94,11 +94,11 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
     العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره <strong>${fill(form.sellerPenalty)}</strong> ديناراً بدون حاجة الى إنذار رسمي</p></div>
   <div class="clause"><p><strong>رابعاً :</strong> يعترف الفريق الثاني بأنه قد قبل الشراء بالشروط المذكورة أنفاً ويتعهد
     بتأدية قصور البدل المبيع الى الفريق الأول عند اكماله المعامله والتقرير في دائرة التسجيل العقاري. واذا نكل عن الشراء وتأدية قصور البدل فأنه
-    يتعهد بتأدية تضمينات قدرها <strong>${fill(form.buyerPenalty)}</strong> ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون
-    وان الفريق الثاني له الحق ان يقرر الملك بأسم من يشاء</p></div>
-  <div class="clause"><p><strong>خامساً :</strong> ان جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق <strong>${fill(form.feesOnParty)}</strong></p></div>
-  <div class="clause"><p><strong>سادساً :</strong> اما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك هي في عهدة الفريق الأول</p></div>
-  <div class="clause"><p><strong>سابعاً :</strong> يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها (<strong>${fill(form.brokerFeePercent)}</strong> % ) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة.</p></div>
+    يتعهد بتأدية تضمينات قدرها <strong>${fill(form.buyerPenalty)}</strong> ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون</p></div>
+  <div class="clause"><p><strong>خامساً :</strong> يحق للمشتري تسجيل العقار بأسمه او بأسم من يشاء.</p></div>
+  <div class="clause"><p><strong>سادساً :</strong> ان جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق <strong>${fill(form.feesOnParty)}</strong></p></div>
+  <div class="clause"><p><strong>سابعاً :</strong> اما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك هي في عهدة الفريق <strong>${fill(form.taxFeesOnParty)}</strong></p></div>
+  <div class="clause"><p><strong>ثامناً :</strong> يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها (<strong>${fill(form.brokerFeePercent)}</strong> % ) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة.</p></div>
   <p><strong>فبناء على حصول التراضي والايجاب والقبول حرر هذا العقد.</strong></p>
   <p>البصرة في تاريخ <strong>${fillDate(form.contractYear)}</strong></p>
   <div class="extra"><h3>ملاحظات إضافية</h3><pre>${esc(form.extraClauses?.trim() || "................")}</pre></div>
@@ -150,6 +150,7 @@ export function buildRentContractArchiveHtml(form, contractId, docStatus) {
   <div class="clause"><p><strong>خامساً :</strong> لا يجوز للمستأجر تغير نوع مهنته حسب الاتفاق الأول عند التأجير الا بعد حصوله
     على موافقة المؤجر التحريرية وبعكسه يفسخ هذا العقد وللمؤجر الحق بطلب التخلية
     الفورية.</p></div>
+  <div class="clause"><p><strong>سادساً :</strong> يكون المأجور محل للتبليغ و التبلغ في حالة الدعاوي القضائية بين الطرفين.</p></div>
   <div class="extra"><h3>ملاحظات إضافية</h3><pre>${esc(form.extraClauses?.trim() || "................")}</pre></div>
   <div class="sigs">
     <div class="sig">

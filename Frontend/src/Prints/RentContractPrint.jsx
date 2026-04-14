@@ -219,6 +219,14 @@ export default function RentContractPrint() {
                   </div>
                 </div>
 
+                <div className="cp-clause">
+                  <div className="cp-clause-body">
+                    <p>
+                      <strong className="cp-clause-lead">سادساً :</strong> يكون المأجور محل للتبليغ و التبلغ في حالة الدعاوي القضائية بين الطرفين.
+                    </p>
+                  </div>
+                </div>
+
               </div>
 
               {/* Extra clauses */}

@@ -15,13 +15,11 @@ const SALE_REQUIRED_KEYS = [
   "buyerPenalty",
   "feesOnParty",
   "brokerFeePercent",
-  "contractYear",
   "extraClauses",
 ];
 
 const RENT_REQUIRED_KEYS = [
   "propertySerial",
-  "contractDate",
   "propertyType",
   "rentFromDate",
   "rentToDate",

@@ -13,6 +13,8 @@ import { tryUploadContractArchive } from "../utils/contractAttachmentUpload";
 
 const GENERIC_ERROR_MSG = "تعذر إتمام العملية. حاول مرة أخرى.";
 
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
 const INITIAL_RENT_FORM = {
   propertySerial: "",
   contractDate: "",
@@ -92,13 +94,15 @@ export default function RentContract() {
 
   const handleSaveDraft = async () => {
     closeToast();
-    if (!isRentContractFormComplete(form)) {
+    const resolvedForm = { ...form, contractDate: form.contractDate.trim() || todayIso() };
+    if (!isRentContractFormComplete(resolvedForm)) {
       showToast(RENT_FORM_INCOMPLETE_MSG, "error");
       return;
     }
-    const landlord = (form.landlordName || form.landlordFullName).trim();
-    const tenant = (form.tenantName || form.tenantFullName).trim();
-    localStorage.setItem("rentContractDraft", JSON.stringify(form));
+    setForm(resolvedForm);
+    const landlord = (resolvedForm.landlordName || resolvedForm.landlordFullName).trim();
+    const tenant = (resolvedForm.tenantName || resolvedForm.tenantFullName).trim();
+    localStorage.setItem("rentContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("rentContractStatus", "مسودة");
     try {
       const created = await createContract({
@@ -114,7 +118,7 @@ export default function RentContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await rentContractToPdfFile(form, contractId, "مسودة");
+        const docFile = await rentContractToPdfFile(resolvedForm, contractId, "مسودة");
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";
@@ -137,13 +141,15 @@ export default function RentContract() {
 
   const handleConfirm = async () => {
     closeToast();
-    if (!isRentContractFormComplete(form)) {
+    const resolvedForm = { ...form, contractDate: form.contractDate.trim() || todayIso() };
+    if (!isRentContractFormComplete(resolvedForm)) {
       showToast(RENT_FORM_INCOMPLETE_MSG, "error");
       return;
     }
-    const landlord = (form.landlordName || form.landlordFullName).trim();
-    const tenant = (form.tenantName || form.tenantFullName).trim();
-    localStorage.setItem("rentContractDraft", JSON.stringify(form));
+    setForm(resolvedForm);
+    const landlord = (resolvedForm.landlordName || resolvedForm.landlordFullName).trim();
+    const tenant = (resolvedForm.tenantName || resolvedForm.tenantFullName).trim();
+    localStorage.setItem("rentContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("rentContractStatus", "مؤكد");
     try {
       let contractId = savedContractId;
@@ -166,7 +172,7 @@ export default function RentContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await rentContractToPdfFile(form, contractId, "مؤكد");
+        const docFile = await rentContractToPdfFile(resolvedForm, contractId, "مؤكد");
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";
@@ -188,7 +194,9 @@ export default function RentContract() {
   };
 
   const handleGoToPrint = () => {
-    localStorage.setItem("rentContractDraft", JSON.stringify(form));
+    const resolvedForm = { ...form, contractDate: form.contractDate.trim() || todayIso() };
+    setForm(resolvedForm);
+    localStorage.setItem("rentContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("rentContractStatus", status);
     navigate("/rent-contract/print");
   };
@@ -452,6 +460,14 @@ export default function RentContract() {
                 لا يجوز للمستأجر تغير نوع مهنته حسب الاتفاق الأول عند التأجير الا بعد حصوله
                 على موافقة المؤجر التحريرية وبعكسه يفسخ هذا العقد وللمؤجر الحق بطلب التخلية
                 الفورية.
+              </p>
+            </div>
+
+            {/* سادساً */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">سادساً :</span>{" "}
+                يكون المأجور محل للتبليغ و التبلغ في حالة الدعاوي القضائية بين الطرفين
               </p>
             </div>
 
