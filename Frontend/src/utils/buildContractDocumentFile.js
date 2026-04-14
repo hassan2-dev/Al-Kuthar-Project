@@ -85,19 +85,19 @@ function wrapHtml(title, statusLine, inner) {
  * @param {"مسودة"|"مؤكد"} docStatus
  * @returns {string} مستند HTML كامل
  */
-export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
-  const statusLine = `عقد بيع — ${docStatus} — معرّف: ${contractId}`;
+export function buildSaleContractArchiveHtml(form) {
+ 
   const inner = `
-  <div class="content">
-    <div class="wmark"><span>ك</span></div>
+  <div class="content" style="direction: rtl;">
+    <div class="wmark"><span style="font-size:240px;">ك</span></div>
     <div class="top">
-      <div class="tiny"><b>البصرة</b><br/>التاريخ: ${fillDate(form.contractYear)}</div>
+      <div class="tiny"><b>بسم الله الرحمن الرحيم</b><br/>مكتب الكوثر للعقارات</div>
       <div class="brand">
         <img class="logo" src="/logo-mark.png" alt="الكوثر"/>
       </div>
-      <div class="tiny"><b>بسم الله الرحمن الرحيم</b><br/>مكتب الكوثر للعقارات</div>
+      <div class="tiny"><b>البصرة</b><br/>التاريخ: ${fillDate(form.contractYear)}</div>
     </div>
-    <h1>عقد بيع عقار</h1>
+    <h1 style="font-size:2.35rem;">عقد بيع عقار</h1>
     <div class="line"></div>
 
     <div class="twocol">
@@ -166,7 +166,7 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
   </div>
   `;
 
-  return wrapHtml("عقد بيع", statusLine, inner);
+  return wrapHtml("عقد بيع", inner);
 }
 
 /**
