@@ -7,6 +7,8 @@ import SaleContractPrint from "./Prints/SaleContractPrint";
 import RentContract from "./pages/RentContract";
 import RentContractPrint from "./Prints/RentContractPrint";
 import Archive from "./pages/Archive";
+import ContractView from "./pages/ContractView";
+import ContractPrint from "./pages/ContractPrint";
 
 function App() {
   useTheme(); // applies data-theme to <html> on mount + when toggled
@@ -19,6 +21,8 @@ function App() {
       <Route path="/rent-contract" element={<RentContract />} />
       <Route path="/rent-contract/print" element={<RentContractPrint />} />
       <Route path="/archive" element={<Archive />} />
+      <Route path="/contract-view/:id" element={<ContractView />} />
+      <Route path="/contract-print/:id" element={<ContractPrint />} />
     </Routes>
   );
 }

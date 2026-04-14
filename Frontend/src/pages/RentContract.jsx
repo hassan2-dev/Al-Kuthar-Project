@@ -13,6 +13,8 @@ import { tryUploadContractArchive } from "../utils/contractAttachmentUpload";
 
 const GENERIC_ERROR_MSG = "تعذر إتمام العملية. حاول مرة أخرى.";
 
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
 const INITIAL_RENT_FORM = {
   propertySerial: "",
   contractDate: "",
@@ -90,28 +92,30 @@ export default function RentContract() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const buildRentContractPayload = () => {
-    const landlord = (form.landlordName || form.landlordFullName).trim();
-    const tenant = (form.tenantName || form.tenantFullName).trim();
+  const buildRentContractPayload = (payloadForm = form) => {
+    const landlord = (payloadForm.landlordName || payloadForm.landlordFullName).trim();
+    const tenant = (payloadForm.tenantName || payloadForm.tenantFullName).trim();
     return {
       sellerName: landlord,
       buyerName: tenant,
       type: "عقد إيجار",
-      contractDate: form.contractDate || undefined,
-      details: { ...form },
+      contractDate: payloadForm.contractDate || undefined,
+      details: { ...payloadForm },
     };
   };
 
   const handleSaveDraft = async () => {
     closeToast();
-    if (!isRentContractFormComplete(form)) {
+    const resolvedForm = { ...form, contractDate: form.contractDate.trim() || todayIso() };
+    if (!isRentContractFormComplete(resolvedForm)) {
       showToast(RENT_FORM_INCOMPLETE_MSG, "error");
       return;
     }
-    localStorage.setItem("rentContractDraft", JSON.stringify(form));
+    setForm(resolvedForm);
+    localStorage.setItem("rentContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("rentContractStatus", "مسودة");
     try {
-      const created = await createContract(buildRentContractPayload());
+      const created = await createContract(buildRentContractPayload(resolvedForm));
       const contractId = getContractIdFromResponse(created);
       if (contractId) {
         setSavedContractId(contractId);
@@ -120,7 +124,7 @@ export default function RentContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await rentContractToPdfFile(form, contractId, "مسودة");
+        const docFile = await rentContractToPdfFile(resolvedForm, contractId, "مسودة");
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";
@@ -143,20 +147,22 @@ export default function RentContract() {
 
   const handleConfirm = async () => {
     closeToast();
-    if (!isRentContractFormComplete(form)) {
+    const resolvedForm = { ...form, contractDate: form.contractDate.trim() || todayIso() };
+    if (!isRentContractFormComplete(resolvedForm)) {
       showToast(RENT_FORM_INCOMPLETE_MSG, "error");
       return;
     }
-    localStorage.setItem("rentContractDraft", JSON.stringify(form));
+    setForm(resolvedForm);
+    localStorage.setItem("rentContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("rentContractStatus", "مؤكد");
     try {
       let contractId = savedContractId;
 
       if (!contractId) {
-        const created = await createContract(buildRentContractPayload());
+        const created = await createContract(buildRentContractPayload(resolvedForm));
         contractId = getContractIdFromResponse(created);
       } else {
-        await updateContract(contractId, buildRentContractPayload());
+        await updateContract(contractId, buildRentContractPayload(resolvedForm));
       }
 
       if (contractId) {
@@ -168,7 +174,7 @@ export default function RentContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await rentContractToPdfFile(form, contractId, "مؤكد");
+        const docFile = await rentContractToPdfFile(resolvedForm, contractId, "مؤكد");
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";
@@ -190,7 +196,9 @@ export default function RentContract() {
   };
 
   const handleGoToPrint = () => {
-    localStorage.setItem("rentContractDraft", JSON.stringify(form));
+    const resolvedForm = { ...form, contractDate: form.contractDate.trim() || todayIso() };
+    setForm(resolvedForm);
+    localStorage.setItem("rentContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("rentContractStatus", status);
     navigate("/rent-contract/print");
   };
@@ -457,11 +465,19 @@ export default function RentContract() {
               </p>
             </div>
 
+            {/* سادساً */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">سادساً :</span>{" "}
+                يكون المأجور محل للتبليغ و التبلغ في حالة الدعاوي القضائية بين الطرفين
+              </p>
+            </div>
+
             <div className="sc-doc-divider" />
 
-            {/* فقرات إضافية */}
+            {/* ملاحظات إضافية */}
             <div className="sc-doc-clause sc-doc-clause--extra">
-              <h3 className="sc-doc-clause-title">فقرات إضافية</h3>
+              <h3 className="sc-doc-clause-title">ملاحظات إضافية</h3>
               <textarea
                 className="sc-blank-area"
                 name="extraClauses"
@@ -469,7 +485,7 @@ export default function RentContract() {
                 onChange={handleChange}
                 rows={4}
                 dir="rtl"
-                placeholder="فقرات إضافية..."
+                placeholder="ملاحظات إضافية..."
               />
             </div>
 

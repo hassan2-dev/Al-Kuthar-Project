@@ -21,22 +21,29 @@ const TYPE_ICONS = {
   ),
 };
 
+
 function ContractRow({ contract, onView, onDownloadPdf, onDelete, isDownloadingPdf, isDeleting }) {
+
   const isConfirmed = contract.status === "مؤكد";
   const isSale = contract.type === "عقد بيع";
 
   return (
-    <div className="arc-row" dir="rtl">
-      <div className={`arc-row-type-badge ${isSale ? "arc-row-type-badge--sale" : "arc-row-type-badge--rent"}`}>
-        <span className="arc-row-type-icon">{TYPE_ICONS[contract.type] ?? TYPE_ICONS["عقد بيع"]}</span>
-        <span className="arc-row-type-label">{contract.type}</span>
-      </div>
+    <div className={`arc-card ${isSale ? "arc-card--sale" : "arc-card--rent"}`} dir="rtl">
+      {/* Stacked paper layers behind */}
+      <div className="arc-card-paper arc-card-paper--back" />
+      <div className="arc-card-paper arc-card-paper--mid" />
 
-      <div className="arc-row-parties">
-        <span className="arc-row-party-name">{contract.sellerName}</span>
-        <span className="arc-row-party-sep">←</span>
-        <span className="arc-row-party-name">{contract.buyerName}</span>
-      </div>
+      {/* Card body */}
+      <div className="arc-card-body">
+        {/* Inner content */}
+        <div className="arc-card-inner">
+          {/* Top: icon + status */}
+          <div className="arc-card-top">
+            <span className="arc-card-icon">{TYPE_ICONS[contract.type] ?? TYPE_ICONS["عقد بيع"]}</span>
+            <span className={`arc-card-status ${isConfirmed ? "arc-card-status--confirmed" : "arc-card-status--draft"}`}>
+              {contract.status}
+            </span>
+          </div>
 
       <div className="arc-row-date">
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -49,20 +56,8 @@ function ContractRow({ contract, onView, onDownloadPdf, onDelete, isDownloadingP
         </div>
       </div>
 
-      <div className={`arc-row-status ${isConfirmed ? "arc-row-status--confirmed" : "arc-row-status--draft"}`}>
-        {isConfirmed ? (
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.4"/>
-            <path d="M3.5 6l2 2L8.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        ) : (
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.4"/>
-            <path d="M6 3.5v3l1.5 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-          </svg>
-        )}
-        {contract.status}
-      </div>
+          {/* Title */}
+          <h3 className="arc-card-title">{contract.type}</h3>
 
       <div className="arc-row-actions">
         <button
@@ -99,6 +94,8 @@ function ContractRow({ contract, onView, onDownloadPdf, onDelete, isDownloadingP
         >
           {isDeleting ? "..." : "حذف"}
         </button>
+      </div>
+        </div>
       </div>
     </div>
   );
@@ -170,10 +167,39 @@ export default function Archive() {
   }, [filterUserScope]);
 
   const handleView = (contract) => {
-    const detailsText = contract?.details
-      ? JSON.stringify(contract.details, null, 2)
-      : "لا توجد تفاصيل محفوظة لهذا العقد.";
-    window.alert(detailsText);
+    navigate(`/contract-view/${contract.id}`);
+  };
+
+  const handleDownloadPdf = async (contract) => {
+    setDocLoadingId(contract.id);
+    setDocError("");
+    try {
+      const docsResponse = await listDocuments({ contractId: contract.id, limit: 20, page: 1 });
+      const docs = docsResponse?.items || docsResponse?.data || docsResponse?.documents || [];
+      const latestDoc = docs[0];
+      const docId = latestDoc?.id || latestDoc?._id;
+
+      if (!docId) {
+        throw new Error("لا توجد نسخة PDF محفوظة لهذا العقد.");
+      }
+
+      const downloadResponse = await getDocumentDownloadUrl(docId);
+      const downloadUrl = downloadResponse?.url || downloadResponse?.downloadUrl;
+
+      if (!downloadUrl) {
+        throw new Error("تعذر الحصول على رابط تحميل الملف.");
+      }
+
+      window.open(downloadUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "تعذر تحميل نسخة PDF لهذا العقد.";
+      setDocError(message);
+    } finally {
+      setDocLoadingId(null);
+    }
   };
 
   const handleDeleteContract = async (contract) => {
@@ -214,47 +240,6 @@ export default function Archive() {
     });
     return list;
   }, [contracts, search, filterType, filterStatus, sortBy]);
-
-  const handleDownloadPdf = async (contract) => {
-    setDocError("");
-    setDocLoadingId(contract.id);
-    try {
-      const res = await listDocuments({ contractId: contract.id });
-      const raw = res?.items ?? res?.documents ?? res?.data ?? res;
-      const list = Array.isArray(raw) ? raw : [];
-      if (!list.length) {
-        setDocError("لا توجد نسخة PDF محفوظة لهذا العقد بعد.");
-        return;
-      }
-      const sorted = [...list].sort((a, b) => {
-        const ta = new Date(a.createdAt || a.created_at || 0).getTime();
-        const tb = new Date(b.createdAt || b.created_at || 0).getTime();
-        return tb - ta;
-      });
-      const doc = sorted[0];
-      const id = doc?.id ?? doc?.documentId;
-      if (!id) {
-        setDocError("تعذر تحديد الملف.");
-        return;
-      }
-      const dl = await getDocumentDownloadUrl(id);
-      const url =
-        dl?.url ??
-        dl?.downloadUrl ??
-        dl?.signedUrl ??
-        dl?.data?.url ??
-        (typeof dl === "string" ? dl : null);
-      if (url) {
-        window.open(url, "_blank", "noopener,noreferrer");
-      } else {
-        setDocError("تعذر الحصول على رابط التحميل.");
-      }
-    } catch {
-      setDocError("تعذر جلب الملف. تحقق من الاتصال.");
-    } finally {
-      setDocLoadingId(null);
-    }
-  };
 
   return (
     <div className="arc-page">
@@ -382,14 +367,8 @@ export default function Archive() {
           </select>
         </div>
 
-        {docError ? (
-          <p className="arc-doc-hint" role="status">
-            {docError}
-          </p>
-        ) : null}
-
         {/* قائمة العقود */}
-        <div className="arc-list">
+        <div className="arc-grid">
           {loading ? (
             <div className="arc-empty">
               <p>جارٍ تحميل العقود...</p>
@@ -399,6 +378,11 @@ export default function Archive() {
           {!loading && errorMessage ? (
             <div className="arc-empty">
               <p>{errorMessage}</p>
+            </div>
+          ) : null}
+          {!loading && !errorMessage && docError ? (
+            <div className="arc-empty">
+              <p>{docError}</p>
             </div>
           ) : null}
 
