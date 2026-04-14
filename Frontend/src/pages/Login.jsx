@@ -1,16 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import { loginUser } from "../api/authApi";
-import { setAuthToken } from "../api/axiosInstance";
+import { getAuthToken, setAuthToken } from "../api/axiosInstance";
 
 export default function Login() {
   const navigate = useNavigate();
   const [showPass, setShowPass] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (token) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,7 +34,7 @@ export default function Login() {
         throw new Error("لم يتم استلام رمز الدخول. تحقق من الاتصال وحاول مرة أخرى.");
       }
 
-      setAuthToken(token);
+      setAuthToken(token, rememberMe);
       navigate("/dashboard");
     } catch (error) {
       const message =
@@ -245,7 +253,12 @@ export default function Login() {
             {/* Remember / Forgot */}
             <div className="lp-meta">
               <label className="lp-remember">
-                <input type="checkbox" className="lp-checkbox" />
+                <input
+                  type="checkbox"
+                  className="lp-checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
                 <span>تذكّرني</span>
               </label>
               <a href="#" className="lp-forgot">نسيت كلمة المرور؟</a>

@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsDateString, IsObject, IsOptional, IsString } from "class-validator";
 
 export class UpdateContractDto {
   @IsOptional()
@@ -20,4 +20,12 @@ export class UpdateContractDto {
   @IsOptional()
   @IsString()
   type?: string;
+
+  @IsOptional()
+  @IsObject()
+  details?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsDateString()
+  contractDate?: string;
 }

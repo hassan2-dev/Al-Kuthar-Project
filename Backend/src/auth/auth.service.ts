@@ -14,17 +14,23 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
+  private normalizeUsername(username: string) {
+    return username.trim().toLowerCase().replace(/محمد/g, "mohammed");
+  }
+
   async register(username: string, password: string) {
-    const existing = await this.users.findByUsername(username);
+    const normalizedUsername = this.normalizeUsername(username);
+    const existing = await this.users.findByUsername(normalizedUsername);
     if (existing) {
       throw new ConflictException("اسم المستخدم مستخدم مسبقاً");
     }
-    const user = await this.users.create(username, password);
+    const user = await this.users.create(normalizedUsername, password);
     return this.issueToken(user.id, user.username);
   }
 
   async login(username: string, password: string) {
-    const user = await this.users.findByUsername(username);
+    const normalizedUsername = this.normalizeUsername(username);
+    const user = await this.users.findByUsername(normalizedUsername);
     if (!user) {
       throw new UnauthorizedException("اسم المستخدم خطأ");
     }

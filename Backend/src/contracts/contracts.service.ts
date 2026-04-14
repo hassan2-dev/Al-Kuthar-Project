@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { StorageService } from "../storage/storage.service";
 import { CreateContractDto } from "./dto/create-contract.dto";
 import { UpdateContractDto } from "./dto/update-contract.dto";
 
@@ -9,6 +10,9 @@ export type ContractListQuery = {
   seller?: string;
   buyer?: string;
   type?: string;
+  archived?: "true" | "false";
+  createdBy?: string;
+  confirmedBy?: string;
   search?: string;
   createdFrom?: string;
   createdTo?: string;
@@ -22,13 +26,18 @@ export type ContractListQuery = {
 
 @Injectable()
 export class ContractsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
 
   private normalizeNames(dto: CreateContractDto | UpdateContractDto) {
     return {
       sellerName: dto.seller_name ?? dto.sellerName,
       buyerName: dto.buyer_name ?? dto.buyerName,
       type: dto.type,
+      details: dto.details,
+      contractDate: dto.contractDate,
     };
   }
 
@@ -39,19 +48,28 @@ export class ContractsService {
         sellerName: n.sellerName,
         buyerName: n.buyerName,
         type: n.type,
+        details: n.details as Prisma.InputJsonValue | undefined,
+        contractDate: n.contractDate ? new Date(n.contractDate) : undefined,
         ownerId,
+        createdById: ownerId,
         status: "draft",
       },
     });
   }
 
-  async findAll(q: ContractListQuery) {
+  async findAll(q: ContractListQuery, userId?: string) {
     const page = Math.max(1, q.page ?? 1);
     const limit = Math.min(100, Math.max(1, q.limit ?? 50));
     const where: Prisma.ContractWhereInput = {};
 
     if (q.status) where.status = q.status;
     if (q.type) where.type = q.type;
+    if (q.archived === "true") where.isArchived = true;
+    if (q.archived === "false") where.isArchived = false;
+    if (q.createdBy === "me" && userId) where.createdById = userId;
+    if (q.confirmedBy === "me" && userId) where.confirmedById = userId;
+    if (q.createdBy && q.createdBy !== "me") where.createdById = q.createdBy;
+    if (q.confirmedBy && q.confirmedBy !== "me") where.confirmedById = q.confirmedBy;
     if (q.seller) {
       where.sellerName = { contains: q.seller };
     }
@@ -129,6 +147,10 @@ export class ContractsService {
     if (n.sellerName !== undefined) data.sellerName = n.sellerName;
     if (n.buyerName !== undefined) data.buyerName = n.buyerName;
     if (n.type !== undefined) data.type = n.type;
+    if (n.details !== undefined) data.details = n.details as Prisma.InputJsonValue;
+    if (n.contractDate !== undefined) {
+      data.contractDate = n.contractDate ? new Date(n.contractDate) : null;
+    }
 
     const updated = await this.prisma.$transaction(async (tx) => {
       const c = await tx.contract.update({ where: { id }, data });
@@ -141,7 +163,7 @@ export class ContractsService {
     return updated;
   }
 
-  async confirm(id: string) {
+  async confirm(id: string, userId?: string) {
     const existing = await this.prisma.contract.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException("العقد غير موجود");
@@ -150,7 +172,7 @@ export class ContractsService {
     return this.prisma.$transaction(async (tx) => {
       const c = await tx.contract.update({
         where: { id },
-        data: { status: "confirmed" },
+        data: { status: "confirmed", confirmedById: userId ?? existing.confirmedById },
       });
       await tx.contractLog.create({
         data: {
@@ -192,6 +214,38 @@ export class ContractsService {
     return this.prisma.contractLog.findMany({
       where: { contractId },
       orderBy: { createdAt: "asc" },
+    });
+  }
+
+  async archive(id: string) {
+    await this.findOne(id);
+    return this.prisma.contract.update({
+      where: { id },
+      data: { isArchived: true, archivedAt: new Date() },
+    });
+  }
+
+  async unarchive(id: string) {
+    await this.findOne(id);
+    return this.prisma.contract.update({
+      where: { id },
+      data: { isArchived: false, archivedAt: null },
+    });
+  }
+
+  async remove(id: string) {
+    await this.findOne(id);
+    return this.prisma.$transaction(async (tx) => {
+      const docs = await tx.document.findMany({
+        where: { contractId: id },
+        select: { id: true, storageKey: true },
+      });
+      for (const doc of docs) {
+        await this.storage.deleteObject(doc.storageKey);
+      }
+      await tx.document.deleteMany({ where: { contractId: id } });
+      await tx.contract.delete({ where: { id } });
+      return { ok: true, removedDocuments: docs.length };
     });
   }
 }

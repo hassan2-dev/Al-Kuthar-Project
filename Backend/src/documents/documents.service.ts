@@ -118,4 +118,14 @@ export class DocumentsService {
       },
     };
   }
+
+  async remove(id: string) {
+    const doc = await this.prisma.document.findUnique({ where: { id } });
+    if (!doc) {
+      throw new NotFoundException("المستند غير موجود");
+    }
+    await this.storage.deleteObject(doc.storageKey);
+    await this.prisma.document.delete({ where: { id } });
+    return { ok: true };
+  }
 }

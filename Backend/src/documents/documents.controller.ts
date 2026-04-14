@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -70,5 +71,10 @@ export class DocumentsController {
   @Get(":id/download")
   download(@Param("id") id: string) {
     return this.documents.getDownloadUrl(id);
+  }
+
+  @Delete(":id")
+  remove(@Param("id") id: string) {
+    return this.documents.remove(id);
   }
 }

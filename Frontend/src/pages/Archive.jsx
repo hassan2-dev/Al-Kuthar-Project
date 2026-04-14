@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import LogoutButton from "../components/LogoutButton";
-import { listContracts } from "../api/contractsApi";
+import { deleteContract, listContracts } from "../api/contractsApi";
 import { getDocumentDownloadUrl, listDocuments } from "../api/documentsApi";
 
 const TYPE_ICONS = {
@@ -21,7 +21,7 @@ const TYPE_ICONS = {
   ),
 };
 
-function ContractRow({ contract, onView, onDownloadPdf, isDownloadingPdf }) {
+function ContractRow({ contract, onView, onDownloadPdf, onDelete, isDownloadingPdf, isDeleting }) {
   const isConfirmed = contract.status === "مؤكد";
   const isSale = contract.type === "عقد بيع";
 
@@ -43,7 +43,10 @@ function ContractRow({ contract, onView, onDownloadPdf, isDownloadingPdf }) {
           <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
           <path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
         </svg>
-        {contract.date}
+        <div>
+          <div>{contract.date}</div>
+          {contract.contractDate ? <small>تاريخ العقد: {contract.contractDate}</small> : null}
+        </div>
       </div>
 
       <div className={`arc-row-status ${isConfirmed ? "arc-row-status--confirmed" : "arc-row-status--draft"}`}>
@@ -87,6 +90,15 @@ function ContractRow({ contract, onView, onDownloadPdf, isDownloadingPdf }) {
           </svg>
           {isDownloadingPdf ? "..." : "PDF"}
         </button>
+        <button
+          type="button"
+          className="arc-btn arc-btn--view"
+          disabled={isDeleting}
+          onClick={() => onDelete(contract)}
+          aria-label="حذف العقد نهائياً"
+        >
+          {isDeleting ? "..." : "حذف"}
+        </button>
       </div>
     </div>
   );
@@ -101,7 +113,9 @@ export default function Archive() {
   const [filterType, setFilterType] = useState("الكل");
   const [filterStatus, setFilterStatus] = useState("الكل");
   const [sortBy, setSortBy] = useState("date-desc");
+  const [filterUserScope, setFilterUserScope] = useState("all");
   const [docLoadingId, setDocLoadingId] = useState(null);
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
   const [docError, setDocError] = useState("");
 
   useEffect(() => {
@@ -113,6 +127,9 @@ export default function Archive() {
         const response = await listContracts({
           page: 1,
           limit: 100,
+          archived: "true",
+          ...(filterUserScope === "createdByMe" ? { createdBy: "me" } : {}),
+          ...(filterUserScope === "confirmedByMe" ? { confirmedBy: "me" } : {}),
           sort: "createdAt",
           order: "desc",
         });
@@ -129,6 +146,10 @@ export default function Archive() {
             type: contract.type || "غير محدد",
             status: rawStatus === "confirmed" ? "مؤكد" : "مسودة",
             date: created.toLocaleDateString("ar-EG"),
+            contractDate: contract.contractDate
+              ? new Date(contract.contractDate).toLocaleDateString("ar-EG")
+              : "",
+            details: contract.details || null,
             sortTime: created.getTime(),
           };
         });
@@ -146,7 +167,30 @@ export default function Archive() {
     };
 
     fetchContracts();
-  }, []);
+  }, [filterUserScope]);
+
+  const handleView = (contract) => {
+    const detailsText = contract?.details
+      ? JSON.stringify(contract.details, null, 2)
+      : "لا توجد تفاصيل محفوظة لهذا العقد.";
+    window.alert(detailsText);
+  };
+
+  const handleDeleteContract = async (contract) => {
+    if (!window.confirm("سيتم حذف العقد وملفاته من الأرشيف والستوريج نهائياً. متابعة؟")) return;
+    setDeleteLoadingId(contract.id);
+    setDocError("");
+    try {
+      await deleteContract(contract.id);
+      setContracts((prev) => prev.filter((item) => item.id !== contract.id));
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || "تعذر حذف العقد. حاول مرة أخرى.";
+      setDocError(message);
+    } finally {
+      setDeleteLoadingId(null);
+    }
+  };
 
   const filtered = useMemo(() => {
     let list = [...contracts];
@@ -326,6 +370,16 @@ export default function Archive() {
             <option value="date-desc">الأحدث أولاً</option>
             <option value="date-asc">الأقدم أولاً</option>
           </select>
+          <select
+            className="arc-select"
+            value={filterUserScope}
+            onChange={(e) => setFilterUserScope(e.target.value)}
+            aria-label="فلترة حسب المستخدم"
+          >
+            <option value="all">كل العقود</option>
+            <option value="createdByMe">أنشأتها أنا</option>
+            <option value="confirmedByMe">أكدتها أنا</option>
+          </select>
         </div>
 
         {docError ? (
@@ -363,9 +417,11 @@ export default function Archive() {
               <ContractRow
                 key={contract.id}
                 contract={contract}
-                onView={() => {}}
+                onView={handleView}
                 onDownloadPdf={handleDownloadPdf}
                 isDownloadingPdf={docLoadingId === contract.id}
+                onDelete={handleDeleteContract}
+                isDeleting={deleteLoadingId === contract.id}
               />
             ))
           ) : null}

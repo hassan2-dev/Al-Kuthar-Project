@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import Toast from "../components/Toast";
-import { confirmContract, createContract } from "../api/contractsApi";
+import { confirmContract, createContract, updateContract } from "../api/contractsApi";
 import {
   isSaleContractFormComplete,
   SALE_FORM_INCOMPLETE_MSG,
@@ -88,6 +88,14 @@ export default function SaleContract() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const buildSaleContractPayload = () => ({
+    sellerName: form.partyOneSeller.trim(),
+    buyerName: form.partyTwoBuyer.trim(),
+    type: "عقد بيع",
+    contractDate: form.contractYear || undefined,
+    details: { ...form },
+  });
+
   const handleSaveDraft = async () => {
     closeToast();
     if (!isSaleContractFormComplete(form)) {
@@ -97,11 +105,7 @@ export default function SaleContract() {
     localStorage.setItem("saleContractDraft", JSON.stringify(form));
     localStorage.setItem("saleContractStatus", "مسودة");
     try {
-      const created = await createContract({
-        sellerName: form.partyOneSeller.trim(),
-        buyerName: form.partyTwoBuyer.trim(),
-        type: "عقد بيع",
-      });
+      const created = await createContract(buildSaleContractPayload());
       const contractId = getContractIdFromResponse(created);
       if (contractId) {
         setSavedContractId(contractId);
@@ -143,12 +147,10 @@ export default function SaleContract() {
       let contractId = savedContractId;
 
       if (!contractId) {
-        const created = await createContract({
-          sellerName: form.partyOneSeller.trim(),
-          buyerName: form.partyTwoBuyer.trim(),
-          type: "عقد بيع",
-        });
+        const created = await createContract(buildSaleContractPayload());
         contractId = getContractIdFromResponse(created);
+      } else {
+        await updateContract(contractId, buildSaleContractPayload());
       }
 
       if (contractId) {

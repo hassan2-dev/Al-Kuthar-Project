@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import Toast from "../components/Toast";
-import { confirmContract, createContract } from "../api/contractsApi";
+import { confirmContract, createContract, updateContract } from "../api/contractsApi";
 import {
   isRentContractFormComplete,
   RENT_FORM_INCOMPLETE_MSG,
@@ -90,22 +90,28 @@ export default function RentContract() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const buildRentContractPayload = () => {
+    const landlord = (form.landlordName || form.landlordFullName).trim();
+    const tenant = (form.tenantName || form.tenantFullName).trim();
+    return {
+      sellerName: landlord,
+      buyerName: tenant,
+      type: "عقد إيجار",
+      contractDate: form.contractDate || undefined,
+      details: { ...form },
+    };
+  };
+
   const handleSaveDraft = async () => {
     closeToast();
     if (!isRentContractFormComplete(form)) {
       showToast(RENT_FORM_INCOMPLETE_MSG, "error");
       return;
     }
-    const landlord = (form.landlordName || form.landlordFullName).trim();
-    const tenant = (form.tenantName || form.tenantFullName).trim();
     localStorage.setItem("rentContractDraft", JSON.stringify(form));
     localStorage.setItem("rentContractStatus", "مسودة");
     try {
-      const created = await createContract({
-        sellerName: landlord,
-        buyerName: tenant,
-        type: "عقد إيجار",
-      });
+      const created = await createContract(buildRentContractPayload());
       const contractId = getContractIdFromResponse(created);
       if (contractId) {
         setSavedContractId(contractId);
@@ -141,20 +147,16 @@ export default function RentContract() {
       showToast(RENT_FORM_INCOMPLETE_MSG, "error");
       return;
     }
-    const landlord = (form.landlordName || form.landlordFullName).trim();
-    const tenant = (form.tenantName || form.tenantFullName).trim();
     localStorage.setItem("rentContractDraft", JSON.stringify(form));
     localStorage.setItem("rentContractStatus", "مؤكد");
     try {
       let contractId = savedContractId;
 
       if (!contractId) {
-        const created = await createContract({
-          sellerName: landlord,
-          buyerName: tenant,
-          type: "عقد إيجار",
-        });
+        const created = await createContract(buildRentContractPayload());
         contractId = getContractIdFromResponse(created);
+      } else {
+        await updateContract(contractId, buildRentContractPayload());
       }
 
       if (contractId) {

@@ -30,6 +30,21 @@ export const revertContract = async (id) => {
   return data;
 };
 
+export const archiveContract = async (id) => {
+  const { data } = await api.put(`/contracts/${id}/archive`);
+  return data;
+};
+
+export const unarchiveContract = async (id) => {
+  const { data } = await api.delete(`/contracts/${id}/archive`);
+  return data;
+};
+
+export const deleteContract = async (id) => {
+  const { data } = await api.delete(`/contracts/${id}`);
+  return data;
+};
+
 export const getContractLogs = async (id) => {
   const { data } = await api.get(`/contracts/${id}/logs`);
   return data;

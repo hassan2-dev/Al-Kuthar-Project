@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -88,5 +89,15 @@ export class StorageService {
     }
     const cmd = new GetObjectCommand({ Bucket: this.bucket!, Key: key });
     return getSignedUrl(this.client!, cmd, { expiresIn: expiresSeconds });
+  }
+
+  async deleteObject(key: string) {
+    this.assertConfigured();
+    await this.client!.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket!,
+        Key: key,
+      }),
+    );
   }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -26,12 +27,16 @@ export class ContractsController {
 
   @Get()
   findAll(
+    @CurrentUser() user: RequestUser,
     @Query("status") status?: string,
     @Query("seller_name") seller_name?: string,
     @Query("sellerName") sellerName?: string,
     @Query("buyer_name") buyer_name?: string,
     @Query("buyerName") buyerName?: string,
     @Query("type") type?: string,
+    @Query("archived") archived?: "true" | "false",
+    @Query("createdBy") createdBy?: string,
+    @Query("confirmedBy") confirmedBy?: string,
     @Query("search") search?: string,
     @Query("createdFrom") createdFrom?: string,
     @Query("createdTo") createdTo?: string,
@@ -47,6 +52,9 @@ export class ContractsController {
       seller: seller_name ?? sellerName,
       buyer: buyer_name ?? buyerName,
       type,
+      archived,
+      createdBy,
+      confirmedBy,
       search,
       createdFrom,
       createdTo,
@@ -57,7 +65,7 @@ export class ContractsController {
       sort,
       order,
     };
-    return this.contracts.findAll(q);
+    return this.contracts.findAll(q, user.userId);
   }
 
   @Get(":id/logs")
@@ -71,8 +79,8 @@ export class ContractsController {
   }
 
   @Put(":id/confirm")
-  confirm(@Param("id") id: string) {
-    return this.contracts.confirm(id);
+  confirm(@CurrentUser() user: RequestUser, @Param("id") id: string) {
+    return this.contracts.confirm(id, user.userId);
   }
 
   @Put(":id/revert")
@@ -83,5 +91,20 @@ export class ContractsController {
   @Put(":id")
   update(@Param("id") id: string, @Body() dto: UpdateContractDto) {
     return this.contracts.update(id, dto);
+  }
+
+  @Put(":id/archive")
+  archive(@Param("id") id: string) {
+    return this.contracts.archive(id);
+  }
+
+  @Delete(":id/archive")
+  unarchive(@Param("id") id: string) {
+    return this.contracts.unarchive(id);
+  }
+
+  @Delete(":id")
+  remove(@Param("id") id: string) {
+    return this.contracts.remove(id);
   }
 }

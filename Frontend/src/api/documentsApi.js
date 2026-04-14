@@ -29,3 +29,8 @@ export const getDocumentDownloadUrl = async (id) => {
   const { data } = await api.get(`/documents/${id}/download`);
   return data;
 };
+
+export const deleteDocument = async (id) => {
+  const { data } = await api.delete(`/documents/${id}`);
+  return data;
+};
