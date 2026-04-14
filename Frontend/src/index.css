@@ -4119,6 +4119,7 @@ button {
   margin: 4px 0 14px;
   color: #1a1005;
   direction: rtl;
+  text-align: center;
 }
 
 /* ── Clauses — open paragraphs, no outer border ── */
@@ -4560,6 +4561,7 @@ button {
   .cp-date-line {
     font-size: 11px !important;
     margin: 2px 0 8px !important;
+    text-align: center !important;
   }
 
   /* ── Compact signatures ── */

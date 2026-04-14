@@ -13,6 +13,8 @@ import { tryUploadContractArchive } from "../utils/contractAttachmentUpload";
 
 const GENERIC_ERROR_MSG = "تعذر إتمام العملية. حاول مرة أخرى.";
 
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
 const INITIAL_SALE_FORM = {
   partyOneSeller: "",
   sellerCity: "",
@@ -29,6 +31,7 @@ const INITIAL_SALE_FORM = {
   sellerPenalty: "",
   buyerPenalty: "",
   feesOnParty: "",
+  taxFeesOnParty: "",
   brokerFeePercent: "",
   contractYear: "",
   extraClauses: "",
@@ -90,16 +93,18 @@ export default function SaleContract() {
 
   const handleSaveDraft = async () => {
     closeToast();
-    if (!isSaleContractFormComplete(form)) {
+    const resolvedForm = { ...form, contractYear: form.contractYear.trim() || todayIso() };
+    if (!isSaleContractFormComplete(resolvedForm)) {
       showToast(SALE_FORM_INCOMPLETE_MSG, "error");
       return;
     }
-    localStorage.setItem("saleContractDraft", JSON.stringify(form));
+    setForm(resolvedForm);
+    localStorage.setItem("saleContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("saleContractStatus", "مسودة");
     try {
       const created = await createContract({
-        sellerName: form.partyOneSeller.trim(),
-        buyerName: form.partyTwoBuyer.trim(),
+        sellerName: resolvedForm.partyOneSeller.trim(),
+        buyerName: resolvedForm.partyTwoBuyer.trim(),
         type: "عقد بيع",
       });
       const contractId = getContractIdFromResponse(created);
@@ -110,7 +115,7 @@ export default function SaleContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await saleContractToPdfFile(form, contractId, "مسودة");
+        const docFile = await saleContractToPdfFile(resolvedForm, contractId, "مسودة");
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";
@@ -133,19 +138,21 @@ export default function SaleContract() {
 
   const handleConfirm = async () => {
     closeToast();
-    if (!isSaleContractFormComplete(form)) {
+    const resolvedForm = { ...form, contractYear: form.contractYear.trim() || todayIso() };
+    if (!isSaleContractFormComplete(resolvedForm)) {
       showToast(SALE_FORM_INCOMPLETE_MSG, "error");
       return;
     }
-    localStorage.setItem("saleContractDraft", JSON.stringify(form));
+    setForm(resolvedForm);
+    localStorage.setItem("saleContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("saleContractStatus", "مؤكد");
     try {
       let contractId = savedContractId;
 
       if (!contractId) {
         const created = await createContract({
-          sellerName: form.partyOneSeller.trim(),
-          buyerName: form.partyTwoBuyer.trim(),
+          sellerName: resolvedForm.partyOneSeller.trim(),
+          buyerName: resolvedForm.partyTwoBuyer.trim(),
           type: "عقد بيع",
         });
         contractId = getContractIdFromResponse(created);
@@ -160,7 +167,7 @@ export default function SaleContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await saleContractToPdfFile(form, contractId, "مؤكد");
+        const docFile = await saleContractToPdfFile(resolvedForm, contractId, "مؤكد");
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";
@@ -182,7 +189,9 @@ export default function SaleContract() {
   };
 
   const handleGoToPrint = () => {
-    localStorage.setItem("saleContractDraft", JSON.stringify(form));
+    const resolvedForm = { ...form, contractYear: form.contractYear.trim() || todayIso() };
+    setForm(resolvedForm);
+    localStorage.setItem("saleContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("saleContractStatus", status);
     navigate("/sale-contract/print");
   };
@@ -340,7 +349,7 @@ export default function SaleContract() {
                   <B name="sellerCity" size="md" value={form.sellerCity} onChange={handleChange} />
                 </div>
                 <div className="sc-party-field-group">
-                  <span className="sc-party-mini-label">المهنة:</span>
+                  <span className="sc-party-mini-label">رقم الهاتف:</span>
                   <B name="sellerProfession" size="md" value={form.sellerProfession} onChange={handleChange} />
                 </div>
 
@@ -353,7 +362,7 @@ export default function SaleContract() {
                   <B name="buyerCity" size="md" value={form.buyerCity} onChange={handleChange} />
                 </div>
                 <div className="sc-party-field-group">
-                  <span className="sc-party-mini-label">المهنة:</span>
+                  <span className="sc-party-mini-label">رقم الهاتف:</span>
                   <B name="buyerProfession" size="md" value={form.buyerProfession} onChange={handleChange} />
                 </div>
               </div>
@@ -428,7 +437,6 @@ export default function SaleContract() {
                 يتعهد بتأدية تضمينات قدرها{" "}
                 <B name="buyerPenalty" size="md" value={form.buyerPenalty} onChange={handleChange} />
                 {" "}ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون
-                وان الفريق الثاني له الحق ان يقرر الملك بأسم من يشاء
               </p>
             </div>
 
@@ -436,8 +444,7 @@ export default function SaleContract() {
             <div className="sc-doc-clause">
               <p className="sc-doc-para">
                 <span className="sc-clause-num">خامساً :</span>{" "}
-                ان جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق{" "}
-                <B name="feesOnParty" size="md" value={form.feesOnParty} onChange={handleChange} />
+                يحق للمشتري تسجيل العقار بأسمه او بأسم من يشاء
               </p>
             </div>
 
@@ -445,8 +452,8 @@ export default function SaleContract() {
             <div className="sc-doc-clause">
               <p className="sc-doc-para">
                 <span className="sc-clause-num">سادساً :</span>{" "}
-                اما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك
-                هي في عهدة الفريق الأول
+                ان جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق{" "}
+                <B name="feesOnParty" size="md" value={form.feesOnParty} onChange={handleChange} />
               </p>
             </div>
 
@@ -454,6 +461,16 @@ export default function SaleContract() {
             <div className="sc-doc-clause">
               <p className="sc-doc-para">
                 <span className="sc-clause-num">سابعاً :</span>{" "}
+                اما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك
+                هي في عهدة الفريق{" "}
+                <B name="taxFeesOnParty" size="md" value={form.taxFeesOnParty} onChange={handleChange} />
+              </p>
+            </div>
+
+            {/* ثامناً */}
+            <div className="sc-doc-clause">
+              <p className="sc-doc-para">
+                <span className="sc-clause-num">ثامناً :</span>{" "}
                 يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها ({" "}
                 <B name="brokerFeePercent" size="xs" value={form.brokerFeePercent} onChange={handleChange} />
                 {" "}% ) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه
