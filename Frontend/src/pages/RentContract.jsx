@@ -9,10 +9,6 @@ import {
   createContract,
   updateContract,
 } from "../api/contractsApi";
-import {
-  isRentContractFormComplete,
-  RENT_FORM_INCOMPLETE_MSG,
-} from "../utils/contractFormValidation";
 import { rentContractToPdfFile } from "../utils/contractPdfArchive";
 import { tryUploadContractArchive } from "../utils/contractAttachmentUpload";
 
@@ -122,10 +118,6 @@ export default function RentContract() {
   const handleSaveDraft = async () => {
     closeToast();
     const resolvedForm = { ...form, contractDate: form.contractDate.trim() || todayIso() };
-    if (!isRentContractFormComplete(resolvedForm)) {
-      showToast(RENT_FORM_INCOMPLETE_MSG, "error");
-      return;
-    }
     setForm(resolvedForm);
     localStorage.setItem("rentContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("rentContractStatus", "مسودة");
@@ -179,10 +171,6 @@ export default function RentContract() {
   const handleConfirm = async () => {
     closeToast();
     const resolvedForm = { ...form, contractDate: form.contractDate.trim() || todayIso() };
-    if (!isRentContractFormComplete(resolvedForm)) {
-      showToast(RENT_FORM_INCOMPLETE_MSG, "error");
-      return;
-    }
     setForm(resolvedForm);
     localStorage.setItem("rentContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("rentContractStatus", "مؤكد");

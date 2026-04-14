@@ -9,10 +9,6 @@ import {
   createContract,
   updateContract,
 } from "../api/contractsApi";
-import {
-  isSaleContractFormComplete,
-  SALE_FORM_INCOMPLETE_MSG,
-} from "../utils/contractFormValidation";
 import { saleContractToPdfFile } from "../utils/contractPdfArchive";
 import { tryUploadContractArchive } from "../utils/contractAttachmentUpload";
 
@@ -117,10 +113,6 @@ export default function SaleContract() {
   const handleSaveDraft = async () => {
     closeToast();
     const resolvedForm = { ...form, contractYear: form.contractYear.trim() || todayIso() };
-    if (!isSaleContractFormComplete(resolvedForm)) {
-      showToast(SALE_FORM_INCOMPLETE_MSG, "error");
-      return;
-    }
     setForm(resolvedForm);
     localStorage.setItem("saleContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("saleContractStatus", "مسودة");
@@ -174,10 +166,6 @@ export default function SaleContract() {
   const handleConfirm = async () => {
     closeToast();
     const resolvedForm = { ...form, contractYear: form.contractYear.trim() || todayIso() };
-    if (!isSaleContractFormComplete(resolvedForm)) {
-      showToast(SALE_FORM_INCOMPLETE_MSG, "error");
-      return;
-    }
     setForm(resolvedForm);
     localStorage.setItem("saleContractDraft", JSON.stringify(resolvedForm));
     localStorage.setItem("saleContractStatus", "مؤكد");
