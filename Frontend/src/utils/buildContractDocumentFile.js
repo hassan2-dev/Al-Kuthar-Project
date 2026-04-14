@@ -25,7 +25,7 @@ function fillDate(iso) {
   return esc(s);
 }
 
-function wrapHtml(title, statusLine, inner) {
+function wrapHtml(title, statusLine, inner, compact = false) {
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -36,6 +36,7 @@ function wrapHtml(title, statusLine, inner) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
+    @page { size: A4; margin: 8mm; }
     body{font-family:'El Messiri','Segoe UI',Tahoma,sans-serif;direction:rtl;padding:20px;max-width:980px;margin:0 auto;
       line-height:1.65;color:#4a3a2a;font-size:14px;background:#f4f1ec}
     .sheet{background:#fff;border:1.8px solid #d6b68a;box-shadow:0 0 0 6px #f5efe5 inset;padding:22px 26px}
@@ -68,10 +69,24 @@ function wrapHtml(title, statusLine, inner) {
     .sigs{display:flex;gap:32px;margin-top:20px;justify-content:space-between}
     .sig{flex:1;text-align:center}
     .sigbox{border-top:1px solid #d8c0a0;min-height:32px;margin-top:10px}
+    .sheet--compact{padding:14px 16px}
+    .sheet--compact h1{font-size:1.8rem;margin:0 0 4px}
+    .sheet--compact .meta{font-size:11px;margin-bottom:8px}
+    .sheet--compact .grid{gap:4px 10px;margin:6px 0}
+    .sheet--compact .intro{margin:8px 0}
+    .sheet--compact .clause{margin:8px 0}
+    .sheet--compact p{margin:5px 0}
+    .sheet--compact .extra{margin-top:10px;padding-top:6px}
+    .sheet--compact .extra h3{margin:4px 0}
+    .sheet--compact .sigs{gap:14px;margin-top:8px}
+    .sheet--compact .sig p{margin:2px 0;font-size:12px}
+    .sheet--compact .sigbox{min-height:16px;margin-top:4px}
+    .sheet--compact .lbl{font-size:12px}
+    .sheet--compact span{font-size:12px}
   </style>
 </head>
 <body>
-  <div class="sheet">
+  <div class="sheet ${compact ? "sheet--compact" : ""}">
     <p class="meta">${esc(statusLine)}</p>
     ${inner}
   </div>
@@ -85,7 +100,8 @@ function wrapHtml(title, statusLine, inner) {
  * @param {"مسودة"|"مؤكد"} docStatus
  * @returns {string} مستند HTML كامل
  */
-export function buildSaleContractArchiveHtml(form) {
+export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
+  const statusLine = `عقد بيع — ${docStatus} — معرّف: ${contractId}`;
  
   const inner = `
   <div class="content" style="direction: rtl;">
@@ -166,7 +182,7 @@ export function buildSaleContractArchiveHtml(form) {
   </div>
   `;
 
-  return wrapHtml("عقد بيع", inner);
+  return wrapHtml("عقد بيع", statusLine, inner);
 }
 
 /**
@@ -234,5 +250,5 @@ export function buildRentContractArchiveHtml(form, contractId, docStatus) {
     </div>
   </div>`;
 
-  return wrapHtml("عقد إيجار", statusLine, inner);
+  return wrapHtml("عقد إيجار", statusLine, inner, true);
 }
