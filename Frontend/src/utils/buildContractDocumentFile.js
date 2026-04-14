@@ -53,7 +53,6 @@ function wrapHtml(title, statusLine, inner, compact = false) {
     .line{height:1px;background:#e3d2bb;margin:12px 0}
     .twocol{display:grid;grid-template-columns:1fr 1fr;gap:24px}
     .box{border-top:1px solid #e3d2bb;padding-top:8px}
-    .party-title{font-weight:700;color:#6f4d2a;margin:4px 0 8px}
     .row{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:8px;margin:6px 0}
     .dash{min-height:18px;border-bottom:1px solid #d8c0a0;padding:0 4px;color:#3c3024}
     .center-note{text-align:center;font-size:13px;margin:10px 0;color:#4c3c2c;font-weight:600}
@@ -118,14 +117,12 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
 
     <div class="twocol">
       <div class="box">
-        <p class="party-title">الفريق الأول</p>
-        <div class="row"><span class="lbl">البائع السيد</span><span class="dash">${fill(form.partyOneSeller)}</span></div>
+        <div class="row"><span class="lbl">الفريق الأول - البائع</span><span class="dash">${fill(form.partyOneSeller)}</span></div>
         <div class="row"><span class="lbl">الساكن</span><span class="dash">${fill(form.sellerCity)}</span></div>
         <div class="row"><span class="lbl">المهنة</span><span class="dash">${fill(form.sellerProfession)}</span></div>
       </div>
       <div class="box">
-        <p class="party-title">الفريق الثاني</p>
-        <div class="row"><span class="lbl">المشتري السيد</span><span class="dash">${fill(form.partyTwoBuyer)}</span></div>
+        <div class="row"><span class="lbl">الفريق الثاني - المشتري</span><span class="dash">${fill(form.partyTwoBuyer)}</span></div>
         <div class="row"><span class="lbl">الساكن</span><span class="dash">${fill(form.buyerCity)}</span></div>
         <div class="row"><span class="lbl">المهنة</span><span class="dash">${fill(form.buyerProfession)}</span></div>
       </div>

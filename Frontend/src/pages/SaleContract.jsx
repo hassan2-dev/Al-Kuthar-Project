@@ -389,7 +389,7 @@ export default function SaleContract() {
             {/* الفريقين — شبكة أعمدة متساوية بين الصفين */}
             <div className="sc-doc-clause sc-doc-clause--parties">
               <div className="sc-party-grid" role="group" aria-label="بيانات الفريقين للعقد">
-                <strong className="sc-party-col-label">الفريق الأول</strong>
+                <strong className="sc-party-col-label">الفريق الأول البائع السيد:</strong>
                 <div className="sc-party-col-input">
                   <B name="partyOneSeller" size="lg" value={form.partyOneSeller} onChange={handleChange} />
                 </div>
@@ -402,7 +402,7 @@ export default function SaleContract() {
                   <B name="sellerProfession" size="md" value={form.sellerProfession} onChange={handleChange} />
                 </div>
 
-                <strong className="sc-party-col-label">الفريق الثاني</strong>
+                <strong className="sc-party-col-label">الفريق الثاني المشتري السيد:</strong>
                 <div className="sc-party-col-input">
                   <B name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer} onChange={handleChange} />
                 </div>
