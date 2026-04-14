@@ -116,9 +116,9 @@ export default function SaleContractPrint() {
               {/* Parties — two columns side by side */}
               <div className="cp-parties-wrap">
                 <div className="cp-party-box">
-                  <div className="cp-party-head">الفريق الأول — البائع</div>
+                  <div className="cp-party-head">الفريق الأول</div>
                   <div className="cp-party-fields">
-                    <span className="cp-pl">الاسم :</span>
+                    <span className="cp-pl">البائع السيد :</span>
                     <strong className={fieldClass("cp-pv", form.partyOneSeller)}>{fill(form.partyOneSeller)}</strong>
                     <span className="cp-pl">السكن :</span>
                     <strong className={fieldClass("cp-pv", form.sellerCity)}>{fill(form.sellerCity)}</strong>
@@ -128,9 +128,9 @@ export default function SaleContractPrint() {
                 </div>
                 <div className="cp-parties-vdivider" />
                 <div className="cp-party-box">
-                  <div className="cp-party-head">الفريق الثاني — المشتري</div>
+                  <div className="cp-party-head">الفريق الثاني</div>
                   <div className="cp-party-fields">
-                    <span className="cp-pl">الاسم :</span>
+                    <span className="cp-pl">المشتري السيد :</span>
                     <strong className={fieldClass("cp-pv", form.partyTwoBuyer)}>{fill(form.partyTwoBuyer)}</strong>
                     <span className="cp-pl">السكن :</span>
                     <strong className={fieldClass("cp-pv", form.buyerCity)}>{fill(form.buyerCity)}</strong>

@@ -3,7 +3,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import Toast from "../components/Toast";
-import { confirmContract, createContract, updateContract } from "../api/contractsApi";
+import {
+  archiveContract,
+  confirmContract,
+  createContract,
+  updateContract,
+} from "../api/contractsApi";
 import {
   isSaleContractFormComplete,
   SALE_FORM_INCOMPLETE_MSG,
@@ -99,6 +104,16 @@ export default function SaleContract() {
     details: { ...payloadForm },
   });
 
+  const ensureArchived = async (contractId) => {
+    if (!contractId) return false;
+    try {
+      await archiveContract(contractId);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleSaveDraft = async () => {
     closeToast();
     const resolvedForm = { ...form, contractYear: form.contractYear.trim() || todayIso() };
@@ -116,6 +131,7 @@ export default function SaleContract() {
         setSavedContractId(contractId);
         localStorage.setItem("saleContractId", String(contractId));
       }
+      const archivedOk = await ensureArchived(contractId);
       setStatus("مسودة");
       let uploadResult = "none";
       try {
@@ -125,11 +141,26 @@ export default function SaleContract() {
         uploadResult = "fail";
       }
       if (uploadResult === "ok") {
-        showToast("تم حفظ المسودة وتخزين نسخة PDF بنجاح", "success");
+        showToast(
+          archivedOk
+            ? "تم حفظ المسودة، أرشفة العقد، وتخزين نسخة PDF بنجاح"
+            : "تم حفظ المسودة وتخزين نسخة PDF، لكن تعذرت الأرشفة",
+          archivedOk ? "success" : "error",
+        );
       } else if (uploadResult === "fail") {
-        showToast("تم حفظ المسودة. تعذر تخزين ملف PDF.", "error");
+        showToast(
+          archivedOk
+            ? "تم حفظ المسودة وأرشفة العقد. تعذر تخزين ملف PDF."
+            : "تم حفظ المسودة. تعذرت الأرشفة وتخزين ملف PDF.",
+          "error",
+        );
       } else {
-        showToast("تم حفظ المسودة بنجاح", "success");
+        showToast(
+          archivedOk
+            ? "تم حفظ المسودة وأرشفة العقد بنجاح"
+            : "تم حفظ المسودة، لكن تعذرت الأرشفة",
+          archivedOk ? "success" : "error",
+        );
       }
       setForm({ ...INITIAL_SALE_FORM });
       setSavedContractId(null);
@@ -165,6 +196,7 @@ export default function SaleContract() {
         setSavedContractId(contractId);
         localStorage.setItem("saleContractId", String(contractId));
       }
+      const archivedOk = await ensureArchived(contractId);
 
       setStatus("مسودة");
       let uploadResult = "none";
@@ -175,11 +207,26 @@ export default function SaleContract() {
         uploadResult = "fail";
       }
       if (uploadResult === "ok") {
-        showToast("تم تأكيد العقد وتخزين نسخة PDF بنجاح", "success");
+        showToast(
+          archivedOk
+            ? "تم تأكيد العقد، أرشفته، وتخزين نسخة PDF بنجاح"
+            : "تم تأكيد العقد وتخزين نسخة PDF، لكن تعذرت الأرشفة",
+          archivedOk ? "success" : "error",
+        );
       } else if (uploadResult === "fail") {
-        showToast("تم تأكيد العقد. تعذر تخزين ملف PDF.", "error");
+        showToast(
+          archivedOk
+            ? "تم تأكيد العقد وأرشفته. تعذر تخزين ملف PDF."
+            : "تم تأكيد العقد. تعذرت الأرشفة وتخزين ملف PDF.",
+          "error",
+        );
       } else {
-        showToast("تم تأكيد العقد بنجاح", "success");
+        showToast(
+          archivedOk
+            ? "تم تأكيد العقد وأرشفته بنجاح"
+            : "تم تأكيد العقد، لكن تعذرت الأرشفة",
+          archivedOk ? "success" : "error",
+        );
       }
       setForm({ ...INITIAL_SALE_FORM });
       setSavedContractId(null);

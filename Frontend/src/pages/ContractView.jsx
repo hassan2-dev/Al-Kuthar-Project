@@ -126,17 +126,17 @@ export function SaleContractBody({ data }) {
       <h1 className="official-title">عقد بيع</h1>
 
       <div className="print-parties-grid">
-        <span className="print-parties-label">الفريق الأول البائع السيد:</span>
+        <span className="print-parties-label">الفريق الأول:</span>
         <strong className="print-parties-value">{fill(data.partyOneSeller || data.sellerName)}</strong>
         <span className="print-parties-label">الساكن:</span>
         <strong className="print-parties-value">{fill(data.sellerCity)}</strong>
-        <span className="print-parties-label">المهنة:</span>
+        <span className="print-parties-label">رقم الهاتف:</span>
         <strong className="print-parties-value">{fill(data.sellerProfession)}</strong>
-        <span className="print-parties-label">الفريق الثاني المشتري السيد:</span>
+        <span className="print-parties-label">الفريق الثاني:</span>
         <strong className="print-parties-value">{fill(data.partyTwoBuyer || data.buyerName)}</strong>
         <span className="print-parties-label">الساكن:</span>
         <strong className="print-parties-value">{fill(data.buyerCity)}</strong>
-        <span className="print-parties-label">المهنة:</span>
+        <span className="print-parties-label">رقم الهاتف:</span>
         <strong className="print-parties-value">{fill(data.buyerProfession)}</strong>
       </div>
 
@@ -563,7 +563,7 @@ export default function ContractView() {
                 <div className="sc-doc-clause sc-doc-clause--parties">
                   <div className="sc-rent-fields-grid">
 
-                    <span className="sc-rent-field-label">الفريق الأول البائع :</span>
+                    <span className="sc-rent-field-label">الفريق الأول :</span>
                     <div className="sc-rent-field-value">
                       <B name="partyOneSeller" size="lg" value={form.partyOneSeller ?? form.sellerName} onChange={handleChange} />
                     </div>
@@ -573,12 +573,12 @@ export default function ContractView() {
                       <B name="sellerCity" size="lg" value={form.sellerCity} onChange={handleChange} />
                     </div>
 
-                    <span className="sc-rent-field-label">المهنة :</span>
+                    <span className="sc-rent-field-label">رقم الهاتف :</span>
                     <div className="sc-rent-field-value">
                       <B name="sellerProfession" size="lg" value={form.sellerProfession} onChange={handleChange} />
                     </div>
 
-                    <span className="sc-rent-field-label">الفريق الثاني المشتري :</span>
+                    <span className="sc-rent-field-label">الفريق الثاني :</span>
                     <div className="sc-rent-field-value">
                       <B name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer ?? form.buyerName} onChange={handleChange} />
                     </div>
@@ -588,7 +588,7 @@ export default function ContractView() {
                       <B name="buyerCity" size="lg" value={form.buyerCity} onChange={handleChange} />
                     </div>
 
-                    <span className="sc-rent-field-label">المهنة :</span>
+                    <span className="sc-rent-field-label">رقم الهاتف :</span>
                     <div className="sc-rent-field-value">
                       <B name="buyerProfession" size="lg" value={form.buyerProfession} onChange={handleChange} />
                     </div>
