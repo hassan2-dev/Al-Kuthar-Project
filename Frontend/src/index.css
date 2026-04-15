@@ -1,4 +1,4 @@
-﻿* {
+* {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -4065,6 +4065,28 @@ button {
   padding: 28px 20px 60px;
   font-family: "El Messiri", "Quicksand", Arial, sans-serif;
   direction: rtl;
+  position: relative;
+  overflow: hidden;
+}
+
+.cp-buildings {
+  position: fixed;
+  bottom: 0;
+  width: 260px;
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cp-buildings--left  { left: 0; }
+.cp-buildings--right { right: 0; transform: scaleX(-1); }
+
+@media (max-width: 900px) {
+  .cp-buildings { width: 160px; }
+}
+
+@media (max-width: 600px) {
+  .cp-buildings { width: 100px; }
 }
 
 /* ── Toolbar ── */
@@ -4150,10 +4172,152 @@ button {
 
 /* Dark mode for editable sheet */
 [data-theme="dark"] .cv-edit-sheet {
-  background: #1a1710;
+  background: #1e1b14;
   border-color: rgba(200, 169, 126, 0.4);
 }
 
+/* Inner border */
+[data-theme="dark"] .cv-edit-sheet .cp-inner-border {
+  border-color: rgba(200, 169, 126, 0.25);
+}
+
+/* Header */
+[data-theme="dark"] .cv-edit-sheet .cp-header {
+  background: #252015;
+  border-image: linear-gradient(to left, transparent, rgba(200,169,126,0.5) 18%, rgba(232,208,128,0.5) 50%, rgba(200,169,126,0.5) 82%, transparent) 1;
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-header-city {
+  color: #e8dcc8;
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-header-date {
+  color: var(--ak-gold);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-bismillah {
+  color: var(--ak-gold);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-title {
+  color: #e8dcc8;
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-title-orn {
+  background: linear-gradient(to left, transparent, rgba(200,169,126,0.6));
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-title-orn--rev {
+  background: linear-gradient(to right, transparent, rgba(200,169,126,0.6));
+}
+
+/* Parties */
+[data-theme="dark"] .cv-edit-sheet .cp-party-head {
+  color: var(--ak-gold);
+  border-bottom-color: rgba(200, 169, 126, 0.25);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-parties-vdivider {
+  background: rgba(200, 169, 126, 0.18);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-pl {
+  color: #b09878;
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-pv {
+  color: #e8dcc8;
+  border-bottom-color: rgba(200, 169, 126, 0.25);
+}
+
+/* Intro */
+[data-theme="dark"] .cv-edit-sheet .cp-intro {
+  color: #e8dcc8;
+  border-top-color: rgba(200, 169, 126, 0.18);
+  border-bottom-color: rgba(200, 169, 126, 0.18);
+}
+
+/* Clauses */
+[data-theme="dark"] .cv-edit-sheet .cp-clause {
+  color: #d4c8b4;
+  border-bottom-color: rgba(200, 169, 126, 0.14);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-clause-lead {
+  color: var(--ak-gold);
+}
+
+/* Property grid */
+[data-theme="dark"] .cv-edit-sheet .cp-prop-label {
+  color: #b09878;
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-prop-value {
+  color: #e8dcc8;
+  border-bottom-color: rgba(200, 169, 126, 0.25);
+}
+
+/* Inline values */
+[data-theme="dark"] .cv-edit-sheet .cp-val {
+  color: #e8dcc8;
+  border-bottom-color: rgba(200, 169, 126, 0.3);
+}
+
+/* Rent grid */
+[data-theme="dark"] .cv-edit-sheet .cp-rent-label {
+  color: #b09878;
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-rent-cell {
+  color: #e8dcc8;
+  border-bottom-color: rgba(200, 169, 126, 0.25);
+}
+
+/* Closing / date line */
+[data-theme="dark"] .cv-edit-sheet .cp-closing,
+[data-theme="dark"] .cv-edit-sheet .cp-date-line {
+  color: #e8dcc8;
+}
+
+/* Extra (notes) */
+[data-theme="dark"] .cv-edit-sheet .cp-extra {
+  border-top-color: rgba(200, 169, 126, 0.25);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-extra-title {
+  color: var(--ak-gold);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-extra-content {
+  color: #d4c8b4;
+}
+
+/* Signatures */
+[data-theme="dark"] .cv-edit-sheet .cp-sigs,
+[data-theme="dark"] .cv-edit-sheet .cp-rent-sigs {
+  border-top-color: rgba(200, 169, 126, 0.25);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-sig-head,
+[data-theme="dark"] .cv-edit-sheet .cp-rent-sig-head {
+  color: var(--ak-gold);
+  border-bottom-color: rgba(200, 169, 126, 0.25);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-rent-sig-label {
+  color: #b09878;
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-rent-sig-value {
+  color: #e8dcc8;
+  border-bottom-color: rgba(200, 169, 126, 0.25);
+}
+
+[data-theme="dark"] .cv-edit-sheet .cp-rent-sig-row {
+  border-bottom-color: rgba(200, 169, 126, 0.10);
+}
+
+/* Editable inputs */
 [data-theme="dark"] .cv-edit-sheet .sc-blank {
   color: #e8dcc8;
   border-bottom-color: rgba(200, 169, 126, 0.4);
@@ -4201,6 +4365,24 @@ button {
   max-height: 85%;
   background: url("/al-kawthar-logo.png") center center / contain no-repeat;
   opacity: 0.055;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Buildings watermark on the paper bottom corners — tall, very faint, white windows */
+.cp-inner-border::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 420px;
+  opacity: 0.07;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 420'%3E%3C!--slim tower--%3E%3Crect x='8' y='70' width='24' height='350' rx='2' fill='%23a07828'/%3E%3Crect x='11' y='86' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='19' y='86' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='11' y='102' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='19' y='102' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='11' y='118' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='19' y='118' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='11' y='134' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='19' y='134' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='11' y='150' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='19' y='150' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='11' y='166' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='19' y='166' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='11' y='182' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='19' y='182' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='11' y='198' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='19' y='198' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='11' y='214' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='19' y='214' width='5' height='7' rx='1' fill='white'/%3E%3Cline x1='20' y1='70' x2='20' y2='44' stroke='%23a07828' stroke-width='2'/%3E%3Cline x1='15' y1='54' x2='25' y2='54' stroke='%23a07828' stroke-width='1.5'/%3E%3Cellipse cx='20' cy='43' rx='4' ry='5' fill='%23a07828'/%3E%3C!--main building with dome--%3E%3Crect x='38' y='150' width='72' height='270' rx='3' fill='%23a07828'/%3E%3Crect x='44' y='168' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='58' y='168' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='72' y='168' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='86' y='168' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='44' y='192' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='58' y='192' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='72' y='192' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='86' y='192' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='44' y='216' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='58' y='216' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='72' y='216' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='86' y='216' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='44' y='240' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='58' y='240' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='72' y='240' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='86' y='240' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='44' y='264' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='58' y='264' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='72' y='264' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='86' y='264' width='10' height='14' rx='1' fill='white'/%3E%3C!--dome--%3E%3Cellipse cx='74' cy='150' rx='36' ry='24' fill='%23a07828'/%3E%3Cellipse cx='74' cy='133' rx='22' ry='18' fill='%23a07828'/%3E%3Cellipse cx='74' cy='120' rx='12' ry='10' fill='%23a07828'/%3E%3Cline x1='74' y1='110' x2='74' y2='88' stroke='%23a07828' stroke-width='2.5'/%3E%3Cellipse cx='74' cy='86' rx='5' ry='8' fill='%23a07828'/%3E%3C!--side building--%3E%3Crect x='118' y='250' width='44' height='170' rx='2' fill='%23a07828'/%3E%3Crect x='124' y='264' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='136' y='264' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='148' y='264' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='124' y='284' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='136' y='284' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='148' y='284' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='124' y='304' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='136' y='304' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='148' y='304' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='124' y='324' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='136' y='324' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='148' y='324' width='8' height='11' rx='1' fill='white'/%3E%3Cpolygon points='140,228 118,250 162,250' fill='%23a07828'/%3E%3Cline x1='140' y1='228' x2='140' y2='210' stroke='%23a07828' stroke-width='2'/%3E%3C!--ground--%3E%3Cline x1='0' y1='420' x2='200' y2='420' stroke='%23a07828' stroke-width='1.5'/%3E%3C/svg%3E") left bottom / auto 420px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 420'%3E%3C!--slim tower--%3E%3Crect x='168' y='70' width='24' height='350' rx='2' fill='%23a07828'/%3E%3Crect x='171' y='86' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='179' y='86' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='171' y='102' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='179' y='102' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='171' y='118' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='179' y='118' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='171' y='134' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='179' y='134' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='171' y='150' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='179' y='150' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='171' y='166' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='179' y='166' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='171' y='182' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='179' y='182' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='171' y='198' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='179' y='198' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='171' y='214' width='5' height='7' rx='1' fill='white'/%3E%3Crect x='179' y='214' width='5' height='7' rx='1' fill='white'/%3E%3Cline x1='180' y1='70' x2='180' y2='44' stroke='%23a07828' stroke-width='2'/%3E%3Cline x1='175' y1='54' x2='185' y2='54' stroke='%23a07828' stroke-width='1.5'/%3E%3Cellipse cx='180' cy='43' rx='4' ry='5' fill='%23a07828'/%3E%3C!--main building with dome--%3E%3Crect x='90' y='150' width='72' height='270' rx='3' fill='%23a07828'/%3E%3Crect x='96' y='168' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='110' y='168' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='124' y='168' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='138' y='168' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='96' y='192' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='110' y='192' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='124' y='192' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='138' y='192' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='96' y='216' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='110' y='216' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='124' y='216' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='138' y='216' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='96' y='240' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='110' y='240' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='124' y='240' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='138' y='240' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='96' y='264' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='110' y='264' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='124' y='264' width='10' height='14' rx='1' fill='white'/%3E%3Crect x='138' y='264' width='10' height='14' rx='1' fill='white'/%3E%3C!--dome--%3E%3Cellipse cx='126' cy='150' rx='36' ry='24' fill='%23a07828'/%3E%3Cellipse cx='126' cy='133' rx='22' ry='18' fill='%23a07828'/%3E%3Cellipse cx='126' cy='120' rx='12' ry='10' fill='%23a07828'/%3E%3Cline x1='126' y1='110' x2='126' y2='88' stroke='%23a07828' stroke-width='2.5'/%3E%3Cellipse cx='126' cy='86' rx='5' ry='8' fill='%23a07828'/%3E%3C!--side building--%3E%3Crect x='38' y='250' width='44' height='170' rx='2' fill='%23a07828'/%3E%3Crect x='44' y='264' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='56' y='264' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='68' y='264' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='44' y='284' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='56' y='284' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='68' y='284' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='44' y='304' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='56' y='304' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='68' y='304' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='44' y='324' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='56' y='324' width='8' height='11' rx='1' fill='white'/%3E%3Crect x='68' y='324' width='8' height='11' rx='1' fill='white'/%3E%3Cpolygon points='60,228 38,250 82,250' fill='%23a07828'/%3E%3Cline x1='60' y1='228' x2='60' y2='210' stroke='%23a07828' stroke-width='2'/%3E%3C!--ground--%3E%3Cline x1='0' y1='420' x2='200' y2='420' stroke='%23a07828' stroke-width='1.5'/%3E%3C/svg%3E") right bottom / auto 420px no-repeat;
   pointer-events: none;
   z-index: 0;
   -webkit-print-color-adjust: exact;
@@ -4962,7 +5144,7 @@ button {
   }
   .lp-title { font-size: 22px; }
   .lp-sub   { font-size: 13px; }
-  .lp-input { font-size: 14px; padding: 11px 14px; }
+  .lp-input { font-size: 14px; padding: 11px 42px 11px 42px; }
   .lp-btn   { padding: 13px 20px; font-size: 15px; }
 }
 

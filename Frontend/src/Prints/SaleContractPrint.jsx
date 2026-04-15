@@ -68,6 +68,70 @@ export default function SaleContractPrint() {
   return (
     <div className="cp-page">
 
+      {/* Buildings — screen only */}
+      <svg className="cp-buildings cp-buildings--left no-print" viewBox="0 0 340 520" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="20" y="60" width="38" height="460" rx="3" fill="rgba(100,80,48,0.10)"/>
+        <rect x="24" y="80" width="6" height="8" rx="1" fill="rgba(100,80,48,0.18)"/>
+        <rect x="34" y="80" width="6" height="8" rx="1" fill="rgba(100,80,48,0.18)"/>
+        <rect x="44" y="80" width="6" height="8" rx="1" fill="rgba(100,80,48,0.18)"/>
+        <rect x="24" y="100" width="6" height="8" rx="1" fill="rgba(100,80,48,0.14)"/>
+        <rect x="34" y="100" width="6" height="8" rx="1" fill="rgba(100,80,48,0.22)"/>
+        <rect x="44" y="100" width="6" height="8" rx="1" fill="rgba(100,80,48,0.14)"/>
+        <rect x="24" y="120" width="6" height="8" rx="1" fill="rgba(100,80,48,0.18)"/>
+        <rect x="34" y="120" width="6" height="8" rx="1" fill="rgba(100,80,48,0.12)"/>
+        <rect x="44" y="120" width="6" height="8" rx="1" fill="rgba(100,80,48,0.18)"/>
+        <rect x="24" y="140" width="6" height="8" rx="1" fill="rgba(100,80,48,0.14)"/>
+        <rect x="34" y="140" width="6" height="8" rx="1" fill="rgba(100,80,48,0.20)"/>
+        <rect x="44" y="140" width="6" height="8" rx="1" fill="rgba(100,80,48,0.14)"/>
+        <line x1="39" y1="60" x2="39" y2="20" stroke="rgba(100,80,48,0.22)" strokeWidth="2"/>
+        <line x1="34" y1="35" x2="44" y2="35" stroke="rgba(100,80,48,0.18)" strokeWidth="1.5"/>
+        <rect x="70" y="140" width="72" height="380" rx="4" fill="rgba(100,80,48,0.12)"/>
+        <rect x="82" y="160" width="10" height="14" rx="1.5" fill="rgba(100,80,48,0.22)"/>
+        <rect x="98" y="160" width="10" height="14" rx="1.5" fill="rgba(100,80,48,0.16)"/>
+        <rect x="114" y="160" width="10" height="14" rx="1.5" fill="rgba(100,80,48,0.22)"/>
+        <rect x="82" y="185" width="10" height="14" rx="1.5" fill="rgba(100,80,48,0.16)"/>
+        <rect x="98" y="185" width="10" height="14" rx="1.5" fill="rgba(100,80,48,0.26)"/>
+        <rect x="114" y="185" width="10" height="14" rx="1.5" fill="rgba(100,80,48,0.16)"/>
+        <rect x="82" y="210" width="10" height="14" rx="1.5" fill="rgba(100,80,48,0.20)"/>
+        <rect x="98" y="210" width="10" height="14" rx="1.5" fill="rgba(100,80,48,0.14)"/>
+        <rect x="114" y="210" width="10" height="14" rx="1.5" fill="rgba(100,80,48,0.20)"/>
+        <polygon points="106,110 70,140 142,140" fill="rgba(100,80,48,0.13)"/>
+        <line x1="106" y1="110" x2="106" y2="80" stroke="rgba(100,80,48,0.24)" strokeWidth="2.5"/>
+        <rect x="155" y="260" width="50" height="260" rx="3" fill="rgba(100,80,48,0.09)"/>
+        <ellipse cx="240" cy="440" rx="22" ry="30" fill="rgba(100,80,48,0.08)"/>
+        <ellipse cx="240" cy="415" rx="15" ry="22" fill="rgba(100,80,48,0.10)"/>
+        <rect x="237" y="470" width="6" height="50" fill="rgba(100,80,48,0.09)"/>
+        <line x1="0" y1="520" x2="340" y2="520" stroke="rgba(100,80,48,0.12)" strokeWidth="1"/>
+      </svg>
+
+      <svg className="cp-buildings cp-buildings--right no-print" viewBox="0 0 340 520" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="282" y="80" width="40" height="440" rx="3" fill="rgba(100,80,48,0.09)"/>
+        <rect x="287" y="100" width="6" height="8" rx="1" fill="rgba(100,80,48,0.16)"/>
+        <rect x="297" y="100" width="6" height="8" rx="1" fill="rgba(100,80,48,0.22)"/>
+        <rect x="307" y="100" width="6" height="8" rx="1" fill="rgba(100,80,48,0.16)"/>
+        <rect x="287" y="120" width="6" height="8" rx="1" fill="rgba(100,80,48,0.20)"/>
+        <rect x="297" y="120" width="6" height="8" rx="1" fill="rgba(100,80,48,0.14)"/>
+        <rect x="307" y="120" width="6" height="8" rx="1" fill="rgba(100,80,48,0.20)"/>
+        <line x1="302" y1="80" x2="302" y2="40" stroke="rgba(100,80,48,0.20)" strokeWidth="2"/>
+        <line x1="295" y1="58" x2="309" y2="58" stroke="rgba(100,80,48,0.16)" strokeWidth="1.5"/>
+        <rect x="198" y="150" width="76" height="370" rx="4" fill="rgba(100,80,48,0.11)"/>
+        <rect x="208" y="168" width="11" height="15" rx="1.5" fill="rgba(100,80,48,0.20)"/>
+        <rect x="225" y="168" width="11" height="15" rx="1.5" fill="rgba(100,80,48,0.14)"/>
+        <rect x="242" y="168" width="11" height="15" rx="1.5" fill="rgba(100,80,48,0.20)"/>
+        <rect x="259" y="168" width="11" height="15" rx="1.5" fill="rgba(100,80,48,0.14)"/>
+        <rect x="208" y="194" width="11" height="15" rx="1.5" fill="rgba(100,80,48,0.14)"/>
+        <rect x="225" y="194" width="11" height="15" rx="1.5" fill="rgba(100,80,48,0.24)"/>
+        <rect x="242" y="194" width="11" height="15" rx="1.5" fill="rgba(100,80,48,0.14)"/>
+        <rect x="259" y="194" width="11" height="15" rx="1.5" fill="rgba(100,80,48,0.18)"/>
+        <polygon points="236,115 198,150 274,150" fill="rgba(100,80,48,0.12)"/>
+        <line x1="236" y1="115" x2="236" y2="85" stroke="rgba(100,80,48,0.22)" strokeWidth="2.5"/>
+        <rect x="130" y="280" width="54" height="240" rx="3" fill="rgba(100,80,48,0.09)"/>
+        <ellipse cx="85" cy="445" rx="20" ry="28" fill="rgba(100,80,48,0.07)"/>
+        <ellipse cx="85" cy="422" rx="14" ry="20" fill="rgba(100,80,48,0.09)"/>
+        <rect x="82" y="473" width="6" height="47" fill="rgba(100,80,48,0.08)"/>
+        <line x1="0" y1="520" x2="340" y2="520" stroke="rgba(100,80,48,0.12)" strokeWidth="1"/>
+      </svg>
+
       {/* Toolbar — screen only */}
       <div className="cp-toolbar no-print">
         <button
