@@ -9,7 +9,7 @@ import {
   revertContract,
 } from "../api/contractsApi";
 
-/* ── helpers used by the static (print) bodies ── */
+/* ── helpers ── */
 const fill = (value) => value?.toString().trim() || "................";
 
 const fillDate = (value) => {
@@ -181,7 +181,7 @@ export function SaleContractBody({ data }) {
 }
 
 /* ══════════════════════════════════════════════
-   Inline editable input (same style as creation pages)
+   Inline editable input
 ══════════════════════════════════════════════ */
 function B({ name, size = "md", value, onChange, type = "text" }) {
   const isDate = type === "date";
@@ -195,6 +195,340 @@ function B({ name, size = "md", value, onChange, type = "text" }) {
       dir={isDate ? "ltr" : "rtl"}
       {...(isDate ? {} : { inputMode: "text" })}
     />
+  );
+}
+
+/* ══════════════════════════════════════════════
+   Sale contract sheet — editable version
+══════════════════════════════════════════════ */
+function SaleEditSheet({ form, onChange }) {
+  return (
+    <div className="cp-sheet cv-edit-sheet" dir="rtl">
+      <div className="cp-outer-border">
+        <div className="cp-inner-border">
+
+          <div className="cp-header">
+            <div className="cp-header-meta">
+              <span className="cp-header-city">البصرة</span>
+              <span className="cp-header-date cv-header-date-field">
+                التاريخ :
+                <B type="date" name="contractYear" size="md" value={form.contractYear ?? form.contractDate} onChange={onChange} />
+              </span>
+            </div>
+            <div className="cp-header-center">
+              <p className="cp-bismillah">بسم الله الرحمن الرحيم</p>
+              <div className="cp-title-wrapper">
+                <div className="cp-title-orn" />
+                <h1 className="cp-title">عقد بيع عقار</h1>
+                <div className="cp-title-orn cp-title-orn--rev" />
+              </div>
+            </div>
+            <div className="cp-header-brand">
+              <img src="/al-kawthar-logo.png" alt="Al-Kawthar" className="cp-logo-img" />
+            </div>
+          </div>
+
+          <div className="cp-content">
+
+            <div className="cp-parties-wrap">
+              <div className="cp-party-box">
+                <div className="cp-party-head">الفريق الأول — البائع</div>
+                <div className="cp-party-fields">
+                  <span className="cp-pl">الاسم :</span>
+                  <B name="partyOneSeller" size="lg" value={form.partyOneSeller ?? form.sellerName} onChange={onChange} />
+                  <span className="cp-pl">السكن :</span>
+                  <B name="sellerCity" size="lg" value={form.sellerCity} onChange={onChange} />
+                  <span className="cp-pl">المهنة :</span>
+                  <B name="sellerProfession" size="lg" value={form.sellerProfession} onChange={onChange} />
+                </div>
+              </div>
+              <div className="cp-parties-vdivider" />
+              <div className="cp-party-box">
+                <div className="cp-party-head">الفريق الثاني — المشتري</div>
+                <div className="cp-party-fields">
+                  <span className="cp-pl">الاسم :</span>
+                  <B name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer ?? form.buyerName} onChange={onChange} />
+                  <span className="cp-pl">السكن :</span>
+                  <B name="buyerCity" size="lg" value={form.buyerCity} onChange={onChange} />
+                  <span className="cp-pl">المهنة :</span>
+                  <B name="buyerProfession" size="lg" value={form.buyerProfession} onChange={onChange} />
+                </div>
+              </div>
+            </div>
+
+            <p className="cp-intro">لقد تم الاتفاق بين الفريقين على عقد هذه المقاولة بالشروط التالية :</p>
+
+            <div className="cp-clauses">
+
+              <div className="cp-clause">
+                <div className="cp-clause-body">
+                  <p><strong className="cp-clause-lead">أولاً :</strong> يعترف الفريق الأول بأنه قد باع الى الفريق الثاني الملك المفصل فيما يلي :</p>
+                  <div className="cp-prop-grid">
+                    <span className="cp-prop-label">نوع الملك</span>
+                    <B name="propertyType" size="lg" value={form.propertyType} onChange={onChange} />
+                    <span className="cp-prop-label">الرقم والتسلسل</span>
+                    <B name="propertyNumber" size="lg" value={form.propertyNumber} onChange={onChange} />
+                    <span className="cp-prop-label">المحلة</span>
+                    <B name="mahala" size="lg" value={form.mahala} onChange={onChange} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="cp-clause">
+                <div className="cp-clause-body">
+                  <p>
+                    <strong className="cp-clause-lead">ثانياً :</strong>{" "}إن بدل البيع المتفق عليه هو{" "}
+                    <B name="agreedPrice" size="lg" value={form.agreedPrice} onChange={onChange} />
+                  </p>
+                  <p>
+                    ويعترف الفريق الأول بأنه قد قبض من الفريق الثاني عربوناً قدره{" "}
+                    <B name="depositPaid" size="lg" value={form.depositPaid} onChange={onChange} />
+                  </p>
+                  <p>
+                    والباقي{" "}
+                    <B name="remainingAmount" size="lg" value={form.remainingAmount} onChange={onChange} />
+                  </p>
+                  <p>وأما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
+                </div>
+              </div>
+
+              <div className="cp-clause">
+                <div className="cp-clause-body">
+                  <p>
+                    <strong className="cp-clause-lead">ثالثاً :</strong>{" "}اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزماً بإعادة
+                    العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره{" "}
+                    <B name="sellerPenalty" size="md" value={form.sellerPenalty} onChange={onChange} />{" "}
+                    ديناراً بدون حاجة الى إنذار رسمي.
+                  </p>
+                </div>
+              </div>
+
+              <div className="cp-clause">
+                <div className="cp-clause-body">
+                  <p>
+                    <strong className="cp-clause-lead">رابعاً :</strong>{" "}يعترف الفريق الثاني بأنه قد قبل الشراء بالشروط المذكورة أنفاً ويتعهد
+                    بتأدية قصور البدل المبيع الى الفريق الأول عند اكمال المعامله والتقرير
+                    في دائرة التسجيل العقاري. واذا نكل عن الشراء وتأدية قصور البدل فأنه
+                    يتعهد بتأدية تضمينات قدرها{" "}
+                    <B name="buyerPenalty" size="md" value={form.buyerPenalty} onChange={onChange} />{" "}
+                    ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون.
+                  </p>
+                </div>
+              </div>
+
+              <div className="cp-clause">
+                <div className="cp-clause-body">
+                  <p>
+                    <strong className="cp-clause-lead">خامساً :</strong>{" "}إن جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق{" "}
+                    <B name="feesOnParty" size="md" value={form.feesOnParty} onChange={onChange} />.
+                  </p>
+                </div>
+              </div>
+
+              <div className="cp-clause">
+                <div className="cp-clause-body">
+                  <p>
+                    <strong className="cp-clause-lead">سادساً :</strong>{" "}أما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك
+                    هي في عهدة الفريق الأول.
+                  </p>
+                </div>
+              </div>
+
+              <div className="cp-clause">
+                <div className="cp-clause-body">
+                  <p>
+                    <strong className="cp-clause-lead">سابعاً :</strong>{" "}يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها ({" "}
+                    <B name="brokerFeePercent" size="sm" value={form.brokerFeePercent} onChange={onChange} />
+                    {" "}%) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة.
+                    واذا نكل احد الفريقين عن تنفيذ شروط هذا العقد يتعهد بتأدية ضعفي الدلالة
+                    المذكورة أعلاه كما أنه في حالة تراضي بين الفريقين على إبطال هذا العقد
+                    فأنهما يكونان ملزمين بتأديتهما الدلالية المذكورة مهما بلغت.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            <p className="cp-closing">فبناء على حصول التراضي والإيجاب والقبول حرر هذا العقد.</p>
+
+            <div className="cp-extra">
+              <p className="cp-extra-title">ملاحظات إضافية</p>
+              <textarea
+                className="sc-blank-area cp-extra-textarea"
+                name="extraClauses"
+                value={form.extraClauses ?? ""}
+                onChange={onChange}
+                rows={3}
+                dir="rtl"
+                placeholder="ملاحظات إضافية..."
+              />
+            </div>
+
+            <div className="cp-sigs">
+              <div className="cp-sig-col">
+                <div className="cp-sig-head">الفريق الأول — البائع</div>
+                <div className="cp-sig-box" />
+              </div>
+              <div className="cp-sig-col">
+                <div className="cp-sig-head">الفريق الثاني — المشتري</div>
+                <div className="cp-sig-box" />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   Rent contract sheet — editable version
+══════════════════════════════════════════════ */
+function RentEditSheet({ form, onChange }) {
+  return (
+    <div className="cp-sheet cv-edit-sheet" dir="rtl">
+      <div className="cp-outer-border">
+        <div className="cp-inner-border">
+
+          <div className="cp-header">
+            <div className="cp-header-meta">
+              <span className="cp-header-city">البصرة</span>
+              <span className="cp-header-date cv-header-date-field">
+                التاريخ :
+                <B type="date" name="contractDate" size="md" value={form.contractDate} onChange={onChange} />
+              </span>
+            </div>
+            <div className="cp-header-center">
+              <p className="cp-bismillah">بسم الله الرحمن الرحيم</p>
+              <div className="cp-title-wrapper">
+                <div className="cp-title-orn" />
+                <h1 className="cp-title">عقد إيجار</h1>
+                <div className="cp-title-orn cp-title-orn--rev" />
+              </div>
+            </div>
+            <div className="cp-header-brand">
+              <img src="/al-kawthar-logo.png" alt="Al-Kawthar" className="cp-logo-img" />
+            </div>
+          </div>
+
+          <div className="cp-content">
+
+            <div className="cp-rent-grid">
+              <span className="cp-rent-label">تسلسل العقار :</span>
+              <div className="cp-rent-cell">
+                <B name="propertySerial" size="md" value={form.propertySerial} onChange={onChange} />
+              </div>
+
+              <span className="cp-rent-label">نوع المأجور :</span>
+              <div className="cp-rent-cell">
+                <B name="propertyType" size="lg" value={form.propertyType} onChange={onChange} />
+              </div>
+
+              <span className="cp-rent-label">مدة الإيجار :</span>
+              <div className="cp-rent-cell" style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                <span>من</span>
+                <B type="date" name="rentFromDate" size="md" value={form.rentFromDate} onChange={onChange} />
+                <span>لغاية</span>
+                <B type="date" name="rentToDate" size="md" value={form.rentToDate} onChange={onChange} />
+              </div>
+
+              <span className="cp-rent-label">بدل الإيجار :</span>
+              <div className="cp-rent-cell" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <B name="rentAmount" size="lg" value={form.rentAmount} onChange={onChange} />
+                <span>دينار فقط</span>
+              </div>
+
+              <span className="cp-rent-label">يدفع مقدماً كل :</span>
+              <div className="cp-rent-cell">
+                <B name="paymentPeriod" size="md" value={form.paymentPeriod} onChange={onChange} />
+              </div>
+
+              <span className="cp-rent-label">المؤجر :</span>
+              <div className="cp-rent-cell">
+                <B name="landlordName" size="lg" value={form.landlordName ?? form.sellerName} onChange={onChange} />
+              </div>
+
+              <span className="cp-rent-label">المستأجر :</span>
+              <div className="cp-rent-cell">
+                <B name="tenantName" size="lg" value={form.tenantName ?? form.buyerName} onChange={onChange} />
+              </div>
+            </div>
+
+            <p className="cp-intro"><strong>واتفقا على ما يأتي :</strong></p>
+
+            <div className="cp-clauses">
+              <div className="cp-clause"><div className="cp-clause-body"><p><strong className="cp-clause-lead">أولاً :</strong> لا يحق للمستأجر أن يقلع أو يعمر أو يثبت لوحة إعلانه أو يغير شيئاً من المأجور دون الحصول على موافقة المؤجر التحريرية واذا نقض هذا الشرط يتعهد المستأجر أن يدفع للمؤجر أي تعويض يعينه المؤجر بنفسه دون الحاجة إلى إخطار رسمي.</p></div></div>
+              <div className="cp-clause"><div className="cp-clause-body"><p><strong className="cp-clause-lead">ثانياً :</strong> اذا تأخر المستأجر عن دفع الاجرة المتفق عليها أو قسط من أقساطها عند الاستحقاق وأظهر المماطلة والمماهلة بهذا الشأن فيحق للمؤجر أن يؤجر المأجور لمن يريد ويعد هذا العقد باطلاً وملغياً وعلى المستأجر ترك المأجور وإخلاءه حالاً مراعاة لهذا الشرط ولا حاجة للإنذار الرسمي.</p></div></div>
+              <div className="cp-clause"><div className="cp-clause-body"><p><strong className="cp-clause-lead">ثالثاً :</strong> اذا تخامل المستأجر عن تخلية المأجور وتفريغه عند انتهاء مدة الإيجار واشغله من دون مسوغ قانوني ومن دون أن يجدد المقاولة مع المؤجر، فيتعهد المستأجر ويلزم على نفسه بتسليم الاجرة ضعف الإيجار المذكور أعلاه للمدة التي تمضي بعد انتهاء مدة هذا العقد الى حين تخلية المأجور ولا حاجة للإنذار الرسمي الى المستأجر بهذا الخصوص بل إن انقضاء المدة المعينة تعد بمقام الإنذار.</p></div></div>
+              <div className="cp-clause"><div className="cp-clause-body"><p><strong className="cp-clause-lead">رابعاً :</strong> تكون الضريبة على المؤجر أما رسم الحراسة وتنظيف المرافق الصحية ورسم الماء والكهرباء فتكون على المستأجر.</p></div></div>
+              <div className="cp-clause"><div className="cp-clause-body"><p><strong className="cp-clause-lead">خامساً :</strong> لا يجوز للمستأجر تغيير نوع مهنته حسب الاتفاق الأول عند التأجير الا بعد حصوله على موافقة المؤجر التحريرية وبعكسه يفسخ هذا العقد وللمؤجر الحق بطلب التخلية الفورية.</p></div></div>
+            </div>
+
+            <div className="cp-extra">
+              <p className="cp-extra-title">ملاحظات إضافية</p>
+              <textarea
+                className="sc-blank-area cp-extra-textarea"
+                name="extraClauses"
+                value={form.extraClauses ?? ""}
+                onChange={onChange}
+                rows={3}
+                dir="rtl"
+                placeholder="ملاحظات إضافية..."
+              />
+            </div>
+
+            <div className="cp-rent-sigs">
+              <div className="cp-rent-sig-col">
+                <div className="cp-rent-sig-head">المستأجر</div>
+                <div className="cp-rent-sig-fields">
+                  <div className="cp-rent-sig-row">
+                    <span className="cp-rent-sig-label">الاسم الكامل :</span>
+                    <B name="tenantFullName" size="lg" value={form.tenantFullName ?? form.buyerName} onChange={onChange} />
+                  </div>
+                  <div className="cp-rent-sig-row">
+                    <span className="cp-rent-sig-label">عنوان المسكن الدائم :</span>
+                    <B name="tenantAddress" size="lg" value={form.tenantAddress} onChange={onChange} />
+                  </div>
+                  <div className="cp-rent-sig-row">
+                    <span className="cp-rent-sig-label">رقم الهاتف :</span>
+                    <B name="tenantPhone" size="md" value={form.tenantPhone} onChange={onChange} />
+                  </div>
+                  <div className="cp-rent-sig-row">
+                    <span className="cp-rent-sig-label">رقم هوية الأحوال المدنية :</span>
+                    <B name="tenantIdNumber" size="lg" value={form.tenantIdNumber} onChange={onChange} />
+                  </div>
+                </div>
+                <div className="cp-sig-box" />
+              </div>
+              <div className="cp-rent-sig-col">
+                <div className="cp-rent-sig-head">المؤجر</div>
+                <div className="cp-rent-sig-fields">
+                  <div className="cp-rent-sig-row">
+                    <span className="cp-rent-sig-label">الاسم الكامل :</span>
+                    <B name="landlordFullName" size="lg" value={form.landlordFullName ?? form.sellerName} onChange={onChange} />
+                  </div>
+                  <div className="cp-rent-sig-row">
+                    <span className="cp-rent-sig-label">عنوان المسكن الدائم :</span>
+                    <B name="landlordAddress" size="lg" value={form.landlordAddress} onChange={onChange} />
+                  </div>
+                  <div className="cp-rent-sig-row">
+                    <span className="cp-rent-sig-label">رقم الهاتف :</span>
+                    <B name="landlordPhone" size="md" value={form.landlordPhone} onChange={onChange} />
+                  </div>
+                  <div className="cp-rent-sig-row">
+                    <span className="cp-rent-sig-label">رقم هوية الأحوال المدنية :</span>
+                    <B name="landlordIdNumber" size="lg" value={form.landlordIdNumber} onChange={onChange} />
+                  </div>
+                </div>
+                <div className="cp-sig-box" />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -227,8 +561,14 @@ export default function ContractView() {
       try {
         const raw = await getContractById(id);
         const data = raw?.contract || raw?.data || raw || {};
-        setForm(data);
-        setOriginalForm(data);
+        // All detailed fields are stored inside data.details on the backend.
+        // Flatten them so every field is directly accessible on form.
+        const details = (typeof data.details === "object" && data.details !== null)
+          ? data.details
+          : {};
+        const flatData = { ...data, ...details };
+        setForm(flatData);
+        setOriginalForm(flatData);
         setIsDirty(false);
         setContractType(data.type || "عقد إيجار");
         const rawStatus = String(data.status || "").toLowerCase();
@@ -254,11 +594,28 @@ export default function ContractView() {
     });
   };
 
+  const buildPayload = () => {
+    const isRentType = contractType === "عقد إيجار";
+    const sellerName = isRentType
+      ? (form.landlordName || form.landlordFullName || form.sellerName || "").trim()
+      : (form.partyOneSeller || form.sellerName || "").trim();
+    const buyerName = isRentType
+      ? (form.tenantName || form.tenantFullName || form.buyerName || "").trim()
+      : (form.partyTwoBuyer || form.buyerName || "").trim();
+    return {
+      sellerName,
+      buyerName,
+      type: contractType,
+      contractDate: form.contractDate || form.contractYear || undefined,
+      details: { ...form },
+    };
+  };
+
   const handleSave = async () => {
     closeToast();
     try {
-      await updateContract(id, { ...form, type: contractType });
-      setOriginalForm({ ...form, type: contractType });
+      await updateContract(id, buildPayload());
+      setOriginalForm({ ...form });
       setIsDirty(false);
       showToast("تم حفظ التعديلات بنجاح", "success");
     } catch {
@@ -269,9 +626,9 @@ export default function ContractView() {
   const handleConfirm = async () => {
     closeToast();
     try {
-      await updateContract(id, { ...form, type: contractType });
+      await updateContract(id, buildPayload());
       await confirmContract(id);
-      setOriginalForm({ ...form, type: contractType });
+      setOriginalForm({ ...form });
       setIsDirty(false);
       setStatus("مؤكد");
       showToast("تم تأكيد العقد بنجاح", "success");
@@ -291,7 +648,18 @@ export default function ContractView() {
     }
   };
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => {
+    const isRentType = contractType === "عقد إيجار";
+    if (isRentType) {
+      localStorage.setItem("rentContractDraft", JSON.stringify(form));
+      localStorage.setItem("rentContractStatus", status);
+      navigate("/rent-contract/print");
+    } else {
+      localStorage.setItem("saleContractDraft", JSON.stringify(form));
+      localStorage.setItem("saleContractStatus", status);
+      navigate("/sale-contract/print");
+    }
+  };
 
   const isRent = contractType === "عقد إيجار";
   const isConfirmed = status === "مؤكد";
@@ -423,7 +791,7 @@ export default function ContractView() {
                 </button>
               )}
 
-              <button type="button" className="sc-tbtn sc-tbtn--gold" onClick={handlePrint}>
+              <button type="button" className="sc-tbtn sc-tbtn--primary" onClick={handlePrint}>
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                   <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
                   <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>
@@ -440,267 +808,12 @@ export default function ContractView() {
 
           <Toast open={toast.open} message={toast.message} variant={toast.variant} onClose={closeToast} />
 
-          {/* ── محتوى العقد ── */}
-          <div className="sc-contract-doc-body">
+          {/* ── ورقة العقد ── */}
+          {isRent
+            ? <RentEditSheet form={form} onChange={handleChange} />
+            : <SaleEditSheet form={form} onChange={handleChange} />
+          }
 
-            {isRent ? (
-              /* ════ عقد إيجار ════ */
-              <>
-                <div className="sc-doc-clause sc-doc-clause--parties">
-                  <div className="sc-rent-fields-grid">
-
-                    <span className="sc-rent-field-label">تسلسل العقار :</span>
-                    <div className="sc-rent-field-value">
-                      <B name="propertySerial" size="md" value={form.propertySerial} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">التاريخ :</span>
-                    <div className="sc-rent-field-value">
-                      <B type="date" name="contractDate" size="md" value={form.contractDate} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">نوع المأجور :</span>
-                    <div className="sc-rent-field-value">
-                      <B name="propertyType" size="lg" value={form.propertyType} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">مدة الإيجار :</span>
-                    <div className="sc-rent-field-value sc-rent-field-value--inline">
-                      <span className="sc-rent-sub-label">من</span>
-                      <B type="date" name="rentFromDate" size="md" value={form.rentFromDate} onChange={handleChange} />
-                      <span className="sc-rent-sub-label">لغاية</span>
-                      <B type="date" name="rentToDate" size="md" value={form.rentToDate} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">بدل الإيجار :</span>
-                    <div className="sc-rent-field-value sc-rent-field-value--inline">
-                      <B name="rentAmount" size="lg" value={form.rentAmount} onChange={handleChange} />
-                      <span className="sc-rent-sub-label">فقط</span>
-                    </div>
-
-                    <span className="sc-rent-field-label">يدفع مقدماً كل :</span>
-                    <div className="sc-rent-field-value">
-                      <B name="paymentPeriod" size="md" value={form.paymentPeriod} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">تم التعاقد بين :</span>
-                    <div className="sc-rent-field-value">
-                      <span className="sc-rent-sub-label">المدعو بالمؤجر :</span>
-                      <B name="landlordName" size="lg" value={form.landlordName ?? form.sellerName} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">وبين :</span>
-                    <div className="sc-rent-field-value">
-                      <span className="sc-rent-sub-label">المدعو بالمستأجر :</span>
-                      <B name="tenantName" size="lg" value={form.tenantName ?? form.buyerName} onChange={handleChange} />
-                    </div>
-
-                  </div>
-                </div>
-
-                <div className="sc-doc-divider" />
-                <p className="sc-doc-para sc-doc-para--bold">واتفقا على ما يأتي :</p>
-
-                <div className="sc-doc-clause"><p className="sc-doc-para"><span className="sc-clause-num">أولاً :</span>{" "}لا يحق للمستأجر أن يقلع أو يعمر أو يثبت لوحة اعلانه او يغير شيئاً من المأجور دون الحصول على موافقة المؤجر التحريرية واذا نقض هذا الشرط يتعهد المستأجر أن يدفع للمؤجر أي تعويض يعينه المؤجر بنفسه دون الحاجة إلى إخطار رسمي.</p></div>
-                <div className="sc-doc-clause"><p className="sc-doc-para"><span className="sc-clause-num">ثانياً :</span>{" "}اذا تأخر المستأجر عن دفع الاجرة المتفق عليها او قسط من اقساطها عند الاستحقاق واظهر المماطلة والمماهلة بهذا الشأن فيحق للمؤجر أن يؤجر المأجور لمن يريد ويعد هذا العقد باطلاً وملغياً وعلى المستأجر ترك الماجور واخلاءه حالا مراعاة لهذا الشرط ولا حاجة للإنذار رسمي.</p></div>
-                <div className="sc-doc-clause"><p className="sc-doc-para"><span className="sc-clause-num">ثالثاً :</span>{" "}اذا تخامل المستأجر عن تخلية المأجور وتفريغه عند انتهاء مدة الايجار واشغله من دون مسوغ قانوني ومن دون ان يجدد المقاولة مع المؤجر، فيتعهد المستأجر ويلزم على نفسه بتسليم الاجرة ضعف الايجار المذكور اعلاه للمدة التي تمضي بعد انتهاء مدة هذا العقد الى حين تخلية المأجور ولا حاجة للانذار الرسمي الى المستأجر بهذا الخصوص بل ان انقضاء المدة المعينة تعد بمقام الانذار ويعتبر انقضاء المدة بمقام الانذار ولا يسوغ للمستأجر أن يدافع عن نفسه بهذا الصدد بأن لم يسبق له الانذار أي الانذار القانوني.</p></div>
-                <div className="sc-doc-clause"><p className="sc-doc-para"><span className="sc-clause-num">رابعاً :</span>{" "}تكون الضريبة على المؤجر اما رسم الحراسة وتنظيف المرافق الصحية ورسم الماء والكهرباء فتكون على المستأجر.</p></div>
-                <div className="sc-doc-clause"><p className="sc-doc-para"><span className="sc-clause-num">خامساً :</span>{" "}لا يجوز للمستأجر تغير نوع مهنته حسب الاتفاق الأول عند التأجير الا بعد حصوله على موافقة المؤجر التحريرية وبعكسه يفسخ هذا العقد وللمؤجر الحق بطلب التخلية الفورية.</p></div>
-
-                <div className="sc-doc-divider" />
-                <div className="sc-doc-clause sc-doc-clause--extra">
-                  <h3 className="sc-doc-clause-title">ملاحظات إضافية</h3>
-                  <textarea
-                    className="sc-blank-area"
-                    name="extraClauses"
-                    value={form.extraClauses ?? ""}
-                    onChange={handleChange}
-                    rows={4}
-                    dir="rtl"
-                    placeholder="ملاحظات إضافية..."
-                  />
-                </div>
-
-                <div className="sc-doc-divider" />
-
-                <div className="sc-rent-sig-section">
-                  <div className="sc-rent-sig-col">
-                    <h3 className="sc-rent-sig-title">المستأجر</h3>
-                    <div className="sc-rent-party-grid">
-                      <span className="sc-rent-field-label">الاسم الكامل :</span>
-                      <div className="sc-rent-field-value"><B name="tenantFullName" size="lg" value={form.tenantFullName ?? form.buyerName} onChange={handleChange} /></div>
-                      <span className="sc-rent-field-label">عنوان المسكن الدائم :</span>
-                      <div className="sc-rent-field-value"><B name="tenantAddress" size="lg" value={form.tenantAddress} onChange={handleChange} /></div>
-                      <span className="sc-rent-field-label">رقم الهاتف :</span>
-                      <div className="sc-rent-field-value"><B name="tenantPhone" size="md" value={form.tenantPhone} onChange={handleChange} /></div>
-                      <span className="sc-rent-field-label">رقم وتاريخ الهوية :</span>
-                      <div className="sc-rent-field-value"><B name="tenantIdNumber" size="lg" value={form.tenantIdNumber} onChange={handleChange} /></div>
-                    </div>
-                    <div className="sc-signature-placeholder" aria-label="مكان توقيع المستأجر" />
-                  </div>
-
-                  <div className="sc-rent-sig-divider" />
-
-                  <div className="sc-rent-sig-col">
-                    <h3 className="sc-rent-sig-title">المؤجر</h3>
-                    <div className="sc-rent-party-grid">
-                      <span className="sc-rent-field-label">الاسم الكامل :</span>
-                      <div className="sc-rent-field-value"><B name="landlordFullName" size="lg" value={form.landlordFullName ?? form.sellerName} onChange={handleChange} /></div>
-                      <span className="sc-rent-field-label">عنوان المسكن الدائم :</span>
-                      <div className="sc-rent-field-value"><B name="landlordAddress" size="lg" value={form.landlordAddress} onChange={handleChange} /></div>
-                      <span className="sc-rent-field-label">رقم الهاتف :</span>
-                      <div className="sc-rent-field-value"><B name="landlordPhone" size="md" value={form.landlordPhone} onChange={handleChange} /></div>
-                      <span className="sc-rent-field-label">رقم وتاريخ الهوية :</span>
-                      <div className="sc-rent-field-value"><B name="landlordIdNumber" size="lg" value={form.landlordIdNumber} onChange={handleChange} /></div>
-                    </div>
-                    <div className="sc-signature-placeholder" aria-label="مكان توقيع المؤجر" />
-                  </div>
-                </div>
-              </>
-            ) : (
-              /* ════ عقد بيع ════ */
-              <>
-                <div className="sc-doc-clause sc-doc-clause--parties">
-                  <div className="sc-rent-fields-grid">
-
-                    <span className="sc-rent-field-label">الفريق الأول البائع :</span>
-                    <div className="sc-rent-field-value">
-                      <B name="partyOneSeller" size="lg" value={form.partyOneSeller ?? form.sellerName} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">الساكن :</span>
-                    <div className="sc-rent-field-value">
-                      <B name="sellerCity" size="lg" value={form.sellerCity} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">المهنة :</span>
-                    <div className="sc-rent-field-value">
-                      <B name="sellerProfession" size="lg" value={form.sellerProfession} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">الفريق الثاني المشتري :</span>
-                    <div className="sc-rent-field-value">
-                      <B name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer ?? form.buyerName} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">الساكن :</span>
-                    <div className="sc-rent-field-value">
-                      <B name="buyerCity" size="lg" value={form.buyerCity} onChange={handleChange} />
-                    </div>
-
-                    <span className="sc-rent-field-label">المهنة :</span>
-                    <div className="sc-rent-field-value">
-                      <B name="buyerProfession" size="lg" value={form.buyerProfession} onChange={handleChange} />
-                    </div>
-
-                  </div>
-                </div>
-
-                <div className="sc-doc-divider" />
-
-                <div className="sc-doc-clause">
-                  <p className="sc-doc-para sc-doc-para--bold">أولاً : يعترف الفريق الأول بأنه قد باع الى الفريق الثاني الملك المفصل فيما يلي :</p>
-                  <div className="sc-rent-fields-grid" style={{ marginTop: "10px" }}>
-                    <span className="sc-rent-field-label">نوع الملك :</span>
-                    <div className="sc-rent-field-value"><B name="propertyType" size="lg" value={form.propertyType} onChange={handleChange} /></div>
-                    <span className="sc-rent-field-label">الرقم والتسلسل :</span>
-                    <div className="sc-rent-field-value"><B name="propertyNumber" size="lg" value={form.propertyNumber} onChange={handleChange} /></div>
-                    <span className="sc-rent-field-label">المحلة :</span>
-                    <div className="sc-rent-field-value"><B name="mahala" size="lg" value={form.mahala} onChange={handleChange} /></div>
-                  </div>
-                </div>
-
-                <div className="sc-doc-clause">
-                  <p className="sc-doc-para">
-                    <span className="sc-clause-num">ثانياً :</span>{" "}
-                    ان بدل البيع المتفق عليه هو{" "}
-                    <B name="agreedPrice" size="lg" value={form.agreedPrice} onChange={handleChange} />
-                  </p>
-                  <p className="sc-doc-para" style={{ marginTop: "6px" }}>
-                    ويعترف الفريق الأول بأنه قد قبض عربوناً قدره{" "}
-                    <B name="depositPaid" size="lg" value={form.depositPaid} onChange={handleChange} />
-                  </p>
-                  <p className="sc-doc-para" style={{ marginTop: "6px" }}>
-                    والباقي{" "}
-                    <B name="remainingAmount" size="lg" value={form.remainingAmount} onChange={handleChange} />
-                  </p>
-                </div>
-
-                <div className="sc-doc-clause">
-                  <p className="sc-doc-para">
-                    <span className="sc-clause-num">ثالثاً :</span>{" "}
-                    اذا امتنع الفريق الأول عن البيع يتعهد بتأدية تضمينات قدره{" "}
-                    <B name="sellerPenalty" size="md" value={form.sellerPenalty} onChange={handleChange} />{" "}
-                    ديناراً بدون حاجة الى إنذار رسمي.
-                  </p>
-                </div>
-
-                <div className="sc-doc-clause">
-                  <p className="sc-doc-para">
-                    <span className="sc-clause-num">رابعاً :</span>{" "}
-                    اذا نكل الفريق الثاني عن الشراء يتعهد بتأدية تضمينات قدرها{" "}
-                    <B name="buyerPenalty" size="md" value={form.buyerPenalty} onChange={handleChange} />{" "}
-                    ديناراً بدون حاجة الى انذار رسمي.
-                  </p>
-                </div>
-
-                <div className="sc-doc-clause">
-                  <p className="sc-doc-para">
-                    <span className="sc-clause-num">خامساً :</span>{" "}
-                    جميع الرسوم المقتضية للبيع هي بعهدة الفريق{" "}
-                    <B name="feesOnParty" size="md" value={form.feesOnParty} onChange={handleChange} />
-                  </p>
-                </div>
-
-                <div className="sc-doc-clause"><p className="sc-doc-para"><span className="sc-clause-num">سادساً :</span>{" "}اما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك هي في عهدة الفريق الأول.</p></div>
-
-                <div className="sc-doc-clause">
-                  <p className="sc-doc-para">
-                    <span className="sc-clause-num">سابعاً :</span>{" "}
-                    يتعهد الفريقان بدفع دلاليه قدرها ({" "}
-                    <B name="brokerFeePercent" size="sm" value={form.brokerFeePercent} onChange={handleChange} />{" "}
-                    %) الى الدلال الذي توسط بعقد البيع.
-                  </p>
-                </div>
-
-                <div className="sc-doc-clause">
-                  <p className="sc-doc-para">
-                    البصرة في تاريخ{" "}
-                    <B type="date" name="contractYear" size="md" value={form.contractYear ?? form.contractDate} onChange={handleChange} />
-                  </p>
-                </div>
-
-                <div className="sc-doc-divider" />
-                <div className="sc-doc-clause sc-doc-clause--extra">
-                  <h3 className="sc-doc-clause-title">ملاحظات إضافية</h3>
-                  <textarea
-                    className="sc-blank-area"
-                    name="extraClauses"
-                    value={form.extraClauses ?? ""}
-                    onChange={handleChange}
-                    rows={4}
-                    dir="rtl"
-                    placeholder="ملاحظات إضافية..."
-                  />
-                </div>
-
-                <div className="sc-doc-divider" />
-
-                <div className="sc-rent-sig-section">
-                  <div className="sc-rent-sig-col">
-                    <h3 className="sc-rent-sig-title">الفريق الأول</h3>
-                    <div className="sc-signature-placeholder" aria-label="توقيع الفريق الأول" />
-                  </div>
-                  <div className="sc-rent-sig-divider" />
-                  <div className="sc-rent-sig-col">
-                    <h3 className="sc-rent-sig-title">الفريق الثاني</h3>
-                    <div className="sc-signature-placeholder" aria-label="توقيع الفريق الثاني" />
-                  </div>
-                </div>
-              </>
-            )}
-
-          </div>
         </div>
       </div>
     </div>

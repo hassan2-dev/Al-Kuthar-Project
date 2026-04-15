@@ -25,7 +25,8 @@ export async function htmlDocumentStringToPdfFile(htmlString, filename) {
     document.fonts.ready.catch(() => {}),
     idoc.fonts?.ready?.catch?.(() => {}) ?? Promise.resolve(),
   ]);
-  await new Promise((r) => setTimeout(r, 450));
+  // Wait for Arabic fonts to fully render (Google Fonts needs extra time in iframe)
+  await new Promise((r) => setTimeout(r, 1200));
 
   const body = idoc.body;
   body.style.background = "#ffffff";
@@ -51,21 +52,18 @@ export async function htmlDocumentStringToPdfFile(htmlString, filename) {
   const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
-  const imgW = pageW;
-  const imgH = (canvas.height * imgW) / canvas.width;
-  const imgData = canvas.toDataURL("image/jpeg", 0.9);
+  const imgData = canvas.toDataURL("image/jpeg", 0.92);
 
-  let heightLeft = imgH;
-  let position = 0;
-  pdf.addImage(imgData, "JPEG", 0, position, imgW, imgH);
-  heightLeft -= pageH;
+  // Scale to fit the full content on exactly one A4 page
+  const naturalW = pageW;
+  const naturalH = (canvas.height * naturalW) / canvas.width;
+  const scale = naturalH > pageH ? pageH / naturalH : 1;
+  const drawW = naturalW * scale;
+  const drawH = naturalH * scale;
+  const offsetX = (pageW - drawW) / 2;
+  const offsetY = (pageH - drawH) / 2;
 
-  while (heightLeft > 0) {
-    position = heightLeft - imgH;
-    pdf.addPage();
-    pdf.addImage(imgData, "JPEG", 0, position, imgW, imgH);
-    heightLeft -= pageH;
-  }
+  pdf.addImage(imgData, "JPEG", offsetX, offsetY, drawW, drawH);
 
   const blob = pdf.output("blob");
   return new File([blob], filename, { type: "application/pdf" });
