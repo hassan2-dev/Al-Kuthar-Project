@@ -1,0 +1,21 @@
+{
+  "name": "الكوثر - نظام إدارة العقارات",
+  "short_name": "الكوثر",
+  "description": "نظام لإدارة العقود والعقارات.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "660x660",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
