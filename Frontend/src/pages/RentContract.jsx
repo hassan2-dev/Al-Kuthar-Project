@@ -356,7 +356,7 @@ export default function RentContract() {
                 </svg>
                 تأكيد العقد
               </button>
-              <button type="button" className="sc-tbtn sc-tbtn--gold" onClick={handleGoToPrint}>
+              <button type="button" className="sc-tbtn sc-tbtn--primary" onClick={handleGoToPrint}>
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                   <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
                   <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>

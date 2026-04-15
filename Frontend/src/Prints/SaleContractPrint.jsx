@@ -22,10 +22,18 @@ export default function SaleContractPrint() {
     return () => document.body.classList.remove("print-contract-page");
   }, []);
 
-  const fill = (value) => value?.trim() || "................";
+  /* Auto-print once data is ready */
+  useEffect(() => {
+    if (form) {
+      const t = setTimeout(() => window.print(), 120);
+      return () => clearTimeout(t);
+    }
+  }, [form]);
+
+  const fill = (value) => String(value ?? "").trim() || "................";
 
   const fillDate = (iso) => {
-    const s = iso?.trim();
+    const s = String(iso ?? "").trim();
     if (!s) return "................";
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
       const d = new Date(`${s}T12:00:00`);
@@ -43,7 +51,7 @@ export default function SaleContractPrint() {
           <button
             type="button"
             className="sc-toolbar-back"
-            onClick={() => navigate("/sale-contract")}
+            onClick={() => navigate(-1)}
           >
             <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
               <circle cx="9" cy="9" r="8" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.5" />
@@ -59,12 +67,13 @@ export default function SaleContractPrint() {
 
   return (
     <div className="cp-page">
+
       {/* Toolbar — screen only */}
       <div className="cp-toolbar no-print">
         <button
           type="button"
           className="sc-toolbar-back"
-          onClick={() => navigate("/sale-contract")}
+          onClick={() => navigate(-1)}
           aria-label="رجوع إلى العقد"
         >
           <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -75,6 +84,10 @@ export default function SaleContractPrint() {
         </button>
         <div className="cp-toolbar-actions">
           <button type="button" onClick={() => window.print()} className="btn btn-primary">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+              <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>
+            </svg>
             طباعة
           </button>
           <span className={`sc-status-badge ${status === "مؤكد" ? "sc-status-badge--confirmed" : ""}`}>
@@ -88,14 +101,12 @@ export default function SaleContractPrint() {
         <div className="cp-outer-border">
           <div className="cp-inner-border">
 
-            {/* ── 3-column RTL: البصرة (يمين) | العنوان | الشعار (يسار) ── */}
+            {/* Header: city+date (right) | bismillah+title (center) | logo (left) */}
             <div className="cp-header">
-              {/* Right: city + date */}
               <div className="cp-header-meta">
                 <span className="cp-header-city">البصرة</span>
                 <span className="cp-header-date">التاريخ : {fillDate(form.contractYear)}</span>
               </div>
-              {/* Centre: bismillah + title */}
               <div className="cp-header-center">
                 <p className="cp-bismillah">بسم الله الرحمن الرحيم</p>
                 <div className="cp-title-wrapper">
@@ -104,16 +115,15 @@ export default function SaleContractPrint() {
                   <div className="cp-title-orn cp-title-orn--rev" />
                 </div>
               </div>
-              {/* Left: logo */}
               <div className="cp-header-brand">
                 <img src="/al-kawthar-logo.png" alt="Al-Kawthar" className="cp-logo-img" />
               </div>
             </div>
 
-            {/* ── Content area ── */}
+            {/* Content */}
             <div className="cp-content">
 
-              {/* Parties — two columns side by side */}
+              {/* Parties */}
               <div className="cp-parties-wrap">
                 <div className="cp-party-box">
                   <div className="cp-party-head">الفريق الأول — البائع</div>
@@ -122,7 +132,7 @@ export default function SaleContractPrint() {
                     <strong className={fieldClass("cp-pv", form.partyOneSeller)}>{fill(form.partyOneSeller)}</strong>
                     <span className="cp-pl">السكن :</span>
                     <strong className={fieldClass("cp-pv", form.sellerCity)}>{fill(form.sellerCity)}</strong>
-                    <span className="cp-pl">رقم الهاتف :</span>
+                    <span className="cp-pl">المهنة :</span>
                     <strong className={fieldClass("cp-pv", form.sellerProfession)}>{fill(form.sellerProfession)}</strong>
                   </div>
                 </div>
@@ -134,18 +144,14 @@ export default function SaleContractPrint() {
                     <strong className={fieldClass("cp-pv", form.partyTwoBuyer)}>{fill(form.partyTwoBuyer)}</strong>
                     <span className="cp-pl">السكن :</span>
                     <strong className={fieldClass("cp-pv", form.buyerCity)}>{fill(form.buyerCity)}</strong>
-                    <span className="cp-pl">رقم الهاتف :</span>
+                    <span className="cp-pl">المهنة :</span>
                     <strong className={fieldClass("cp-pv", form.buyerProfession)}>{fill(form.buyerProfession)}</strong>
                   </div>
                 </div>
               </div>
 
-              {/* Intro */}
-              <p className="cp-intro">
-                لقد تم الاتفاق بين الفريقين على عقد هذه المقاولة بالشروط التالية :
-              </p>
+              <p className="cp-intro">لقد تم الاتفاق بين الفريقين على عقد هذه المقاولة بالشروط التالية :</p>
 
-              {/* Clauses */}
               <div className="cp-clauses">
 
                 <div className="cp-clause">
@@ -248,23 +254,17 @@ export default function SaleContractPrint() {
 
               </div>
 
-              {/* Closing */}
-              <p className="cp-closing">
-                فبناء على حصول التراضي والإيجاب والقبول حرر هذا العقد.
-              </p>
+              <p className="cp-closing">فبناء على حصول التراضي والإيجاب والقبول حرر هذا العقد.</p>
               <p className="cp-date-line">
-                البصرة في تاريخ <strong className={fieldClass("cp-val", form.contractYear)}>{fillDate(form.contractYear)}</strong>
+                البصرة في تاريخ{" "}
+                <strong className={fieldClass("cp-val", form.contractYear)}>{fillDate(form.contractYear)}</strong>
               </p>
 
-              {/* Extra clauses */}
               <div className="cp-extra">
                 <p className="cp-extra-title">ملاحظات إضافية</p>
-                <p className="cp-extra-content">
-                  {form.extraClauses?.trim() || "................"}
-                </p>
+                <p className="cp-extra-content">{form.extraClauses?.trim() || "................"}</p>
               </div>
 
-              {/* Signatures */}
               <div className="cp-sigs">
                 <div className="cp-sig-col">
                   <div className="cp-sig-head">الفريق الأول — البائع</div>

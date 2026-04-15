@@ -1,4 +1,4 @@
-/** بناء مستند HTML لعقد البيع/الإيجار (يُستخدم للطباعة الضمنية وتحويل PDF). */
+/** بناء مستند HTML لعقد البيع/الإيجار بنفس تصميم صفحة الطباعة (cp-sheet). */
 
 function esc(s) {
   return String(s ?? "")
@@ -9,12 +9,12 @@ function esc(s) {
 }
 
 function fill(value) {
-  const t = value?.trim();
+  const t = String(value ?? "").trim();
   return esc(t || "................");
 }
 
 function fillDate(iso) {
-  const s = iso?.trim();
+  const s = String(iso ?? "").trim();
   if (!s) return "................";
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
     const d = new Date(`${s}T12:00:00`);
@@ -25,7 +25,369 @@ function fillDate(iso) {
   return esc(s);
 }
 
-function wrapHtml(title, statusLine, inner, compact = false) {
+const SHARED_CSS = `
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: 'El Messiri', 'Segoe UI', Tahoma, sans-serif;
+    direction: rtl;
+    margin: 0;
+    padding: 10px;
+    background: #f4f1eb;
+    color: #1a1005;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .cp-sheet {
+    max-width: 860px;
+    margin: 0 auto;
+    background: #fff;
+    border: 3px double #c8a97e;
+  }
+  .cp-inner-border {
+    margin: 6px 8px 8px;
+    border: 1px solid rgba(200,169,126,0.42);
+    position: relative;
+  }
+  .cp-watermark {
+    position: absolute;
+    left: 50%; top: 46%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    background: url("/al-kawthar-logo.png") center center / contain no-repeat;
+    opacity: 0.055;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .cp-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    direction: rtl;
+    background: #faf7f0;
+    padding: 10px 20px 10px;
+    border-bottom: 2.5px solid #c8a97e;
+    position: relative;
+    z-index: 1;
+  }
+  .cp-header-meta {
+    flex-shrink: 0;
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    direction: rtl;
+    text-align: right;
+  }
+  .cp-header-city {
+    font-size: 15px;
+    font-weight: 800;
+    color: #1a1005;
+  }
+  .cp-header-date {
+    font-size: 11.5px;
+    color: #a07828;
+    font-weight: 600;
+    line-height: 1.55;
+  }
+  .cp-header-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 7px;
+  }
+  .cp-bismillah {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #a07828;
+    margin: 0;
+  }
+  .cp-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: center;
+    width: 100%;
+  }
+  .cp-title-orn {
+    flex: 1;
+    max-width: 72px;
+    height: 1px;
+    background: linear-gradient(to left, transparent, #c8a97e);
+  }
+  .cp-title-orn-rev {
+    background: linear-gradient(to right, transparent, #c8a97e);
+  }
+  .cp-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: #1a1005;
+    white-space: nowrap;
+    margin: 0;
+  }
+  .cp-header-brand {
+    flex-shrink: 0;
+    width: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .cp-logo-img {
+    width: 98px;
+    height: auto;
+    max-height: 76px;
+    object-fit: contain;
+    display: block;
+  }
+  .cp-content {
+    padding: 12px 20px 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .cp-parties-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    align-items: stretch;
+    margin-bottom: 10px;
+    direction: rtl;
+  }
+  .cp-parties-vdivider {
+    background: rgba(200,169,126,0.35);
+  }
+  .cp-party-head {
+    font-size: 13px;
+    font-weight: 700;
+    color: #a07828;
+    text-align: center;
+    padding: 0 16px 8px;
+    border-bottom: 1.5px solid rgba(200,169,126,0.45);
+    margin-bottom: 2px;
+  }
+  .cp-party-fields {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 10px;
+    row-gap: 10px;
+    align-items: baseline;
+    padding: 12px 16px 6px;
+    direction: rtl;
+  }
+  .cp-pl {
+    font-weight: 600;
+    font-size: 12.5px;
+    white-space: nowrap;
+    color: #6b5230;
+    text-align: right;
+  }
+  .cp-pv {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1005;
+    border-bottom: 1px solid rgba(100,80,48,0.20);
+    padding: 0 2px 3px;
+    display: block;
+    width: 100%;
+  }
+  .cp-intro {
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    text-align: center;
+    color: #1a1005;
+    direction: rtl;
+    padding: 6px 0;
+    border-top: 1px solid rgba(200,169,126,0.3);
+    border-bottom: 1px solid rgba(200,169,126,0.3);
+  }
+  .cp-clauses {
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
+  }
+  .cp-clause {
+    padding: 6px 0;
+    font-size: 12.5px;
+    line-height: 1.75;
+    color: #1a1005;
+    direction: rtl;
+    border-bottom: 1px solid rgba(200,169,126,0.22);
+  }
+  .cp-clause:last-child { border-bottom: none; }
+  .cp-clause-body p { margin: 0 0 3px; }
+  .cp-clause-lead {
+    color: #a07828;
+    font-weight: 800;
+    margin-left: 3px;
+  }
+  .cp-prop-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 14px;
+    row-gap: 9px;
+    margin: 10px 16px 4px;
+    align-items: baseline;
+    direction: rtl;
+  }
+  .cp-prop-label {
+    font-weight: 600;
+    font-size: 12.5px;
+    white-space: nowrap;
+    color: #6b5230;
+    text-align: right;
+  }
+  .cp-prop-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1005;
+    border-bottom: 1px solid rgba(100,80,48,0.20);
+    padding: 0 2px 3px;
+    display: block;
+    min-width: 80px;
+  }
+  .cp-val {
+    display: inline;
+    font-weight: 700;
+    color: #1a1005;
+    border-bottom: 1px solid rgba(100,80,48,0.28);
+    padding: 0 2px 2px;
+  }
+  .cp-closing {
+    font-weight: 700;
+    text-align: center;
+    margin: 8px 0 3px;
+    font-size: 13px;
+    color: #1a1005;
+  }
+  .cp-date-line {
+    font-size: 12.5px;
+    margin: 2px 0 8px;
+    color: #1a1005;
+    direction: rtl;
+    text-align: center;
+  }
+  .cp-extra {
+    border-top: 1.5px solid rgba(200,169,126,0.4);
+    padding: 8px 0 0;
+    margin-top: 10px;
+    direction: rtl;
+  }
+  .cp-extra-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #a07828;
+    margin: 0 0 8px;
+  }
+  .cp-extra-content {
+    font-size: 13px;
+    line-height: 2;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #1a1005;
+    min-height: 2.5em;
+    margin: 0;
+  }
+  .cp-sigs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1.5px solid rgba(200,169,126,0.4);
+    direction: rtl;
+  }
+  .cp-sig-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cp-sig-head {
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    color: #a07828;
+    padding: 0 0 8px;
+    border-bottom: 1.5px solid rgba(200,169,126,0.4);
+  }
+  .cp-sig-box { flex: 1; min-height: 40px; }
+  .cp-rent-grid {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 14px;
+    row-gap: 5px;
+    direction: rtl;
+    margin-bottom: 10px;
+    padding: 2px 0;
+  }
+  .cp-rent-label {
+    font-weight: 600;
+    white-space: nowrap;
+    font-size: 13px;
+    color: #6b5230;
+    text-align: right;
+  }
+  .cp-rent-cell {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1005;
+    border-bottom: 1px solid rgba(100,80,48,0.20);
+    padding: 0 2px 3px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .cp-rent-sigs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1.5px solid rgba(200,169,126,0.4);
+    direction: rtl;
+  }
+  .cp-rent-sig-col { display: flex; flex-direction: column; }
+  .cp-rent-sig-head {
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    color: #a07828;
+    padding: 0 0 8px;
+    border-bottom: 1.5px solid rgba(200,169,126,0.4);
+    margin-bottom: 2px;
+  }
+  .cp-rent-sig-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 12px;
+    direction: rtl;
+    flex-wrap: wrap;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(200,169,126,0.15);
+  }
+  .cp-rent-sig-label {
+    font-weight: 600;
+    white-space: nowrap;
+    color: #6b5230;
+    flex-shrink: 0;
+  }
+  .cp-rent-sig-value {
+    flex: 1;
+    border-bottom: 1px solid rgba(100,80,48,0.20);
+    padding: 0 2px 2px;
+    font-weight: 600;
+    color: #1a1005;
+    display: block;
+    min-width: 60px;
+  }
+`;
+
+function wrapHtml(title, bodyContent) {
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -34,61 +396,11 @@ function wrapHtml(title, statusLine, inner, compact = false) {
   <title>${esc(title)}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-    @page { size: A4; margin: 8mm; }
-    body{font-family:'El Messiri','Segoe UI',Tahoma,sans-serif;direction:rtl;padding:20px;max-width:980px;margin:0 auto;
-      line-height:1.65;color:#4a3a2a;font-size:14px;background:#f4f1ec}
-    .sheet{background:#fff;border:1.8px solid #d6b68a;box-shadow:0 0 0 6px #f5efe5 inset;padding:22px 26px}
-    h1{text-align:center;font-size:2rem;margin:2px 0 10px;color:#6d4f2f}
-    .meta{color:#6d5c49;font-size:12px;text-align:center;margin-bottom:14px}
-    .top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
-    .tiny{font-size:12px;color:#7a6346}
-    .tiny b{color:#5d4528}
-    .brand{display:flex;align-items:center;gap:8px}
-    .logo{width:34px;height:34px;object-fit:contain}
-    .wmark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-    .wmark span{font-size:175px;color:rgba(198,166,124,0.06);font-weight:700;line-height:1;transform:translateY(24px)}
-    .content{position:relative}
-    .line{height:1px;background:#e3d2bb;margin:12px 0}
-    .twocol{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-    .box{border-top:1px solid #e3d2bb;padding-top:8px}
-    .row{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:8px;margin:6px 0}
-    .dash{min-height:18px;border-bottom:1px solid #d8c0a0;padding:0 4px;color:#3c3024}
-    .center-note{text-align:center;font-size:13px;margin:10px 0;color:#4c3c2c;font-weight:600}
-    .cl{margin:8px 0;text-align:justify}
-    .n{color:#6f4d2a;font-weight:700}
-    .inline{display:inline-block;min-width:70px;border-bottom:1px solid #d8c0a0;padding:0 4px;text-align:center}
-    .grid{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:10px 18px;align-items:baseline;margin:14px 0}
-    .lbl{font-weight:600}
-    .clause{margin:18px 0}
-    .intro{margin:16px 0}
-    .extra{border-top:1px solid #e3d2bb;margin-top:18px;padding-top:10px}
-    .extra pre{white-space:pre-wrap;margin:0;font-family:inherit}
-    .sigs{display:flex;gap:32px;margin-top:20px;justify-content:space-between}
-    .sig{flex:1;text-align:center}
-    .sigbox{border-top:1px solid #d8c0a0;min-height:32px;margin-top:10px}
-    .sheet--compact{padding:14px 16px}
-    .sheet--compact h1{font-size:1.8rem;margin:0 0 4px}
-    .sheet--compact .meta{font-size:11px;margin-bottom:8px}
-    .sheet--compact .grid{gap:4px 10px;margin:6px 0}
-    .sheet--compact .intro{margin:8px 0}
-    .sheet--compact .clause{margin:8px 0}
-    .sheet--compact p{margin:5px 0}
-    .sheet--compact .extra{margin-top:10px;padding-top:6px}
-    .sheet--compact .extra h3{margin:4px 0}
-    .sheet--compact .sigs{gap:14px;margin-top:8px}
-    .sheet--compact .sig p{margin:2px 0;font-size:12px}
-    .sheet--compact .sigbox{min-height:16px;margin-top:4px}
-    .sheet--compact .lbl{font-size:12px}
-    .sheet--compact span{font-size:12px}
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>${SHARED_CSS}</style>
 </head>
 <body>
-  <div class="sheet ${compact ? "sheet--compact" : ""}">
-    <p class="meta">${esc(statusLine)}</p>
-    ${inner}
-  </div>
+  ${bodyContent}
 </body>
 </html>`;
 }
@@ -100,86 +412,158 @@ function wrapHtml(title, statusLine, inner, compact = false) {
  * @returns {string} مستند HTML كامل
  */
 export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
-  const statusLine = `عقد بيع — ${docStatus} — معرّف: ${contractId}`;
- 
-  const inner = `
-  <div class="content" style="direction: rtl;">
-    <div class="wmark"><span style="font-size:240px;">ك</span></div>
-    <div class="top">
-      <div class="tiny"><b>بسم الله الرحمن الرحيم</b><br/>مكتب الكوثر للعقارات</div>
-      <div class="brand">
-        <img class="logo" src="/logo-mark.png" alt="الكوثر"/>
+  const dateDisplay = fillDate(form.contractYear);
+
+  const body = `
+  <div class="cp-sheet" dir="rtl">
+    <div class="cp-inner-border">
+      <div class="cp-watermark"></div>
+
+      <div class="cp-header">
+        <div class="cp-header-meta">
+          <span class="cp-header-city">البصرة</span>
+          <span class="cp-header-date">التاريخ : ${dateDisplay}</span>
+        </div>
+        <div class="cp-header-center">
+          <p class="cp-bismillah">بسم الله الرحمن الرحيم</p>
+          <div class="cp-title-wrapper">
+            <div class="cp-title-orn"></div>
+            <h1 class="cp-title">عقد بيع عقار</h1>
+            <div class="cp-title-orn cp-title-orn-rev"></div>
+          </div>
+        </div>
+        <div class="cp-header-brand">
+          <img src="/al-kawthar-logo.png" alt="Al-Kawthar" class="cp-logo-img"/>
+        </div>
       </div>
-      <div class="tiny"><b>البصرة</b><br/>التاريخ: ${fillDate(form.contractYear)}</div>
-    </div>
-    <h1 style="font-size:2.35rem;">عقد بيع عقار</h1>
-    <div class="line"></div>
 
-    <div class="twocol">
-      <div class="box">
-        <div class="row"><span class="lbl">الفريق الأول - البائع</span><span class="dash">${fill(form.partyOneSeller)}</span></div>
-        <div class="row"><span class="lbl">الساكن</span><span class="dash">${fill(form.sellerCity)}</span></div>
-        <div class="row"><span class="lbl">المهنة</span><span class="dash">${fill(form.sellerProfession)}</span></div>
+      <div class="cp-content">
+
+        <div class="cp-parties-wrap">
+          <div class="cp-party-box">
+            <div class="cp-party-head">الفريق الأول — البائع</div>
+            <div class="cp-party-fields">
+              <span class="cp-pl">الاسم :</span>
+              <strong class="cp-pv">${fill(form.partyOneSeller)}</strong>
+              <span class="cp-pl">السكن :</span>
+              <strong class="cp-pv">${fill(form.sellerCity)}</strong>
+              <span class="cp-pl">المهنة :</span>
+              <strong class="cp-pv">${fill(form.sellerProfession)}</strong>
+            </div>
+          </div>
+          <div class="cp-parties-vdivider"></div>
+          <div class="cp-party-box">
+            <div class="cp-party-head">الفريق الثاني — المشتري</div>
+            <div class="cp-party-fields">
+              <span class="cp-pl">الاسم :</span>
+              <strong class="cp-pv">${fill(form.partyTwoBuyer)}</strong>
+              <span class="cp-pl">السكن :</span>
+              <strong class="cp-pv">${fill(form.buyerCity)}</strong>
+              <span class="cp-pl">المهنة :</span>
+              <strong class="cp-pv">${fill(form.buyerProfession)}</strong>
+            </div>
+          </div>
+        </div>
+
+        <p class="cp-intro">لقد تم الاتفاق بين الفريقين على عقد هذه المقاولة بالشروط التالية :</p>
+
+        <div class="cp-clauses">
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">أولاً :</strong> يعترف الفريق الأول بأنه قد باع الى الفريق الثاني الملك المفصل فيما يلي :</p>
+              <div class="cp-prop-grid">
+                <span class="cp-prop-label">نوع الملك</span>
+                <strong class="cp-prop-value">${fill(form.propertyType)}</strong>
+                <span class="cp-prop-label">الرقم والتسلسل</span>
+                <strong class="cp-prop-value">${fill(form.propertyNumber)}</strong>
+                <span class="cp-prop-label">المحلة</span>
+                <strong class="cp-prop-value">${fill(form.mahala)}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">ثانياً :</strong> إن بدل البيع المتفق عليه هو <strong class="cp-val">${fill(form.agreedPrice)}</strong></p>
+              <p>ويعترف الفريق الأول بأنه قد قبض من الفريق الثاني عربوناً قدره <strong class="cp-val">${fill(form.depositPaid)}</strong></p>
+              <p>والباقي <strong class="cp-val">${fill(form.remainingAmount)}</strong></p>
+              <p>وأما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">ثالثاً :</strong> اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزماً بإعادة
+              العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره
+              <strong class="cp-val">${fill(form.sellerPenalty)}</strong> ديناراً بدون حاجة الى إنذار رسمي.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">رابعاً :</strong> يعترف الفريق الثاني بأنه قد قبل الشراء بالشروط المذكورة أنفاً ويتعهد
+              بتأدية قصور البدل المبيع الى الفريق الأول عند اكمال المعامله والتقرير
+              في دائرة التسجيل العقاري. واذا نكل عن الشراء وتأدية قصور البدل فأنه
+              يتعهد بتأدية تضمينات قدرها <strong class="cp-val">${fill(form.buyerPenalty)}</strong> ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">خامساً :</strong> يحق للمشتري تسجيل العقار بأسمه او بأسم من يشاء.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">سادساً :</strong> إن جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق <strong class="cp-val">${fill(form.feesOnParty)}</strong>.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">سابعاً :</strong> أما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك
+              هي في عهدة الفريق <strong class="cp-val">${fill(form.taxFeesOnParty)}</strong>.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">ثامناً :</strong> يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها
+              (<strong class="cp-val">${fill(form.brokerFeePercent)}</strong> %) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة.
+              واذا نكل احد الفريقين عن تنفيذ شروط هذا العقد يتعهد بتأدية ضعفي الدلالة
+              المذكورة أعلاه كما أنه في حالة تراضي بين الفريقين على إبطال هذا العقد
+              فأنهما يكونان ملزمين بتأديتهما الدلالية المذكورة مهما بلغت.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <p class="cp-closing">فبناء على حصول التراضي والإيجاب والقبول حرر هذا العقد.</p>
+        <p class="cp-date-line">البصرة في تاريخ <strong class="cp-val">${dateDisplay}</strong></p>
+
+        <div class="cp-extra">
+          <p class="cp-extra-title">ملاحظات إضافية</p>
+          <p class="cp-extra-content">${esc(String(form.extraClauses ?? "").trim() || "................")}</p>
+        </div>
+
+        <div class="cp-sigs">
+          <div class="cp-sig-col">
+            <div class="cp-sig-head">الفريق الأول — البائع</div>
+            <div class="cp-sig-box"></div>
+          </div>
+          <div class="cp-sig-col">
+            <div class="cp-sig-head">الفريق الثاني — المشتري</div>
+            <div class="cp-sig-box"></div>
+          </div>
+        </div>
+
       </div>
-      <div class="box">
-        <div class="row"><span class="lbl">الفريق الثاني - المشتري</span><span class="dash">${fill(form.partyTwoBuyer)}</span></div>
-        <div class="row"><span class="lbl">الساكن</span><span class="dash">${fill(form.buyerCity)}</span></div>
-        <div class="row"><span class="lbl">المهنة</span><span class="dash">${fill(form.buyerProfession)}</span></div>
-      </div>
     </div>
+  </div>`;
 
-    <p class="center-note">لقد تم الاتفاق بين الفريقين على عقد هذه المقاولة بالشروط التالية :</p>
-    <div class="line"></div>
-
-    <p class="cl"><span class="n">أولاً :</span> يعترف الفريق الأول بأنه قد باع إلى الفريق الثاني الملك المفصل فيما يلي:<br/>
-      نوع الملك <span class="inline">${fill(form.propertyType)}</span>
-      الرقم والتسلسل <span class="inline">${fill(form.propertyNumber)}</span>
-      المحلة <span class="inline">${fill(form.mahala)}</span>
-    </p>
-
-    <p class="cl"><span class="n">ثانياً :</span> إن بدل البيع المتفق عليه هو <span class="inline">${fill(form.agreedPrice)}</span>
-      ويعترف الفريق الأول بأنه قد قبض من الفريق الثاني عربوناً قدره <span class="inline">${fill(form.depositPaid)}</span>
-      والباقي <span class="inline">${fill(form.remainingAmount)}</span>، وأما البدل فيقبض عند إكمال المعاملة والتقرير في دائرة العقاري.
-    </p>
-
-    <p class="cl"><span class="n">ثالثاً :</span> إذا امتنع الفريق الأول عن البيع بأية صورة كانت فإنه يكون ملزماً بإعادة العربون
-      إلى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدرها <span class="inline">${fill(form.sellerPenalty)}</span> ديناراً
-      بدون حاجة إلى إنذار رسمي.
-    </p>
-
-    <p class="cl"><span class="n">رابعاً :</span> يعترف الفريق الثاني بأنه قد قبل الشراء بالشروط المذكورة أنفاً ويتعهد بتأدية قصور البدل المبيع
-      إلى الفريق الأول عند إكمال المعاملة والتقرير في دائرة التسجيل العقاري. وإذا نكل عن الشراء وتأدية قصور البدل فإنه يتعهد
-      بتأدية تضمينات قدرها <span class="inline">${fill(form.buyerPenalty)}</span> ديناراً بدون حاجة إلى إنذار رسمي، وليس له الحق بمطالبة العربون.
-    </p>
-
-    <p class="cl"><span class="n">خامساً :</span> يحق للمشتري تسجيل العقار باسمه أو باسم من يشاء.</p>
-
-    <p class="cl"><span class="n">سادساً :</span> إن جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق
-      <span class="inline">${fill(form.feesOnParty)}</span>.
-    </p>
-
-    <p class="cl"><span class="n">سابعاً :</span> أما رسوم التملك والانتقال والإفراز والتوحيد والتصحيح وضريبة الملك فهي في عهدة الفريق
-      <span class="inline">الأول</span>.
-    </p>
-
-    <p class="cl"><span class="n">ثامناً :</span> يتعهد الفريقان بأن يدفع كل واحد منهما دلالية قدرها
-      (<span class="inline">${fill(form.brokerFeePercent)}</span> %) إلى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة.
-    </p>
-
-    <p class="cl"><strong>فبناءً على حصول التراضي والإيجاب والقبول حرر هذا العقد.</strong><br/>
-      البصرة في تاريخ <span class="inline">${fillDate(form.contractYear)}</span>
-    </p>
-
-    <div class="extra"><h3>ملاحظات إضافية</h3><pre>${esc(form.extraClauses?.trim() || "................")}</pre></div>
-    <div class="line"></div>
-    <div class="sigs">
-      <div class="sig"><p><strong>الفريق الأول - البائع</strong></p><div class="sigbox"></div></div>
-      <div class="sig"><p><strong>الفريق الثاني - المشتري</strong></p><div class="sigbox"></div></div>
-    </div>
-  </div>
-  `;
-
-  return wrapHtml("عقد بيع", statusLine, inner);
+  return wrapHtml(`عقد بيع — ${docStatus} — ${contractId}`, body);
 }
 
 /**
@@ -189,63 +573,175 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
  * @returns {string} مستند HTML كامل
  */
 export function buildRentContractArchiveHtml(form, contractId, docStatus) {
-  const statusLine = `عقد إيجار — ${docStatus} — معرّف: ${contractId}`;
-  const inner = `
-  <h1>(( عقد إيجار ))</h1>
-  <div class="grid">
-    <span class="lbl">تسلسل العقار :</span><span>${fill(form.propertySerial)}</span>
-    <span class="lbl">التاريخ :</span><span>${fillDate(form.contractDate)}</span>
-    <span class="lbl">نوع المأجور :</span><span>${fill(form.propertyType)}</span>
-    <span class="lbl">مدة الإيجار من</span><span>${fillDate(form.rentFromDate)} — لغاية ${fillDate(form.rentToDate)}</span>
-    <span class="lbl">بدل الإيجار :</span><span>${fill(form.rentAmount)} فقط</span>
-    <span class="lbl">يدفع مقدماً كل :</span><span>${fill(form.paymentPeriod)}</span>
-    <span class="lbl">المدعو بالمؤجر :</span><span>${fill(form.landlordName)}</span>
-    <span class="lbl">المدعو بالمستأجر :</span><span>${fill(form.tenantName)}</span>
-  </div>
-  <p class="intro"><strong>واتفقا على ما يأتي :</strong></p>
-  <div class="clause"><p><strong>أولاً :</strong> لا يحق للمستأجر أن يقلع أو يعمر أو يثبت لوحة اعلانه او يغير شيئاً من المأجور
-    دون الحصول على موافقة المؤجر التحريرية واذا نقض هذا الشرط يتعهد المستأجر أن
-    يدفع للمؤجر أي تعويض يعينه المؤجر بنفسه دون الحاجة إلى إخطار رسمي.</p></div>
-  <div class="clause"><p><strong>ثانياً :</strong> اذا تأخر المستأجر عن دفع الاجرة المتفق عليها او قسط من اقساطها عند الاستحقاق
-    واظهر المماطلة والمماهلة بهذا الشأن فيحق للمؤجر أن يؤجر المأجور لمن يريد ويعد
-    هذا العقد باطلاً وملغياً وعلى المستأجر ترك الماجور واخلاءه حالا مراعاة لهذا
-    الشرط ولا حاجة للإنذار رسمي.</p></div>
-  <div class="clause"><p><strong>ثالثاً :</strong> اذا تخامل المستأجر عن تخلية المأجور وتفريغه عند انتهاء مدة الايجار واشغله من
-    دون مسوغ قانوني ومن دون ان يجدد المقاولة مع المؤجر، فيتعهد المستأجر ويلزم على
-    نفسه بتسليم الاجرة ضعف الايجار المذكور اعلاه للمدة التي تمضي بعد انتهاء مدة
-    هذا العقد الى حين تخلية المأجور ولا حاجة للانذار الرسمي الى المستأجر بهذا
-    الخصوص بل ان انقضاء المدة المعينة تعد بمقام الانذار ويعتبر انقضاء المدة بمقام
-    الانذار ولا يسوغ للمستأجر أن يدافع عن نفسه بهذا الصدد بأن لم يسبق له الانذار
-    أي الانذار القانوني.</p></div>
-  <div class="clause"><p><strong>رابعاً :</strong> تكون الضريبة على المؤجر اما رسم الحراسة وتنظيف المرافق الصحية ورسم الماء
-    والكهرباء فتكون على المستأجر.</p></div>
-  <div class="clause"><p><strong>خامساً :</strong> لا يجوز للمستأجر تغير نوع مهنته حسب الاتفاق الأول عند التأجير الا بعد حصوله
-    على موافقة المؤجر التحريرية وبعكسه يفسخ هذا العقد وللمؤجر الحق بطلب التخلية
-    الفورية.</p></div>
-  <div class="clause"><p><strong>سادساً :</strong> يكون المأجور محل للتبليغ و التبلغ في حالة الدعاوي القضائية بين الطرفين.</p></div>
-  <div class="extra"><h3>ملاحظات إضافية</h3><pre>${esc(form.extraClauses?.trim() || "................")}</pre></div>
-  <div class="sigs">
-    <div class="sig">
-      <p><strong>المستأجر</strong></p>
-      <div class="grid" style="text-align:right">
-        <span class="lbl">الاسم الكامل</span><span>${fill(form.tenantFullName)}</span>
-        <span class="lbl">عنوان المسكن</span><span>${fill(form.tenantAddress)}</span>
-        <span class="lbl">الهاتف</span><span>${fill(form.tenantPhone)}</span>
-        <span class="lbl">الهوية</span><span>${fill(form.tenantIdNumber)}</span>
+  const dateDisplay = fillDate(form.contractDate);
+  const fromDate = fillDate(form.rentFromDate);
+  const toDate = fillDate(form.rentToDate);
+
+  const body = `
+  <div class="cp-sheet" dir="rtl">
+    <div class="cp-inner-border">
+      <div class="cp-watermark"></div>
+
+      <div class="cp-header">
+        <div class="cp-header-meta">
+          <span class="cp-header-city">البصرة</span>
+          <span class="cp-header-date">التاريخ : ${dateDisplay}</span>
+        </div>
+        <div class="cp-header-center">
+          <p class="cp-bismillah">بسم الله الرحمن الرحيم</p>
+          <div class="cp-title-wrapper">
+            <div class="cp-title-orn"></div>
+            <h1 class="cp-title">عقد إيجار</h1>
+            <div class="cp-title-orn cp-title-orn-rev"></div>
+          </div>
+        </div>
+        <div class="cp-header-brand">
+          <img src="/al-kawthar-logo.png" alt="Al-Kawthar" class="cp-logo-img"/>
+        </div>
       </div>
-      <div class="sigbox"></div>
-    </div>
-    <div class="sig">
-      <p><strong>المؤجر</strong></p>
-      <div class="grid" style="text-align:right">
-        <span class="lbl">الاسم الكامل</span><span>${fill(form.landlordFullName)}</span>
-        <span class="lbl">عنوان المسكن</span><span>${fill(form.landlordAddress)}</span>
-        <span class="lbl">الهاتف</span><span>${fill(form.landlordPhone)}</span>
-        <span class="lbl">الهوية</span><span>${fill(form.landlordIdNumber)}</span>
+
+      <div class="cp-content">
+
+        <div class="cp-rent-grid">
+          <span class="cp-rent-label">تسلسل العقار :</span>
+          <div class="cp-rent-cell">${fill(form.propertySerial)}</div>
+
+          <span class="cp-rent-label">نوع المأجور :</span>
+          <div class="cp-rent-cell">${fill(form.propertyType)}</div>
+
+          <span class="cp-rent-label">مدة الإيجار :</span>
+          <div class="cp-rent-cell">
+            <span>من</span>
+            <strong class="cp-val">${fromDate}</strong>
+            <span>لغاية</span>
+            <strong class="cp-val">${toDate}</strong>
+          </div>
+
+          <span class="cp-rent-label">بدل الإيجار :</span>
+          <div class="cp-rent-cell">
+            <strong class="cp-val">${fill(form.rentAmount)}</strong>
+            <span>دينار فقط</span>
+          </div>
+
+          <span class="cp-rent-label">يدفع مقدماً كل :</span>
+          <div class="cp-rent-cell">${fill(form.paymentPeriod)}</div>
+
+          <span class="cp-rent-label">المؤجر :</span>
+          <div class="cp-rent-cell">${fill(form.landlordName)}</div>
+
+          <span class="cp-rent-label">المستأجر :</span>
+          <div class="cp-rent-cell">${fill(form.tenantName)}</div>
+        </div>
+
+        <p class="cp-intro"><strong>واتفقا على ما يأتي :</strong></p>
+
+        <div class="cp-clauses">
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">أولاً :</strong> لا يحق للمستأجر أن يقلع أو يعمر أو يثبت لوحة إعلانه أو يغير شيئاً من المأجور
+              دون الحصول على موافقة المؤجر التحريرية واذا نقض هذا الشرط يتعهد المستأجر أن
+              يدفع للمؤجر أي تعويض يعينه المؤجر بنفسه دون الحاجة إلى إخطار رسمي.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">ثانياً :</strong> اذا تأخر المستأجر عن دفع الاجرة المتفق عليها أو قسط من أقساطها عند الاستحقاق
+              وأظهر المماطلة والمماهلة بهذا الشأن فيحق للمؤجر أن يؤجر المأجور لمن يريد ويعد
+              هذا العقد باطلاً وملغياً وعلى المستأجر ترك المأجور وإخلاءه حالاً مراعاة لهذا
+              الشرط ولا حاجة للإنذار الرسمي.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">ثالثاً :</strong> اذا تخامل المستأجر عن تخلية المأجور وتفريغه عند انتهاء مدة الإيجار واشغله من
+              دون مسوغ قانوني ومن دون أن يجدد المقاولة مع المؤجر، فيتعهد المستأجر ويلزم على
+              نفسه بتسليم الاجرة ضعف الإيجار المذكور أعلاه للمدة التي تمضي بعد انتهاء مدة
+              هذا العقد الى حين تخلية المأجور ولا حاجة للإنذار الرسمي الى المستأجر بهذا
+              الخصوص بل إن انقضاء المدة المعينة تعد بمقام الإنذار.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">رابعاً :</strong> تكون الضريبة على المؤجر أما رسم الحراسة وتنظيف المرافق الصحية ورسم الماء
+              والكهرباء فتكون على المستأجر.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">خامساً :</strong> لا يجوز للمستأجر تغيير نوع مهنته حسب الاتفاق الأول عند التأجير الا بعد حصوله
+              على موافقة المؤجر التحريرية وبعكسه يفسخ هذا العقد وللمؤجر الحق بطلب التخلية
+              الفورية.</p>
+            </div>
+          </div>
+
+          <div class="cp-clause">
+            <div class="cp-clause-body">
+              <p><strong class="cp-clause-lead">سادساً :</strong> يكون المأجور محل للتبليغ والتبلغ في حالة الدعاوي القضائية بين الطرفين.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="cp-extra">
+          <p class="cp-extra-title">ملاحظات إضافية</p>
+          <p class="cp-extra-content">${esc(String(form.extraClauses ?? "").trim() || "................")}</p>
+        </div>
+
+        <div class="cp-rent-sigs">
+          <div class="cp-rent-sig-col">
+            <div class="cp-rent-sig-head">المستأجر</div>
+            <div class="cp-rent-sig-fields">
+              <div class="cp-rent-sig-row">
+                <span class="cp-rent-sig-label">الاسم الكامل :</span>
+                <strong class="cp-rent-sig-value">${fill(form.tenantFullName)}</strong>
+              </div>
+              <div class="cp-rent-sig-row">
+                <span class="cp-rent-sig-label">عنوان المسكن الدائم :</span>
+                <strong class="cp-rent-sig-value">${fill(form.tenantAddress)}</strong>
+              </div>
+              <div class="cp-rent-sig-row">
+                <span class="cp-rent-sig-label">رقم الهاتف :</span>
+                <strong class="cp-rent-sig-value">${fill(form.tenantPhone)}</strong>
+              </div>
+              <div class="cp-rent-sig-row">
+                <span class="cp-rent-sig-label">رقم هوية الأحوال المدنية :</span>
+                <strong class="cp-rent-sig-value">${fill(form.tenantIdNumber)}</strong>
+              </div>
+            </div>
+            <div class="cp-sig-box"></div>
+          </div>
+          <div class="cp-rent-sig-col">
+            <div class="cp-rent-sig-head">المؤجر</div>
+            <div class="cp-rent-sig-fields">
+              <div class="cp-rent-sig-row">
+                <span class="cp-rent-sig-label">الاسم الكامل :</span>
+                <strong class="cp-rent-sig-value">${fill(form.landlordFullName)}</strong>
+              </div>
+              <div class="cp-rent-sig-row">
+                <span class="cp-rent-sig-label">عنوان المسكن الدائم :</span>
+                <strong class="cp-rent-sig-value">${fill(form.landlordAddress)}</strong>
+              </div>
+              <div class="cp-rent-sig-row">
+                <span class="cp-rent-sig-label">رقم الهاتف :</span>
+                <strong class="cp-rent-sig-value">${fill(form.landlordPhone)}</strong>
+              </div>
+              <div class="cp-rent-sig-row">
+                <span class="cp-rent-sig-label">رقم هوية الأحوال المدنية :</span>
+                <strong class="cp-rent-sig-value">${fill(form.landlordIdNumber)}</strong>
+              </div>
+            </div>
+            <div class="cp-sig-box"></div>
+          </div>
+        </div>
+
       </div>
-      <div class="sigbox"></div>
     </div>
   </div>`;
 
-  return wrapHtml("عقد إيجار", statusLine, inner, true);
+  return wrapHtml(`عقد إيجار — ${docStatus} — ${contractId}`, body);
 }
