@@ -20,7 +20,7 @@ const TYPE_ICONS = {
       <path d="M9 21V12h6v9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
-};
+}; 
 
 
 function ContractRow({ contract, onView, onPrint, onDownloadPdf, onDelete, isPrinting, isDownloadingPdf, isDeleting }) {
