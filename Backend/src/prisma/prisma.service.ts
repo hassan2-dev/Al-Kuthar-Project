@@ -7,6 +7,11 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   async onModuleInit() {
+    if (!process.env.DATABASE_URL?.trim()) {
+      throw new Error(
+        "DATABASE_URL is not set. Configure it in the deployment environment (e.g. Coolify secrets), not only in a local .env file.",
+      );
+    }
     await this.$connect();
   }
 
