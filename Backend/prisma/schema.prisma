@@ -41,7 +41,7 @@ model Document {
   mimeType     String?
   size         Int?
   contractId   String?
-  contract     Contract? @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  contract     Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
   uploadedById String
   uploadedBy   User      @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
   createdAt    DateTime  @default(now())
