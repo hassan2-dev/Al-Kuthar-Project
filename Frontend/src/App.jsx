@@ -9,7 +9,6 @@ import RentContract from "./pages/RentContract";
 import RentContractPrint from "./Prints/RentContractPrint";
 import Archive from "./pages/Archive";
 import ContractView from "./pages/ContractView";
-import ContractPrint from "./pages/ContractPrint";
 
 function RequireAuth() {
   const location = useLocation();
@@ -35,7 +34,6 @@ function App() {
         <Route path="/rent-contract/print" element={<RentContractPrint />} />
         <Route path="/archive" element={<Archive />} />
         <Route path="/contract-view/:id" element={<ContractView />} />
-        <Route path="/contract-print/:id" element={<ContractPrint />} />
       </Route>
     </Routes>
   );

@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import LogoutButton from "../components/LogoutButton";
-import { deleteContract, listContracts } from "../api/contractsApi";
-import { getDocumentDownloadUrl, listDocuments } from "../api/documentsApi";
+import { deleteContract, getContractById, listContracts } from "../api/contractsApi";
+import { buildRentContractArchiveHtml, buildSaleContractArchiveHtml } from "../utils/buildContractDocumentFile";
+import { htmlDocumentStringToPdfFile } from "../utils/contractHtmlToPdf";
 
 const TYPE_ICONS = {
   "عقد بيع": (
@@ -19,23 +20,19 @@ const TYPE_ICONS = {
       <path d="M9 21V12h6v9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
-};
+}; 
 
 
-function ContractRow({ contract, onView, onDownloadPdf, onDelete, isDownloadingPdf, isDeleting }) {
-
+function ContractRow({ contract, onView, onPrint, onDownloadPdf, onDelete, isPrinting, isDownloadingPdf, isDeleting }) {
   const isConfirmed = contract.status === "مؤكد";
   const isSale = contract.type === "عقد بيع";
 
   return (
     <div className={`arc-card ${isSale ? "arc-card--sale" : "arc-card--rent"}`} dir="rtl">
-      {/* Stacked paper layers behind */}
       <div className="arc-card-paper arc-card-paper--back" />
       <div className="arc-card-paper arc-card-paper--mid" />
 
-      {/* Card body */}
       <div className="arc-card-body">
-        {/* Inner content */}
         <div className="arc-card-inner">
           {/* Top: icon + status */}
           <div className="arc-card-top">
@@ -45,56 +42,111 @@ function ContractRow({ contract, onView, onDownloadPdf, onDelete, isDownloadingP
             </span>
           </div>
 
-      <div className="arc-row-date">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
-          <path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-        </svg>
-        <div>
-          <div>{contract.date}</div>
-          {contract.contractDate ? <small>تاريخ العقد: {contract.contractDate}</small> : null}
-        </div>
-      </div>
-
-          {/* Title */}
+          {/* Contract type label */}
           <h3 className="arc-card-title">{contract.type}</h3>
 
-      <div className="arc-row-actions">
-        <button
-          type="button"
-          className="arc-btn arc-btn--view"
-          onClick={() => onView(contract)}
-          aria-label="عرض العقد"
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" strokeWidth="1.5"/>
-            <circle cx="8" cy="8" r="2.2" stroke="currentColor" strokeWidth="1.5"/>
-          </svg>
-          عرض
-        </button>
-        <button
-          type="button"
-          className="arc-btn arc-btn--print"
-          disabled={isDownloadingPdf}
-          onClick={() => onDownloadPdf(contract)}
-          aria-label="تحميل نسخة PDF المحفوظة"
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
-            <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>
-          </svg>
-          {isDownloadingPdf ? "..." : "PDF"}
-        </button>
-        <button
-          type="button"
-          className="arc-btn arc-btn--view"
-          disabled={isDeleting}
-          onClick={() => onDelete(contract)}
-          aria-label="حذف العقد نهائياً"
-        >
-          {isDeleting ? "..." : "حذف"}
-        </button>
-      </div>
+          {/* Parties: seller → buyer */}
+          <div className="arc-card-parties">
+            <span className="arc-card-party" title={contract.sellerName}>
+              {contract.sellerName || "—"}
+            </span>
+            <span className="arc-card-sep">←</span>
+            <span className="arc-card-party" title={contract.buyerName}>
+              {contract.buyerName || "—"}
+            </span>
+          </div>
+
+          {/* Date */}
+          <div className="arc-card-date">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            <div>
+              <div>{contract.date}</div>
+              {contract.contractDate ? <small>تاريخ العقد: {contract.contractDate}</small> : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="arc-card-divider" />
+
+        <div className="arc-card-actions">
+          {/* عرض */}
+          <button
+            type="button"
+            className="arc-card-btn arc-card-btn--view"
+            onClick={() => onView(contract)}
+            aria-label="عرض العقد"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" strokeWidth="1.5"/>
+              <circle cx="8" cy="8" r="2.2" stroke="currentColor" strokeWidth="1.5"/>
+            </svg>
+            عرض
+          </button>
+
+          {/* طباعة */}
+          <button
+            type="button"
+            className="arc-card-btn arc-card-btn--print"
+            disabled={isPrinting}
+            onClick={() => onPrint(contract)}
+            aria-label="طباعة العقد"
+          >
+            {isPrinting ? (
+              "..."
+            ) : (
+              <>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+                  <path d="M4 10h8v4H4v-4z" stroke="currentColor" strokeWidth="1.4"/>
+                </svg>
+                طباعة
+              </>
+            )}
+          </button>
+
+          {/* تحميل PDF */}
+          <button
+            type="button"
+            className="arc-card-btn arc-card-btn--download"
+            disabled={isDownloadingPdf}
+            onClick={() => onDownloadPdf(contract)}
+            aria-label="تحميل نسخة PDF المحفوظة"
+          >
+            {isDownloadingPdf ? (
+              "..."
+            ) : (
+              <>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M8 2v8M5 7l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 12h12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+                PDF
+              </>
+            )}
+          </button>
+
+          {/* حذف */}
+          <button
+            type="button"
+            className="arc-card-btn arc-card-btn--delete"
+            disabled={isDeleting}
+            onClick={() => onDelete(contract)}
+            aria-label="حذف العقد نهائياً"
+          >
+            {isDeleting ? (
+              "..."
+            ) : (
+              <>
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                حذف
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>
@@ -113,7 +165,9 @@ export default function Archive() {
   const [filterUserScope, setFilterUserScope] = useState("all");
   const [docLoadingId, setDocLoadingId] = useState(null);
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+  const [printLoadingId, setPrintLoadingId] = useState(null);
   const [docError, setDocError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
     const fetchContracts = async () => {
@@ -170,27 +224,58 @@ export default function Archive() {
     navigate(`/contract-view/${contract.id}`);
   };
 
+  const handlePrint = async (contract) => {
+    setPrintLoadingId(contract.id);
+    try {
+      const raw = await getContractById(contract.id);
+      const data = raw?.contract || raw?.data || raw || {};
+      const details = (typeof data.details === "object" && data.details !== null) ? data.details : {};
+      const flatData = { ...data, ...details };
+      const isRent = (data.type || contract.type) === "عقد إيجار";
+      const statusLabel = String(data.status || "").toLowerCase() === "confirmed" ? "مؤكد" : "مسودة";
+      if (isRent) {
+        localStorage.setItem("rentContractDraft", JSON.stringify(flatData));
+        localStorage.setItem("rentContractStatus", statusLabel);
+        navigate("/rent-contract/print");
+      } else {
+        localStorage.setItem("saleContractDraft", JSON.stringify(flatData));
+        localStorage.setItem("saleContractStatus", statusLabel);
+        navigate("/sale-contract/print");
+      }
+    } catch {
+      setDocError("تعذر تحميل بيانات العقد للطباعة.");
+    } finally {
+      setPrintLoadingId(null);
+    }
+  };
+
   const handleDownloadPdf = async (contract) => {
     setDocLoadingId(contract.id);
     setDocError("");
     try {
-      const docsResponse = await listDocuments({ contractId: contract.id, limit: 20, page: 1 });
-      const docs = docsResponse?.items || docsResponse?.data || docsResponse?.documents || [];
-      const latestDoc = docs[0];
-      const docId = latestDoc?.id || latestDoc?._id;
+      const raw = await getContractById(contract.id);
+      const data = raw?.contract || raw?.data || raw || {};
+      const details = (typeof data.details === "object" && data.details !== null) ? data.details : {};
+      const flatData = { ...data, ...details };
+      const isRent = (data.type || contract.type) === "عقد إيجار";
+      const statusLabel = String(data.status || "").toLowerCase() === "confirmed" ? "مؤكد" : "مسودة";
 
-      if (!docId) {
-        throw new Error("لا توجد نسخة PDF محفوظة لهذا العقد.");
-      }
+      const htmlString = isRent
+        ? buildRentContractArchiveHtml(flatData, contract.id, statusLabel)
+        : buildSaleContractArchiveHtml(flatData, contract.id, statusLabel);
 
-      const downloadResponse = await getDocumentDownloadUrl(docId);
-      const downloadUrl = downloadResponse?.url || downloadResponse?.downloadUrl;
+      const contractLabel = isRent ? "عقد-إيجار" : "عقد-بيع";
+      const filename = `${contractLabel}-${contract.id}.pdf`;
+      const file = await htmlDocumentStringToPdfFile(htmlString, filename);
 
-      if (!downloadUrl) {
-        throw new Error("تعذر الحصول على رابط تحميل الملف.");
-      }
-
-      window.open(downloadUrl, "_blank", "noopener,noreferrer");
+      const url = URL.createObjectURL(file);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
     } catch (error) {
       const message =
         error?.response?.data?.message ||
@@ -202,8 +287,14 @@ export default function Archive() {
     }
   };
 
-  const handleDeleteContract = async (contract) => {
-    if (!window.confirm("سيتم حذف العقد وملفاته من الأرشيف والستوريج نهائياً. متابعة؟")) return;
+  const handleDeleteContract = (contract) => {
+    setDeleteTarget(contract);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const contract = deleteTarget;
+    setDeleteTarget(null);
     setDeleteLoadingId(contract.id);
     setDocError("");
     try {
@@ -402,6 +493,8 @@ export default function Archive() {
                 key={contract.id}
                 contract={contract}
                 onView={handleView}
+                onPrint={handlePrint}
+                isPrinting={printLoadingId === contract.id}
                 onDownloadPdf={handleDownloadPdf}
                 isDownloadingPdf={docLoadingId === contract.id}
                 onDelete={handleDeleteContract}
@@ -412,6 +505,58 @@ export default function Archive() {
         </div>
 
       </div>
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="del-modal-backdrop" onClick={() => setDeleteTarget(null)}>
+          <div className="del-modal" dir="rtl" onClick={(e) => e.stopPropagation()}>
+            <div className="del-modal-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <circle cx="16" cy="16" r="15" stroke="#e53935" strokeWidth="1.8"/>
+                <path d="M10 11h12M13 11V9h6v2M12 11l1 12h6l1-12" stroke="#e53935" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M15 15v5M17 15v5" stroke="#e53935" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <h2 className="del-modal-title">حذف العقد</h2>
+            <p className="del-modal-msg">
+              سيتم حذف هذا العقد وجميع ملفاته من الأرشيف نهائياً ولا يمكن التراجع عن هذا الإجراء.
+            </p>
+            {deleteTarget.sellerName || deleteTarget.buyerName ? (
+              <div className="del-modal-contract-info">
+                <span className="del-modal-contract-type">{deleteTarget.type}</span>
+                {deleteTarget.sellerName && (
+                  <span className="del-modal-contract-name">{deleteTarget.sellerName}</span>
+                )}
+                {deleteTarget.sellerName && deleteTarget.buyerName && (
+                  <span className="del-modal-contract-sep">←</span>
+                )}
+                {deleteTarget.buyerName && (
+                  <span className="del-modal-contract-name">{deleteTarget.buyerName}</span>
+                )}
+              </div>
+            ) : null}
+            <div className="del-modal-actions">
+              <button
+                type="button"
+                className="del-modal-btn del-modal-btn--cancel"
+                onClick={() => setDeleteTarget(null)}
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                className="del-modal-btn del-modal-btn--confirm"
+                onClick={confirmDelete}
+              >
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                نعم، احذف
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
