@@ -46,7 +46,9 @@ export class DocumentsService {
     }
 
     this.storage.assertConfigured();
-    const key = this.storage.buildObjectKey(userId, file.originalname);
+    const key = contractId
+      ? this.storage.buildContractScopedKey(contractId, file.originalname)
+      : this.storage.buildObjectKey(userId, file.originalname);
     await this.storage.putObject(key, file.buffer, file.mimetype);
 
     return this.prisma.document.create({

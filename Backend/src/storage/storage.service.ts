@@ -1,6 +1,7 @@
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -59,6 +60,13 @@ export class StorageService {
     return `uploads/${userId}/${Date.now()}-${suffix}-${safe}`;
   }
 
+  /** Stable prefix per contract so delete can wipe R2 without DB rows. */
+  buildContractScopedKey(contractId: string, originalName: string) {
+    const safe = originalName.replace(/[^\w.\-]+/g, "_").slice(0, 180);
+    const suffix = randomBytes(8).toString("hex");
+    return `contracts/${contractId}/${Date.now()}-${suffix}-${safe}`;
+  }
+
   async putObject(key: string, body: Buffer, contentType?: string) {
     this.assertConfigured();
     try {
@@ -99,5 +107,70 @@ export class StorageService {
         Key: key,
       }),
     );
+  }
+
+  async deleteObjectsWithPrefix(prefix: string): Promise<number> {
+    this.assertConfigured();
+    const normalized = prefix.replace(/\/+$/, "");
+    if (normalized.length < 2) return 0;
+    const listPrefix = `${normalized}/`;
+    let deleted = 0;
+    let continuationToken: string | undefined;
+    do {
+      const resp = await this.client!.send(
+        new ListObjectsV2Command({
+          Bucket: this.bucket!,
+          Prefix: listPrefix,
+          ContinuationToken: continuationToken,
+          MaxKeys: 1000,
+        }),
+      );
+      for (const obj of resp.Contents ?? []) {
+        if (!obj.Key) continue;
+        await this.client!.send(
+          new DeleteObjectCommand({ Bucket: this.bucket!, Key: obj.Key }),
+        );
+        deleted++;
+      }
+      continuationToken = resp.IsTruncated
+        ? resp.NextContinuationToken
+        : undefined;
+    } while (continuationToken);
+    return deleted;
+  }
+
+  /**
+   * Legacy keys: uploads/{userId}/{time}-{suffix}-{sanitizedOriginal}; sanitized
+   * name keeps the cuid, so the object key usually contains the contract id.
+   */
+  async deleteUploadKeysContainingContractId(
+    contractId: string,
+    maxPages = 500,
+  ): Promise<number> {
+    this.assertConfigured();
+    const id = contractId.trim();
+    if (id.length < 14) return 0;
+    let deleted = 0;
+    let continuationToken: string | undefined;
+    for (let page = 0; page < maxPages; page++) {
+      const resp = await this.client!.send(
+        new ListObjectsV2Command({
+          Bucket: this.bucket!,
+          Prefix: "uploads/",
+          ContinuationToken: continuationToken,
+          MaxKeys: 1000,
+        }),
+      );
+      for (const obj of resp.Contents ?? []) {
+        if (!obj.Key?.includes(id)) continue;
+        await this.client!.send(
+          new DeleteObjectCommand({ Bucket: this.bucket!, Key: obj.Key }),
+        );
+        deleted++;
+      }
+      if (!resp.IsTruncated) break;
+      continuationToken = resp.NextContinuationToken;
+    }
+    return deleted;
   }
 }

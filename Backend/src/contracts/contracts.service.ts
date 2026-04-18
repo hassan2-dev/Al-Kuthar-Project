@@ -247,6 +247,15 @@ export class ContractsService {
   async remove(id: string) {
     const trimmedId = id.trim();
     const docWhere = this.documentsWhereForContractCleanup(trimmedId);
+    let removedFromPrefix = 0;
+    let removedFromUploadScan = 0;
+    if (trimmedId.length >= 14) {
+      removedFromPrefix = await this.storage.deleteObjectsWithPrefix(
+        `contracts/${trimmedId}`,
+      );
+      removedFromUploadScan =
+        await this.storage.deleteUploadKeysContainingContractId(trimmedId);
+    }
     return this.prisma.$transaction(async (tx) => {
       const docs = await tx.document.findMany({
         where: docWhere,
@@ -264,6 +273,8 @@ export class ContractsService {
       return {
         ok: true,
         removedDocuments: docs.length,
+        removedFromStoragePrefix: removedFromPrefix,
+        removedFromStorageUploadScan: removedFromUploadScan,
         contractRemoved: contractResult.count > 0,
       };
     });
