@@ -233,10 +233,23 @@ export class ContractsService {
     });
   }
 
+  private documentsWhereForContractCleanup(id: string): Prisma.DocumentWhereInput {
+    const trimmed = id.trim();
+    const byLink = { contractId: trimmed };
+    if (trimmed.length < 14) {
+      return byLink;
+    }
+    return {
+      OR: [byLink, { originalName: { contains: trimmed } }],
+    };
+  }
+
   async remove(id: string) {
+    const trimmedId = id.trim();
+    const docWhere = this.documentsWhereForContractCleanup(trimmedId);
     return this.prisma.$transaction(async (tx) => {
       const docs = await tx.document.findMany({
-        where: { contractId: id },
+        where: docWhere,
         select: { id: true, storageKey: true },
       });
       for (const doc of docs) {
@@ -245,9 +258,9 @@ export class ContractsService {
           await this.storage.deleteObject(key);
         }
       }
-      await tx.document.deleteMany({ where: { contractId: id } });
-      await tx.contractLog.deleteMany({ where: { contractId: id } });
-      const contractResult = await tx.contract.deleteMany({ where: { id } });
+      await tx.document.deleteMany({ where: docWhere });
+      await tx.contractLog.deleteMany({ where: { contractId: trimmedId } });
+      const contractResult = await tx.contract.deleteMany({ where: { id: trimmedId } });
       return {
         ok: true,
         removedDocuments: docs.length,
