@@ -234,18 +234,25 @@ export class ContractsService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
     return this.prisma.$transaction(async (tx) => {
       const docs = await tx.document.findMany({
         where: { contractId: id },
         select: { id: true, storageKey: true },
       });
       for (const doc of docs) {
-        await this.storage.deleteObject(doc.storageKey);
+        const key = doc.storageKey?.trim();
+        if (key) {
+          await this.storage.deleteObject(key);
+        }
       }
       await tx.document.deleteMany({ where: { contractId: id } });
-      await tx.contract.delete({ where: { id } });
-      return { ok: true, removedDocuments: docs.length };
+      await tx.contractLog.deleteMany({ where: { contractId: id } });
+      const contractResult = await tx.contract.deleteMany({ where: { id } });
+      return {
+        ok: true,
+        removedDocuments: docs.length,
+        contractRemoved: contractResult.count > 0,
+      };
     });
   }
 }
