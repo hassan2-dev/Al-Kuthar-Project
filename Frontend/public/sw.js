@@ -1,4 +1,4 @@
-const CACHE_NAME = "alkawthar-shell-v2";
+const CACHE_NAME = "alkawthar-shell-v3";
 const APP_SHELL_ASSETS = ["/", "/index.html", "/manifest.webmanifest", "/logo.png"];
 
 self.addEventListener("install", (event) => {
@@ -25,6 +25,14 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+
+  // Never cache API calls (cross-origin e.g. api.*) — stale lists after DELETE
+  if (url.origin !== self.location.origin) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
