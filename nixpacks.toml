@@ -1,0 +1,14 @@
+# Used when Coolify build context is repo root; if Base Directory is "Backend", Backend/nixpacks.toml applies.
+providers = ["node"]
+
+[variables]
+NIXPACKS_NODE_VERSION = "22"
+
+[phases.install]
+cmds = ["cd Backend && npm ci"]
+
+[phases.build]
+cmds = ["cd Backend && npm run build"]
+
+[start]
+cmd = "cd Backend && npx prisma migrate deploy && npm run start:prod"
