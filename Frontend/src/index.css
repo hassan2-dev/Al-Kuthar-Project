@@ -3108,9 +3108,17 @@ button {
   .sc-doc-sigs {
     flex-direction: column;
     gap: 20px;
+    align-items: stretch;
   }
 
   .sc-doc-sig-divider { display: none; }
+
+  .sc-doc-sig-col,
+  .sc-doc-sig-col:first-child,
+  .sc-doc-sig-col:last-child {
+    padding: 0;
+    width: 100%;
+  }
 
   .sc-blank--lg { width: 100%; }
   .sc-blank--md { width: 120px; }
