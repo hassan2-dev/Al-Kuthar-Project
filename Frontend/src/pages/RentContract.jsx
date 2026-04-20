@@ -75,14 +75,7 @@ export default function RentContract() {
   const closeToast = () => setToast((t) => ({ ...t, open: false }));
 
   useEffect(() => {
-    const savedForm = localStorage.getItem("rentContractDraft");
-    const savedStatus = localStorage.getItem("rentContractStatus");
-    if (savedForm) {
-      try { setForm(JSON.parse(savedForm)); } catch { /* ignore */ }
-    }
-    if (savedStatus) setStatus(savedStatus);
-    const storedContractId = localStorage.getItem("rentContractId");
-    if (storedContractId) setSavedContractId(storedContractId);
+    clearRentContractLocalDraft();
   }, []);
 
   const getContractIdFromResponse = (response) =>

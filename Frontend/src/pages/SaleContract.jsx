@@ -74,14 +74,7 @@ export default function SaleContract() {
   const closeToast = () => setToast((t) => ({ ...t, open: false }));
 
   useEffect(() => {
-    const savedForm = localStorage.getItem("saleContractDraft");
-    const savedStatus = localStorage.getItem("saleContractStatus");
-    if (savedForm) {
-      try { setForm(JSON.parse(savedForm)); } catch { /* ignore */ }
-    }
-    if (savedStatus) setStatus(savedStatus);
-    const storedContractId = localStorage.getItem("saleContractId");
-    if (storedContractId) setSavedContractId(storedContractId);
+    clearSaleContractLocalDraft();
   }, []);
 
   const getContractIdFromResponse = (response) =>
