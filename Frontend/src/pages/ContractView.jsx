@@ -130,13 +130,13 @@ export function SaleContractBody({ data }) {
         <strong className="print-parties-value">{fill(data.partyOneSeller || data.sellerName)}</strong>
         <span className="print-parties-label">الساكن:</span>
         <strong className="print-parties-value">{fill(data.sellerCity)}</strong>
-        <span className="print-parties-label">المهنة:</span>
+        <span className="print-parties-label">رقم الهاتف:</span>
         <strong className="print-parties-value">{fill(data.sellerProfession)}</strong>
         <span className="print-parties-label">الفريق الثاني المشتري السيد:</span>
         <strong className="print-parties-value">{fill(data.partyTwoBuyer || data.buyerName)}</strong>
         <span className="print-parties-label">الساكن:</span>
         <strong className="print-parties-value">{fill(data.buyerCity)}</strong>
-        <span className="print-parties-label">المهنة:</span>
+        <span className="print-parties-label">رقم الهاتف:</span>
         <strong className="print-parties-value">{fill(data.buyerProfession)}</strong>
       </div>
 
@@ -238,7 +238,7 @@ function SaleEditSheet({ form, onChange }) {
                   <B name="partyOneSeller" size="lg" value={form.partyOneSeller ?? form.sellerName} onChange={onChange} />
                   <span className="cp-pl">السكن :</span>
                   <B name="sellerCity" size="lg" value={form.sellerCity} onChange={onChange} />
-                  <span className="cp-pl">المهنة :</span>
+                  <span className="cp-pl">رقم الهاتف :</span>
                   <B name="sellerProfession" size="lg" value={form.sellerProfession} onChange={onChange} />
                 </div>
               </div>
@@ -250,7 +250,7 @@ function SaleEditSheet({ form, onChange }) {
                   <B name="partyTwoBuyer" size="lg" value={form.partyTwoBuyer ?? form.buyerName} onChange={onChange} />
                   <span className="cp-pl">السكن :</span>
                   <B name="buyerCity" size="lg" value={form.buyerCity} onChange={onChange} />
-                  <span className="cp-pl">المهنة :</span>
+                  <span className="cp-pl">رقم الهاتف :</span>
                   <B name="buyerProfession" size="lg" value={form.buyerProfession} onChange={onChange} />
                 </div>
               </div>

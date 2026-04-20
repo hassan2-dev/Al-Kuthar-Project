@@ -447,7 +447,7 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
               <strong class="cp-pv">${fill(form.partyOneSeller)}</strong>
               <span class="cp-pl">السكن :</span>
               <strong class="cp-pv">${fill(form.sellerCity)}</strong>
-              <span class="cp-pl">المهنة :</span>
+              <span class="cp-pl">رقم الهاتف :</span>
               <strong class="cp-pv">${fill(form.sellerProfession)}</strong>
             </div>
           </div>
@@ -459,7 +459,7 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
               <strong class="cp-pv">${fill(form.partyTwoBuyer)}</strong>
               <span class="cp-pl">السكن :</span>
               <strong class="cp-pv">${fill(form.buyerCity)}</strong>
-              <span class="cp-pl">المهنة :</span>
+              <span class="cp-pl">رقم الهاتف :</span>
               <strong class="cp-pv">${fill(form.buyerProfession)}</strong>
             </div>
           </div>

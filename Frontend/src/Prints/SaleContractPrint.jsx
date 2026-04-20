@@ -196,7 +196,7 @@ export default function SaleContractPrint() {
                     <strong className={fieldClass("cp-pv", form.partyOneSeller)}>{fill(form.partyOneSeller)}</strong>
                     <span className="cp-pl">السكن :</span>
                     <strong className={fieldClass("cp-pv", form.sellerCity)}>{fill(form.sellerCity)}</strong>
-                    <span className="cp-pl">المهنة :</span>
+                    <span className="cp-pl">رقم الهاتف :</span>
                     <strong className={fieldClass("cp-pv", form.sellerProfession)}>{fill(form.sellerProfession)}</strong>
                   </div>
                 </div>
@@ -208,7 +208,7 @@ export default function SaleContractPrint() {
                     <strong className={fieldClass("cp-pv", form.partyTwoBuyer)}>{fill(form.partyTwoBuyer)}</strong>
                     <span className="cp-pl">السكن :</span>
                     <strong className={fieldClass("cp-pv", form.buyerCity)}>{fill(form.buyerCity)}</strong>
-                    <span className="cp-pl">المهنة :</span>
+                    <span className="cp-pl">رقم الهاتف :</span>
                     <strong className={fieldClass("cp-pv", form.buyerProfession)}>{fill(form.buyerProfession)}</strong>
                   </div>
                 </div>
