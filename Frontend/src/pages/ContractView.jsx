@@ -158,9 +158,10 @@ export function SaleContractBody({ data }) {
       </div>
       <div className="print-clause"><p><strong>ثالثاً :</strong> اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزما بأعادة العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره <strong className="print-inline-value">{fill(data.sellerPenalty)}</strong> ديناراً بدون حاجة الى إنذار رسمي</p></div>
       <div className="print-clause"><p><strong>رابعاً :</strong> يعترف الفريق الثاني بأنه قد قبل الشراء بالشروط المذكورة أنفاً ويتعهد بتأدية قصور البدل المبيع الى الفريق الأول عند اكماله المعامله والتقرير في دائرة التسجيل العقاري. واذا نكل عن الشراء وتأدية قصور البدل فأنه يتعهد بتأدية تضمينات قدرها <strong className="print-inline-value">{fill(data.buyerPenalty)}</strong> ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون</p></div>
-      <div className="print-clause"><p><strong>خامساً :</strong> ان جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق <strong className="print-inline-value">{fill(data.feesOnParty)}</strong></p></div>
-      <div className="print-clause"><p><strong>سادساً :</strong> اما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك هي في عهدة الفريق الأول</p></div>
-      <div className="print-clause"><p><strong>سابعاً :</strong> يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها ( <strong className="print-inline-value">{fill(data.brokerFeePercent)}</strong> % ) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة. واذا نكل احد الفريقين عن تنفيذ شروط هذا العقد يتعهد بتأدية ضعفي الدلالة المذكورة اعلاه كما انه في حالة تراضي بين الفريقين وقوع تراضي على ابطال هذا العقد فأنهما يكونان ملزمين بتأديتهما الدلاليه المذكورة مهما بلغت.</p></div>
+      <div className="print-clause"><p><strong>خامساً :</strong> يحق للمشتري تسجيل العقار بأسمه او بأسم من يشاء</p></div>
+      <div className="print-clause"><p><strong>سادساً :</strong> ان جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق <strong className="print-inline-value">{fill(data.feesOnParty)}</strong></p></div>
+      <div className="print-clause"><p><strong>سابعاً :</strong> اما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك هي في عهدة الفريق <strong className="print-inline-value">{fill(data.taxFeesOnParty)}</strong></p></div>
+      <div className="print-clause"><p><strong>ثامناً :</strong> يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها ( <strong className="print-inline-value">{fill(data.brokerFeePercent)}</strong> % ) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة. واذا نكل احد الفريقين عن تنفيذ شروط هذا العقد يتعهد بتأدية ضعفي الدلالة المذكورة اعلاه كما انه في حالة تراضي بين الفريقين وقوع تراضي على ابطال هذا العقد فأنهما يكونان ملزمين بتأديتهما الدلاليه المذكورة مهما بلغت.</p></div>
 
       <p className="print-closing">فبناء على حصول التراضي والايجاب والقبول حرر هذا العقد.</p>
       <p className="print-date">البصرة في تاريخ <strong className="print-inline-value">{fillDate(data.contractYear || data.contractDate)}</strong></p>
@@ -262,7 +263,7 @@ function SaleEditSheet({ form, onChange }) {
 
               <div className="cp-clause">
                 <div className="cp-clause-body">
-                  <p><strong className="cp-clause-lead">أولاً :</strong> يعترف الفريق الأول بأنه قد باع الى الفريق الثاني الملك المفصل فيما يلي :</p>
+                  <p><strong className="cp-clause-lead">أولاً :</strong> يعترف الفريق الأول بأنه قد باع الى الفريق الثاني الملك المفصل في فيما يلي :</p>
                   <div className="cp-prop-grid">
                     <span className="cp-prop-label">نوع الملك</span>
                     <B name="propertyType" size="lg" value={form.propertyType} onChange={onChange} />
@@ -277,7 +278,7 @@ function SaleEditSheet({ form, onChange }) {
               <div className="cp-clause">
                 <div className="cp-clause-body">
                   <p>
-                    <strong className="cp-clause-lead">ثانياً :</strong>{" "}إن بدل البيع المتفق عليه هو{" "}
+                    <strong className="cp-clause-lead">ثانياً :</strong>{" "}ان بدل البيع المتفق عليه هو{" "}
                     <B name="agreedPrice" size="lg" value={form.agreedPrice} onChange={onChange} />
                   </p>
                   <p>
@@ -288,17 +289,17 @@ function SaleEditSheet({ form, onChange }) {
                     والباقي{" "}
                     <B name="remainingAmount" size="lg" value={form.remainingAmount} onChange={onChange} />
                   </p>
-                  <p>وأما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
+                  <p>واما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
                 </div>
               </div>
 
               <div className="cp-clause">
                 <div className="cp-clause-body">
                   <p>
-                    <strong className="cp-clause-lead">ثالثاً :</strong>{" "}اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزماً بإعادة
+                    <strong className="cp-clause-lead">ثالثاً :</strong>{" "}اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزما بأعادة
                     العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره{" "}
                     <B name="sellerPenalty" size="md" value={form.sellerPenalty} onChange={onChange} />{" "}
-                    ديناراً بدون حاجة الى إنذار رسمي.
+                    ديناراً بدون حاجة الى إنذار رسمي
                   </p>
                 </div>
               </div>
@@ -307,11 +308,11 @@ function SaleEditSheet({ form, onChange }) {
                 <div className="cp-clause-body">
                   <p>
                     <strong className="cp-clause-lead">رابعاً :</strong>{" "}يعترف الفريق الثاني بأنه قد قبل الشراء بالشروط المذكورة أنفاً ويتعهد
-                    بتأدية قصور البدل المبيع الى الفريق الأول عند اكمال المعامله والتقرير
+                    بتأدية قصور البدل المبيع الى الفريق الأول عند اكماله المعامله والتقرير
                     في دائرة التسجيل العقاري. واذا نكل عن الشراء وتأدية قصور البدل فأنه
                     يتعهد بتأدية تضمينات قدرها{" "}
                     <B name="buyerPenalty" size="md" value={form.buyerPenalty} onChange={onChange} />{" "}
-                    ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون.
+                    ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون
                   </p>
                 </div>
               </div>
@@ -319,8 +320,8 @@ function SaleEditSheet({ form, onChange }) {
               <div className="cp-clause">
                 <div className="cp-clause-body">
                   <p>
-                    <strong className="cp-clause-lead">خامساً :</strong>{" "}إن جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق{" "}
-                    <B name="feesOnParty" size="md" value={form.feesOnParty} onChange={onChange} />.
+                    <strong className="cp-clause-lead">خامساً :</strong>{" "}
+                    يحق للمشتري تسجيل العقار بأسمه او بأسم من يشاء
                   </p>
                 </div>
               </div>
@@ -328,8 +329,8 @@ function SaleEditSheet({ form, onChange }) {
               <div className="cp-clause">
                 <div className="cp-clause-body">
                   <p>
-                    <strong className="cp-clause-lead">سادساً :</strong>{" "}أما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك
-                    هي في عهدة الفريق الأول.
+                    <strong className="cp-clause-lead">سادساً :</strong>{" "}ان جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق{" "}
+                    <B name="feesOnParty" size="md" value={form.feesOnParty} onChange={onChange} />
                   </p>
                 </div>
               </div>
@@ -337,12 +338,22 @@ function SaleEditSheet({ form, onChange }) {
               <div className="cp-clause">
                 <div className="cp-clause-body">
                   <p>
-                    <strong className="cp-clause-lead">سابعاً :</strong>{" "}يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها ({" "}
+                    <strong className="cp-clause-lead">سابعاً :</strong>{" "}اما رسوم التملك والانتقال والافراز والتوحيد والتصحيح وضريبة الملك
+                    هي في عهدة الفريق{" "}
+                    <B name="taxFeesOnParty" size="md" value={form.taxFeesOnParty} onChange={onChange} />
+                  </p>
+                </div>
+              </div>
+
+              <div className="cp-clause">
+                <div className="cp-clause-body">
+                  <p>
+                    <strong className="cp-clause-lead">ثامناً :</strong>{" "}يتعهد الفريقان بأن يدفع كل واحد منهما دلاليه قدرها ({" "}
                     <B name="brokerFeePercent" size="sm" value={form.brokerFeePercent} onChange={onChange} />
-                    {" "}%) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة.
+                    {" "}% ) الى الدلال الذي توسط بعقد البيع وبمجرد التوقيع على هذه المقاولة.
                     واذا نكل احد الفريقين عن تنفيذ شروط هذا العقد يتعهد بتأدية ضعفي الدلالة
-                    المذكورة أعلاه كما أنه في حالة تراضي بين الفريقين على إبطال هذا العقد
-                    فأنهما يكونان ملزمين بتأديتهما الدلالية المذكورة مهما بلغت.
+                    المذكورة اعلاه كما انه في حالة تراضي بين الفريقين وقوع تراضي على ابطال
+                    هذا العقد فأنهما يكونان ملزمين بتأديتهما الدلاليه المذكورة مهما بلغت.
                   </p>
                 </div>
               </div>
