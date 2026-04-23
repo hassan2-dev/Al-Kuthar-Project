@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import LogoutButton from "../components/LogoutButton";
 import { deleteContract, getContractById, listContracts } from "../api/contractsApi";
@@ -155,6 +155,8 @@ function ContractRow({ contract, onView, onPrint, onDownloadPdf, onDelete, isPri
 
 export default function Archive() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const listFetchAbortRef = useRef(null);
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -170,20 +172,30 @@ export default function Archive() {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
+    listFetchAbortRef.current?.abort();
+    const controller = new AbortController();
+    listFetchAbortRef.current = controller;
+
     const fetchContracts = async () => {
       setLoading(true);
       setErrorMessage("");
 
       try {
-        const response = await listContracts({
-          page: 1,
-          limit: 100,
-          archived: "true",
-          ...(filterUserScope === "createdByMe" ? { createdBy: "me" } : {}),
-          ...(filterUserScope === "confirmedByMe" ? { confirmedBy: "me" } : {}),
-          sort: "createdAt",
-          order: "desc",
-        });
+        const response = await listContracts(
+          {
+            page: 1,
+            limit: 100,
+            archived: "true",
+            ...(filterUserScope === "createdByMe" ? { createdBy: "me" } : {}),
+            ...(filterUserScope === "confirmedByMe" ? { confirmedBy: "me" } : {}),
+            sort: "createdAt",
+            order: "desc",
+          },
+          {
+            signal: controller.signal,
+            headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+          },
+        );
 
         const rawList = response?.items || response?.data || response?.contracts || [];
         const mapped = rawList.map((contract) => {
@@ -207,18 +219,25 @@ export default function Archive() {
 
         setContracts(mapped);
       } catch (error) {
+        if (error?.code === "ERR_CANCELED" || error?.name === "CanceledError") return;
         const message =
           error?.response?.data?.message ||
           error?.message ||
           "تعذر تحميل قائمة العقود. حاول مرة أخرى.";
         setErrorMessage(message);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchContracts();
-  }, [filterUserScope]);
+
+    return () => {
+      controller.abort();
+    };
+  }, [filterUserScope, location.key]);
 
   const handleView = (contract) => {
     navigate(`/contract-view/${contract.id}`);

@@ -5,8 +5,8 @@ export const createContract = async (payload) => {
   return data;
 };
 
-export const listContracts = async (params = {}) => {
-  const { data } = await api.get("/contracts", { params });
+export const listContracts = async (params = {}, config = {}) => {
+  const { data } = await api.get("/contracts", { params, ...config });
   return data;
 };
 
