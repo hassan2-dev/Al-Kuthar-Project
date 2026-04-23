@@ -10,7 +10,14 @@ async function bootstrap() {
     origin: true,
     credentials: true,
     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "Cache-Control",
+      "Pragma",
+      "X-Requested-With",
+    ],
     optionsSuccessStatus: 204,
   });
   ConfigModule.forRoot({
