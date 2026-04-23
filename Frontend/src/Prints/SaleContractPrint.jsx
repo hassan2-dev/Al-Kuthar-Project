@@ -5,7 +5,7 @@ import { fieldClass } from "./printFieldClass.js";
 export default function SaleContractPrint() {
   const navigate = useNavigate();
   const [form, setForm] = useState(null);
-  const [status, setStatus] = useState("مسودة");
+  const [, setStatus] = useState("مسودة");
 
   useEffect(() => {
     const savedForm = localStorage.getItem("saleContractDraft");
@@ -132,21 +132,23 @@ export default function SaleContractPrint() {
         <line x1="0" y1="520" x2="340" y2="520" stroke="rgba(100,80,48,0.12)" strokeWidth="1"/>
       </svg>
 
-      {/* Toolbar — screen only */}
+      {/* Toolbar — screen only; print centered above the sheet */}
       <div className="cp-toolbar no-print">
-        <button
-          type="button"
-          className="sc-toolbar-back"
-          onClick={() => navigate(-1)}
-          aria-label="رجوع إلى العقد"
-        >
-          <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-            <circle cx="9" cy="9" r="8" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.5" />
-            <path d="M8 6l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          رجوع
-        </button>
-        <div className="cp-toolbar-actions">
+        <div className="cp-toolbar__side cp-toolbar__side--start">
+          <button
+            type="button"
+            className="sc-toolbar-back"
+            onClick={() => navigate(-1)}
+            aria-label="رجوع إلى العقد"
+          >
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <circle cx="9" cy="9" r="8" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.5" />
+              <path d="M8 6l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            رجوع
+          </button>
+        </div>
+        <div className="cp-toolbar__center">
           <button type="button" onClick={() => window.print()} className="btn btn-primary">
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
@@ -154,10 +156,8 @@ export default function SaleContractPrint() {
             </svg>
             طباعة
           </button>
-          <span className={`sc-status-badge ${status === "مؤكد" ? "sc-status-badge--confirmed" : ""}`}>
-            {status}
-          </span>
         </div>
+        <div className="cp-toolbar__side cp-toolbar__side--end" aria-hidden="true" />
       </div>
 
       {/* ── Paper sheet ── */}

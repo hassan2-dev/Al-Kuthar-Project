@@ -784,7 +784,7 @@ export default function ContractView() {
                 </button>
               )}
 
-              {isConfirmed ? (
+              {/* {isConfirmed ? (
                 <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleRevert}>
                   <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                     <path d="M3 8a5 5 0 1 1 1.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
@@ -792,7 +792,8 @@ export default function ContractView() {
                   </svg>
                   إرجاع لمسودة
                 </button>
-              ) : (
+              ) : null} */}
+              {/* {isConfirmed ? null : (
                 <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleConfirm}>
                   <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                     <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4"/>
@@ -800,7 +801,7 @@ export default function ContractView() {
                   </svg>
                   تأكيد العقد
                 </button>
-              )}
+              )} */}
 
               <button type="button" className="sc-tbtn sc-tbtn--primary" onClick={handlePrint}>
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
@@ -811,9 +812,9 @@ export default function ContractView() {
               </button>
             </div>
 
-            <span className={`sc-status-badge ${isConfirmed ? "sc-status-badge--confirmed" : ""}`}>
+            {/* <span className={`sc-status-badge ${isConfirmed ? "sc-status-badge--confirmed" : ""}`}>
               {status}
-            </span>
+            </span> */}
             <ThemeToggle />
           </div>
 

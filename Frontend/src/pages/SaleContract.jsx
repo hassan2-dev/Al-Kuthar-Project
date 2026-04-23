@@ -335,15 +335,15 @@ export default function SaleContract() {
                   <path d="M2 2h9l3 3v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.4"/>
                   <path d="M11 2v4H4V2M5 10h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
                 </svg>
-                حفظ كمسودة
+                حفظ
               </button>
-              <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleConfirm}>
+              {/* <button type="button" className="sc-tbtn sc-tbtn--ghost" onClick={handleConfirm}>
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                   <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4"/>
                   <path d="M5 8l2.5 2.5L11 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 تأكيد العقد
-              </button>
+              </button> */}
               <button type="button" className="sc-tbtn sc-tbtn--primary" onClick={handleGoToPrint}>
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                   <path d="M4 6V2h8v4M4 12H2V7h12v5h-2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
@@ -352,9 +352,9 @@ export default function SaleContract() {
                 طباعة
               </button>
             </div>
-            <span className={`sc-status-badge ${status === "مؤكد" ? "sc-status-badge--confirmed" : ""}`}>
+            {/* <span className={`sc-status-badge ${status === "مؤكد" ? "sc-status-badge--confirmed" : ""}`}>
               {status}
-            </span>
+            </span> */}
             <ThemeToggle />
           </div>
           <Toast
