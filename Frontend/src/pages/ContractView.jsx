@@ -154,9 +154,9 @@ export function SaleContractBody({ data }) {
         <p><strong>ثانياً :</strong> ان بدل البيع المتفق عليه هو <strong className="print-inline-value">{fill(data.agreedPrice)}</strong></p>
         <p>ويعترف الفريق الأول بأنه قد قبض من الفريق الثاني عربوناً قدره <strong className="print-inline-value">{fill(data.depositPaid)}</strong></p>
         <p>والباقي <strong className="print-inline-value">{fill(data.remainingAmount)}</strong></p>
-        <p>واما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
+        <p>واما باقي البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
       </div>
-      <div className="print-clause"><p><strong>ثالثاً :</strong> اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزما بأعادة العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره <strong className="print-inline-value">{fill(data.sellerPenalty)}</strong> ديناراً بدون حاجة الى إنذار رسمي</p></div>
+      <div className="print-clause"><p><strong>ثالثاً :</strong> اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزما بأعادة العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدرها <strong className="print-inline-value">{fill(data.sellerPenalty)}</strong> ديناراً بدون حاجة الى إنذار رسمي</p></div>
       <div className="print-clause"><p><strong>رابعاً :</strong> يعترف الفريق الثاني بأنه قد قبل الشراء بالشروط المذكورة أنفاً ويتعهد بتأدية قصور البدل المبيع الى الفريق الأول عند اكماله المعامله والتقرير في دائرة التسجيل العقاري. واذا نكل عن الشراء وتأدية قصور البدل فأنه يتعهد بتأدية تضمينات قدرها <strong className="print-inline-value">{fill(data.buyerPenalty)}</strong> ديناراً بدون حاجة الى انذار رسمي وليس له الحق بمطالبته بالعربون</p></div>
       <div className="print-clause"><p><strong>خامساً :</strong> يحق للمشتري تسجيل العقار بأسمه او بأسم من يشاء</p></div>
       <div className="print-clause"><p><strong>سادساً :</strong> ان جميع الرسوم المقتضية للبيع وسائر المصاريف هي بعهدة الفريق <strong className="print-inline-value">{fill(data.feesOnParty)}</strong></p></div>
@@ -289,7 +289,7 @@ function SaleEditSheet({ form, onChange }) {
                     والباقي{" "}
                     <B name="remainingAmount" size="lg" value={form.remainingAmount} onChange={onChange} />
                   </p>
-                  <p>واما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
+                  <p>واما باقي البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
                 </div>
               </div>
 
@@ -297,7 +297,7 @@ function SaleEditSheet({ form, onChange }) {
                 <div className="cp-clause-body">
                   <p>
                     <strong className="cp-clause-lead">ثالثاً :</strong>{" "}اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزما بأعادة
-                    العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره{" "}
+                    العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدرها{" "}
                     <B name="sellerPenalty" size="md" value={form.sellerPenalty} onChange={onChange} />{" "}
                     ديناراً بدون حاجة الى إنذار رسمي
                   </p>

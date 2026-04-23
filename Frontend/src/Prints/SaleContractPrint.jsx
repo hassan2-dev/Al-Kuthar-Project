@@ -248,7 +248,7 @@ export default function SaleContractPrint() {
                       والباقي{" "}
                       <strong className={fieldClass("cp-val", form.remainingAmount)}>{fill(form.remainingAmount)}</strong>
                     </p>
-                    <p>وأما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
+                    <p>وأما باقي البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
                   </div>
                 </div>
 
@@ -256,7 +256,7 @@ export default function SaleContractPrint() {
                   <div className="cp-clause-body">
                     <p>
                       <strong className="cp-clause-lead">ثالثاً :</strong> اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزماً بإعادة
-                      العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره{" "}
+                      العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدرها{" "}
                       <strong className={fieldClass("cp-val", form.sellerPenalty)}>{fill(form.sellerPenalty)}</strong>{" "}
                       ديناراً بدون حاجة الى إنذار رسمي.
                     </p>

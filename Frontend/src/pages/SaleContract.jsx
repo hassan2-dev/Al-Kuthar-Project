@@ -442,7 +442,7 @@ export default function SaleContract() {
                 <B name="remainingAmount" size="md" value={form.remainingAmount} onChange={handleChange} />
               </p>
               <p className="sc-doc-para">
-                واما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،
+                واما باقي البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،
               </p>
             </div>
 
@@ -451,7 +451,7 @@ export default function SaleContract() {
               <p className="sc-doc-para">
                 <span className="sc-clause-num">ثالثاً :</span>{" "}
                 اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزما بأعادة
-                العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره{" "}
+                العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدرها{" "}
                 <B name="sellerPenalty" size="md" value={form.sellerPenalty} onChange={handleChange} />
                 {" "}ديناراً بدون حاجة الى إنذار رسمي
               </p>
