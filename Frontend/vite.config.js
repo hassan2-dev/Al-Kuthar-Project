@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const siteUrl = (env.VITE_SITE_URL || 'https://www.al-kuthar.com').replace(/\/$/, '')
-  const ogImageUrl = `${siteUrl}/logo.png`
+  const ogImageUrl = `${siteUrl}/al-kawthar-logo.png`
 
   return {
     plugins: [
