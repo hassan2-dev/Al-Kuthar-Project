@@ -4097,18 +4097,29 @@ button {
   .cp-buildings { width: 100px; }
 }
 
-/* ── Toolbar ── */
+/* ── Toolbar — 3 columns so «طباعة» stays centered on the same width as the sheet ── */
 .cp-toolbar {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  max-width: 878px;
+  gap: 10px 12px;
+  max-width: 860px;
   margin: 0 auto 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.cp-toolbar-actions {
+.cp-toolbar__side--start {
+  justify-self: start;
+}
+
+.cp-toolbar__side--end {
+  justify-self: end;
+  min-height: 1px; /* allow empty cell to participate in balance */
+}
+
+.cp-toolbar__center {
+  justify-self: center;
   display: flex;
   align-items: center;
   gap: 10px;

@@ -488,14 +488,14 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
               <p><strong class="cp-clause-lead">ثانياً :</strong> إن بدل البيع المتفق عليه هو <strong class="cp-val">${fill(form.agreedPrice)}</strong></p>
               <p>ويعترف الفريق الأول بأنه قد قبض من الفريق الثاني عربوناً قدره <strong class="cp-val">${fill(form.depositPaid)}</strong></p>
               <p>والباقي <strong class="cp-val">${fill(form.remainingAmount)}</strong></p>
-              <p>وأما البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
+              <p>وأما باقي البدل فيقبضها عند اكمال المعامله والتقرير في دائرة العقاري ،</p>
             </div>
           </div>
 
           <div class="cp-clause">
             <div class="cp-clause-body">
               <p><strong class="cp-clause-lead">ثالثاً :</strong> اذا امتنع الفريق الأول عن البيع بأية صورة كانت فانه يكون ملزماً بإعادة
-              العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدره
+              العربون الى الفريق الثاني وما عدا ذلك يتعهد بتأدية تضمينات قدرها
               <strong class="cp-val">${fill(form.sellerPenalty)}</strong> ديناراً بدون حاجة الى إنذار رسمي.</p>
             </div>
           </div>

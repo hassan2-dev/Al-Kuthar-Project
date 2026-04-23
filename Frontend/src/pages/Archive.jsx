@@ -24,7 +24,7 @@ const TYPE_ICONS = {
 
 
 function ContractRow({ contract, onView, onPrint, onDownloadPdf, onDelete, isPrinting, isDownloadingPdf, isDeleting }) {
-  const isConfirmed = contract.status === "مؤكد";
+  // const isConfirmed = contract.status === "مؤكد";
   const isSale = contract.type === "عقد بيع";
 
   return (
@@ -37,9 +37,9 @@ function ContractRow({ contract, onView, onPrint, onDownloadPdf, onDelete, isPri
           {/* Top: icon + status */}
           <div className="arc-card-top">
             <span className="arc-card-icon">{TYPE_ICONS[contract.type] ?? TYPE_ICONS["عقد بيع"]}</span>
-            <span className={`arc-card-status ${isConfirmed ? "arc-card-status--confirmed" : "arc-card-status--draft"}`}>
+            {/* <span className={`arc-card-status ${isConfirmed ? "arc-card-status--confirmed" : "arc-card-status--draft"}`}>
               {contract.status}
-            </span>
+            </span> */}
           </div>
 
           {/* Contract type label */}
@@ -160,7 +160,7 @@ export default function Archive() {
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("الكل");
-  const [filterStatus, setFilterStatus] = useState("الكل");
+  // const [filterStatus, setFilterStatus] = useState("الكل");
   const [sortBy, setSortBy] = useState("date-desc");
   const [filterUserScope, setFilterUserScope] = useState("all");
   const [docLoadingId, setDocLoadingId] = useState(null);
@@ -321,7 +321,7 @@ export default function Archive() {
       );
     }
     if (filterType !== "الكل") list = list.filter((c) => c.type === filterType);
-    if (filterStatus !== "الكل") list = list.filter((c) => c.status === filterStatus);
+    // if (filterStatus !== "الكل") list = list.filter((c) => c.status === filterStatus);
     list.sort((a, b) => {
       const ta = a.sortTime ?? 0;
       const tb = b.sortTime ?? 0;
@@ -330,7 +330,7 @@ export default function Archive() {
       return 0;
     });
     return list;
-  }, [contracts, search, filterType, filterStatus, sortBy]);
+  }, [contracts, search, filterType, sortBy]);
 
   return (
     <div className="arc-page">
@@ -426,7 +426,7 @@ export default function Archive() {
             <option value="عقد إيجار">عقد إيجار</option>
           </select>
 
-          <select
+          {/* <select
             className="arc-select"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -435,7 +435,7 @@ export default function Archive() {
             <option value="الكل">كل الحالات</option>
             <option value="مسودة">مسودة</option>
             <option value="مؤكد">مؤكد</option>
-          </select>
+          </select> */}
 
           <select
             className="arc-select arc-select--sort"
