@@ -12,13 +12,13 @@
   "dir": "rtl",
   "icons": [
     {
-      "src": "/al-kawthar-logo.png",
+      "src": "/logo.png?v=2",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/al-kawthar-logo.png",
+      "src": "/logo.png?v=2",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "maskable"
