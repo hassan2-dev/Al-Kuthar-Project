@@ -388,8 +388,8 @@ export default function RentContract() {
                   <B type="date" name="contractDate" size="md" value={form.contractDate} onChange={handleChange} />
                 </div>
 
-                {/* نوع المأجور */}
-                <span className="sc-rent-field-label">نوع المأجور :</span>
+                {/* نوع أستعمال المأجور */}
+                <span className="sc-rent-field-label">نوع أستعمال المأجور :</span>
                 <div className="sc-rent-field-value">
                   <B name="propertyType" size="lg" value={form.propertyType} onChange={handleChange} />
                 </div>

@@ -606,7 +606,7 @@ export function buildRentContractArchiveHtml(form, contractId, docStatus) {
           <span class="cp-rent-label">تسلسل العقار :</span>
           <div class="cp-rent-cell">${fill(form.propertySerial)}</div>
 
-          <span class="cp-rent-label">نوع المأجور :</span>
+          <span class="cp-rent-label">نوع أستعمال المأجور :</span>
           <div class="cp-rent-cell">${fill(form.propertyType)}</div>
 
           <span class="cp-rent-label">مدة الإيجار :</span>

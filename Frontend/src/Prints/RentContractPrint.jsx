@@ -192,7 +192,7 @@ export default function RentContractPrint() {
                 <span className={fieldClass("cp-rent-label", form.propertySerial)}>تسلسل العقار :</span>
                 <div className={fieldClass("cp-rent-cell", form.propertySerial)}>{fill(form.propertySerial)}</div>
 
-                <span className={fieldClass("cp-rent-label", form.propertyType)}>نوع المأجور :</span>
+                <span className={fieldClass("cp-rent-label", form.propertyType)}>نوع أستعمال المأجور :</span>
                 <div className={fieldClass("cp-rent-cell", form.propertyType)}>{fill(form.propertyType)}</div>
 
                 <span

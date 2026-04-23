@@ -43,7 +43,7 @@ export function RentContractBody({ data }) {
         <span className="rent-print-field-label">التاريخ :</span>
         <strong className="print-field-value">{fillDate(data.contractDate)}</strong>
 
-        <span className="rent-print-field-label">نوع المأجور :</span>
+        <span className="rent-print-field-label">نوع أستعمال المأجور :</span>
         <strong className="print-field-value">{fill(data.propertyType)}</strong>
 
         <span className="rent-print-field-label">مدة الإيجار :</span>
@@ -431,7 +431,7 @@ function RentEditSheet({ form, onChange }) {
                 <B name="propertySerial" size="md" value={form.propertySerial} onChange={onChange} />
               </div>
 
-              <span className="cp-rent-label">نوع المأجور :</span>
+              <span className="cp-rent-label">نوع أستعمال المأجور :</span>
               <div className="cp-rent-cell">
                 <B name="propertyType" size="lg" value={form.propertyType} onChange={onChange} />
               </div>
