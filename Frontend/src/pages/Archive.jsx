@@ -187,7 +187,6 @@ export default function Archive() {
             limit: 100,
             archived: "true",
             ...(filterUserScope === "createdByMe" ? { createdBy: "me" } : {}),
-            ...(filterUserScope === "confirmedByMe" ? { confirmedBy: "me" } : {}),
             sort: "createdAt",
             order: "desc",
           },
@@ -473,7 +472,7 @@ export default function Archive() {
           >
             <option value="all">كل العقود</option>
             <option value="createdByMe">أنشأتها أنا</option>
-            <option value="confirmedByMe">أكدتها أنا</option>
+            {/* <option value="confirmedByMe">أكدتها أنا</option> */}
           </select>
         </div>
 
