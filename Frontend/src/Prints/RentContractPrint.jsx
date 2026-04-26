@@ -22,6 +22,20 @@ export default function RentContractPrint() {
     return () => document.body.classList.remove("print-contract-page");
   }, []);
 
+  /* Narrow viewport: tighter single-page print (phones; also very narrow desktop windows) */
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const sync = () => {
+      document.body.classList.toggle("print-contract-mobile", mq.matches);
+    };
+    sync();
+    mq.addEventListener("change", sync);
+    return () => {
+      mq.removeEventListener("change", sync);
+      document.body.classList.remove("print-contract-mobile");
+    };
+  }, []);
+
   /* Auto-print once data is ready — delay + rAF so mobile WebKit finishes paint before capture */
   useEffect(() => {
     if (!form) return;
