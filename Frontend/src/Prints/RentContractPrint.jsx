@@ -22,12 +22,21 @@ export default function RentContractPrint() {
     return () => document.body.classList.remove("print-contract-page");
   }, []);
 
-  /* Auto-print once data is ready */
+  /* Auto-print once data is ready — delay + rAF so mobile WebKit finishes paint before capture */
   useEffect(() => {
-    if (form) {
-      const t = setTimeout(() => window.print(), 120);
-      return () => clearTimeout(t);
-    }
+    if (!form) return;
+    let cancelled = false;
+    const t = window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (!cancelled) window.print();
+        });
+      });
+    }, 200);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
   }, [form]);
 
   const fill = (value) => String(value ?? "").trim() || "................";
