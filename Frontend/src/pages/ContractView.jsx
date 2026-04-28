@@ -378,11 +378,15 @@ function SaleEditSheet({ form, onChange }) {
             <div className="cp-sigs">
               <div className="cp-sig-col">
                 <div className="cp-sig-head">الفريق الأول — البائع</div>
-                <div className="cp-sig-box" />
+                <div className="cp-sig-sign-space" />
+                <div className="cp-sig-witness-label">الشاهد</div>
+                <div className="cp-sig-sign-space" />
               </div>
               <div className="cp-sig-col">
                 <div className="cp-sig-head">الفريق الثاني — المشتري</div>
-                <div className="cp-sig-box" />
+                <div className="cp-sig-sign-space" />
+                <div className="cp-sig-witness-label">الشاهد</div>
+                <div className="cp-sig-sign-space" />
               </div>
             </div>
 
