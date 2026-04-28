@@ -550,14 +550,18 @@ export default function SaleContract() {
               <div className="sc-doc-sig-col">
                 <p className="sc-doc-sig-role">الفريق الأول</p>
                 <div className="sc-doc-sig-block">
-                  <div className="sc-signature-placeholder" aria-label="مكان التوقيع" />
+                  <div className="sc-witness-sign-space" aria-label="مكان توقيع الفريق الأول" />
+                  <p className="sc-doc-sig-witness-label">الشاهد</p>
+                  <div className="sc-witness-sign-space" aria-label="مكان توقيع الشاهد" />
                 </div>
               </div>
               <div className="sc-doc-sig-divider" />
               <div className="sc-doc-sig-col">
                 <p className="sc-doc-sig-role">الفريق الثاني</p>
                 <div className="sc-doc-sig-block">
-                  <div className="sc-signature-placeholder" aria-label="مكان التوقيع" />
+                  <div className="sc-witness-sign-space" aria-label="مكان توقيع الفريق الثاني" />
+                  <p className="sc-doc-sig-witness-label">الشاهد</p>
+                  <div className="sc-witness-sign-space" aria-label="مكان توقيع الشاهد" />
                 </div>
               </div>
             </div>
