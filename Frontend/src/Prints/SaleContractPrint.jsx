@@ -357,6 +357,14 @@ export default function SaleContractPrint() {
           </div>
         </div>
       </div>
+
+      {/* Footer — contact info, shown on screen and print */}
+      <div className="cp-footer">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className="cp-footer-icon" aria-hidden="true">
+          <path d="M3.5 2h2.2l1 2.6-1.3 1.1a8 8 0 0 0 4.9 4.9l1.1-1.3 2.6 1v2.2c0 .6-.5 1-1 1C7.5 13.5 2.5 8.5 2.5 3c0-.5.4-1 1-1z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" strokeLinecap="round" />
+        </svg>
+        <span>للتواصل والاستفسار: 07703137070</span>
+      </div>
     </div>
   );
 }
