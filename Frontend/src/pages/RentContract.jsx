@@ -81,6 +81,9 @@ export default function RentContract() {
   const getContractIdFromResponse = (response) =>
     response?.id || response?.contract?.id || response?.data?.id || null;
 
+  const getContractNumberFromResponse = (response) =>
+    response?.contractNumber || response?.contract?.contractNumber || response?.data?.contractNumber || null;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -117,6 +120,7 @@ export default function RentContract() {
     try {
       const created = await createContract(buildRentContractPayload(resolvedForm));
       const contractId = getContractIdFromResponse(created);
+      const contractNumber = getContractNumberFromResponse(created);
       if (contractId) {
         setSavedContractId(contractId);
         localStorage.setItem("rentContractId", String(contractId));
@@ -125,7 +129,7 @@ export default function RentContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await rentContractToPdfFile(resolvedForm, contractId, "مسودة");
+        const docFile = await rentContractToPdfFile(resolvedForm, contractId, "مسودة", contractNumber);
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";
@@ -169,12 +173,15 @@ export default function RentContract() {
     localStorage.setItem("rentContractStatus", "مؤكد");
     try {
       let contractId = savedContractId;
+      let contractNumber = null;
 
       if (!contractId) {
         const created = await createContract(buildRentContractPayload(resolvedForm));
         contractId = getContractIdFromResponse(created);
+        contractNumber = getContractNumberFromResponse(created);
       } else {
-        await updateContract(contractId, buildRentContractPayload(resolvedForm));
+        const updated = await updateContract(contractId, buildRentContractPayload(resolvedForm));
+        contractNumber = getContractNumberFromResponse(updated);
       }
 
       if (contractId) {
@@ -187,7 +194,7 @@ export default function RentContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await rentContractToPdfFile(resolvedForm, contractId, "مؤكد");
+        const docFile = await rentContractToPdfFile(resolvedForm, contractId, "مؤكد", contractNumber);
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";

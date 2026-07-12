@@ -4,6 +4,7 @@ import ThemeToggle from "../components/ThemeToggle";
 import LogoutButton from "../components/LogoutButton";
 import { deleteContract, getContractById, listContracts } from "../api/contractsApi";
 import { buildRentContractArchiveHtml, buildSaleContractArchiveHtml } from "../utils/buildContractDocumentFile";
+import { buildContractPdfFilename } from "../utils/contractPdfArchive";
 import { htmlDocumentStringToPdfFile } from "../utils/contractHtmlToPdf";
 
 const TYPE_ICONS = {
@@ -43,6 +44,11 @@ function ContractRow({ contract, onView, onPrint, onDownloadPdf, onDelete, isPri
           </div>
 
           {/* Contract type label */}
+          {contract.contractNumber ? (
+            <span className="arc-card-number-badge" title="رقم العقد">
+              {contract.contractNumber}
+            </span>
+          ) : null}
           <h3 className="arc-card-title">{contract.type}</h3>
 
           {/* Parties: seller → buyer */}
@@ -203,6 +209,7 @@ export default function Archive() {
 
           return {
             id: contract.id,
+            contractNumber: contract.contractNumber || "",
             sellerName: contract.sellerName || contract.seller_name || "",
             buyerName: contract.buyerName || contract.buyer_name || "",
             type: contract.type || "غير محدد",
@@ -282,8 +289,13 @@ export default function Archive() {
         ? buildRentContractArchiveHtml(flatData, contract.id, statusLabel)
         : buildSaleContractArchiveHtml(flatData, contract.id, statusLabel);
 
-      const contractLabel = isRent ? "عقد-إيجار" : "عقد-بيع";
-      const filename = `${contractLabel}-${contract.id}.pdf`;
+      const typeLabel = isRent ? "عقد إيجار" : "عقد بيع";
+      const contractNumber = data.contractNumber || contract.contractNumber || "";
+      const partyOne = data.sellerName || contract.sellerName || "—";
+      const partyTwo = data.buyerName || contract.buyerName || "—";
+      const filename = contractNumber
+        ? buildContractPdfFilename(typeLabel, contractNumber, partyOne, partyTwo)
+        : `${isRent ? "عقد-إيجار" : "عقد-بيع"}-${contract.id}.pdf`;
       const file = await htmlDocumentStringToPdfFile(htmlString, filename);
 
       const url = URL.createObjectURL(file);
@@ -335,12 +347,21 @@ export default function Archive() {
         (c) =>
           c.sellerName?.toLowerCase().includes(q) ||
           c.buyerName?.toLowerCase().includes(q) ||
-          c.type?.toLowerCase().includes(q)
+          c.type?.toLowerCase().includes(q) ||
+          c.contractNumber?.toLowerCase().includes(q)
       );
     }
     if (filterType !== "الكل") list = list.filter((c) => c.type === filterType);
     // if (filterStatus !== "الكل") list = list.filter((c) => c.status === filterStatus);
     list.sort((a, b) => {
+      if (sortBy === "number-asc" || sortBy === "number-desc") {
+        const na = a.contractNumber || "";
+        const nb = b.contractNumber || "";
+        if (!na && !nb) return 0;
+        if (!na) return 1;
+        if (!nb) return -1;
+        return sortBy === "number-asc" ? na.localeCompare(nb, "ar") : nb.localeCompare(na, "ar");
+      }
       const ta = a.sortTime ?? 0;
       const tb = b.sortTime ?? 0;
       if (sortBy === "date-desc") return tb - ta;
@@ -421,7 +442,7 @@ export default function Archive() {
             <input
               className="arc-search"
               type="text"
-              placeholder="بحث بالاسم..."
+              placeholder="بحث بالاسم أو رقم العقد..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               dir="rtl"
@@ -463,6 +484,8 @@ export default function Archive() {
           >
             <option value="date-desc">الأحدث أولاً</option>
             <option value="date-asc">الأقدم أولاً</option>
+            <option value="number-desc">رقم العقد (تنازلي)</option>
+            <option value="number-asc">رقم العقد (تصاعدي)</option>
           </select>
           <select
             className="arc-select"

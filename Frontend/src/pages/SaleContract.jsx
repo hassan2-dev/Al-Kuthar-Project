@@ -80,6 +80,9 @@ export default function SaleContract() {
   const getContractIdFromResponse = (response) =>
     response?.id || response?.contract?.id || response?.data?.id || null;
 
+  const getContractNumberFromResponse = (response) =>
+    response?.contractNumber || response?.contract?.contractNumber || response?.data?.contractNumber || null;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -112,6 +115,7 @@ export default function SaleContract() {
     try {
       const created = await createContract(buildSaleContractPayload(resolvedForm));
       const contractId = getContractIdFromResponse(created);
+      const contractNumber = getContractNumberFromResponse(created);
       if (contractId) {
         setSavedContractId(contractId);
         localStorage.setItem("saleContractId", String(contractId));
@@ -120,7 +124,7 @@ export default function SaleContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await saleContractToPdfFile(resolvedForm, contractId, "مسودة");
+        const docFile = await saleContractToPdfFile(resolvedForm, contractId, "مسودة", contractNumber);
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";
@@ -164,12 +168,15 @@ export default function SaleContract() {
     localStorage.setItem("saleContractStatus", "مؤكد");
     try {
       let contractId = savedContractId;
+      let contractNumber = null;
 
       if (!contractId) {
         const created = await createContract(buildSaleContractPayload(resolvedForm));
         contractId = getContractIdFromResponse(created);
+        contractNumber = getContractNumberFromResponse(created);
       } else {
-        await updateContract(contractId, buildSaleContractPayload(resolvedForm));
+        const updated = await updateContract(contractId, buildSaleContractPayload(resolvedForm));
+        contractNumber = getContractNumberFromResponse(updated);
       }
 
       if (contractId) {
@@ -182,7 +189,7 @@ export default function SaleContract() {
       setStatus("مسودة");
       let uploadResult = "none";
       try {
-        const docFile = await saleContractToPdfFile(resolvedForm, contractId, "مؤكد");
+        const docFile = await saleContractToPdfFile(resolvedForm, contractId, "مؤكد", contractNumber);
         uploadResult = await tryUploadContractArchive(docFile, contractId);
       } catch {
         uploadResult = "fail";

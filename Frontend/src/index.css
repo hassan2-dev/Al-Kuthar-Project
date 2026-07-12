@@ -1521,6 +1521,35 @@ button {
   border: 1px solid rgba(200,169,126,0.35);
 }
 
+/* Contract number badge */
+.arc-card-number-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: "El Messiri", "Segoe UI", Tahoma, sans-serif;
+  color: var(--ak-gold-deep);
+  background: rgba(200, 169, 126, 0.14);
+  border: 1px solid rgba(200, 169, 126, 0.35);
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin-bottom: 4px;
+  direction: rtl;
+  letter-spacing: 0.02em;
+}
+
+.arc-card--sale .arc-card-number-badge {
+  color: #7a5c2e;
+  background: rgba(122, 92, 46, 0.1);
+  border-color: rgba(122, 92, 46, 0.28);
+}
+
+.arc-card--rent .arc-card-number-badge {
+  color: #2e5a7a;
+  background: rgba(46, 90, 122, 0.1);
+  border-color: rgba(46, 90, 122, 0.28);
+}
+
 /* Contract type (secondary line — smaller, not bold) */
 .arc-card-title {
   font-size: 12px;

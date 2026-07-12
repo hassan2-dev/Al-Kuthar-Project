@@ -16,22 +16,32 @@ model User {
 }
 
 model Contract {
-  id          String        @id @default(cuid())
-  sellerName  String?
-  buyerName   String?
-  type        String?
-  status      String        @default("draft")
-  details     Json?
-  contractDate DateTime?
-  isArchived  Boolean       @default(false)
-  archivedAt  DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  ownerId     String?
-  createdById String?
-  confirmedById String?
-  documents   Document[]
-  logs        ContractLog[]
+  id             String        @id @default(cuid())
+  contractNumber String?       @unique
+  sellerName     String?
+  buyerName      String?
+  type           String?
+  status         String        @default("draft")
+  details        Json?
+  contractDate   DateTime?
+  isArchived     Boolean       @default(false)
+  archivedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  ownerId        String?
+  createdById    String?
+  confirmedById  String?
+  documents      Document[]
+  logs           ContractLog[]
+}
+
+model ContractNumberCounter {
+  id         String @id @default(cuid())
+  category   String
+  year       Int
+  lastNumber Int    @default(0)
+
+  @@unique([category, year])
 }
 
 model Document {

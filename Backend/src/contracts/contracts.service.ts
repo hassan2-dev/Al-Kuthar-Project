@@ -20,9 +20,11 @@ export type ContractListQuery = {
   updatedTo?: string;
   page?: number;
   limit?: number;
-  sort?: "createdAt" | "updatedAt";
+  sort?: "createdAt" | "updatedAt" | "contractNumber";
   order?: "asc" | "desc";
 };
+
+type ContractNumberCategory = "sale" | "rent";
 
 @Injectable()
 export class ContractsService {
@@ -41,19 +43,55 @@ export class ContractsService {
     };
   }
 
+  private contractNumberCategory(type?: string | null): ContractNumberCategory | null {
+    if (type === "عقد بيع") return "sale";
+    if (type === "عقد إيجار") return "rent";
+    return null;
+  }
+
+  private formatContractNumber(
+    category: ContractNumberCategory,
+    year: number,
+    sequence: number,
+  ): string {
+    const prefix = category === "sale" ? "بيع" : "إيجار";
+    return `${prefix}-${year}-${String(sequence).padStart(4, "0")}`;
+  }
+
+  private async allocateContractNumber(
+    tx: Prisma.TransactionClient,
+    type?: string | null,
+  ): Promise<string | undefined> {
+    const category = this.contractNumberCategory(type);
+    if (!category) return undefined;
+
+    const year = new Date().getFullYear();
+    const counter = await tx.contractNumberCounter.upsert({
+      where: { category_year: { category, year } },
+      create: { category, year, lastNumber: 1 },
+      update: { lastNumber: { increment: 1 } },
+    });
+
+    return this.formatContractNumber(category, year, counter.lastNumber);
+  }
+
   async create(ownerId: string, dto: CreateContractDto) {
     const n = this.normalizeNames(dto);
-    return this.prisma.contract.create({
-      data: {
-        sellerName: n.sellerName,
-        buyerName: n.buyerName,
-        type: n.type,
-        details: n.details as Prisma.InputJsonValue | undefined,
-        contractDate: n.contractDate ? new Date(n.contractDate) : undefined,
-        ownerId,
-        createdById: ownerId,
-        status: "draft",
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const contractNumber = await this.allocateContractNumber(tx, n.type);
+      return tx.contract.create({
+        data: {
+          sellerName: n.sellerName,
+          buyerName: n.buyerName,
+          type: n.type,
+          contractNumber,
+          details: n.details as Prisma.InputJsonValue | undefined,
+          contractDate: n.contractDate ? new Date(n.contractDate) : undefined,
+          ownerId,
+          createdById: ownerId,
+          status: "draft",
+        },
+      });
     });
   }
 
@@ -81,6 +119,7 @@ export class ContractsService {
         { sellerName: { contains: q.search } },
         { buyerName: { contains: q.search } },
         { type: { contains: q.search } },
+        { contractNumber: { contains: q.search } },
       ];
     }
     if (q.createdFrom || q.createdTo) {
@@ -94,7 +133,12 @@ export class ContractsService {
       if (q.updatedTo) where.updatedAt.lte = new Date(q.updatedTo);
     }
 
-    const sortField = q.sort === "updatedAt" ? "updatedAt" : "createdAt";
+    const sortField =
+      q.sort === "updatedAt"
+        ? "updatedAt"
+        : q.sort === "contractNumber"
+          ? "contractNumber"
+          : "createdAt";
     const order = q.order === "asc" ? "asc" : "desc";
 
     const [items, total] = await Promise.all([

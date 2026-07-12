@@ -44,7 +44,7 @@ export class ContractsController {
     @Query("updatedTo") updatedTo?: string,
     @Query("page") page?: number,
     @Query("limit") limit?: number,
-    @Query("sort") sort?: "createdAt" | "updatedAt",
+    @Query("sort") sort?: "createdAt" | "updatedAt" | "contractNumber",
     @Query("order") order?: "asc" | "desc",
   ) {
     const q: ContractListQuery = {
