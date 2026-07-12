@@ -385,7 +385,51 @@ const SHARED_CSS = `
     display: block;
     min-width: 60px;
   }
+  .cp-footer {
+    max-width: 860px;
+    margin: 16px auto 0;
+    padding: 14px 20px 4px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    text-align: center;
+    direction: rtl;
+    border-top: 1.5px solid rgba(200,169,126,0.55);
+    font-family: 'El Messiri', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #a07828;
+    letter-spacing: normal;
+  }
+  .cp-footer-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: normal;
+    white-space: nowrap;
+    direction: rtl;
+  }
+  .cp-footer-text-ar {
+    letter-spacing: normal;
+  }
+  .cp-footer-text-num {
+    direction: ltr;
+    unicode-bidi: embed;
+    letter-spacing: normal;
+  }
 `;
+
+function buildPrintFooterHtml() {
+  return `
+  <div class="cp-footer" dir="rtl">
+    <span class="cp-footer-text">
+      <span class="cp-footer-text-ar">للتواصل والاستفسار:</span>
+      <span class="cp-footer-text-num" dir="ltr">07703137070</span>
+    </span>
+  </div>`;
+}
 
 function wrapHtml(title, bodyContent) {
   return `<!DOCTYPE html>
@@ -561,7 +605,8 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
 
       </div>
     </div>
-  </div>`;
+  </div>
+  ${buildPrintFooterHtml()}`;
 
   return wrapHtml(`عقد بيع — ${docStatus} — ${contractId}`, body);
 }
@@ -741,7 +786,8 @@ export function buildRentContractArchiveHtml(form, contractId, docStatus) {
 
       </div>
     </div>
-  </div>`;
+  </div>
+  ${buildPrintFooterHtml()}`;
 
   return wrapHtml(`عقد إيجار — ${docStatus} — ${contractId}`, body);
 }

@@ -4197,18 +4197,40 @@ button {
   margin: 16px auto 0;
   padding: 14px 20px 4px;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 7px;
   text-align: center;
+  direction: rtl;
   border-top: 1.5px solid;
   border-image: linear-gradient(to left, transparent, #c8a97e 15%, #e8d080 50%, #c8a97e 85%, transparent) 1;
+  font-family: var(--font-ar, "El Messiri", "Segoe UI", Tahoma, sans-serif);
   font-size: 13px;
   font-weight: 600;
   color: #a07828;
-  letter-spacing: 0.01em;
+  letter-spacing: normal;
   position: relative;
   z-index: 1;
+}
+
+.cp-footer-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: normal;
+  white-space: nowrap;
+  direction: rtl;
+}
+
+.cp-footer-text-ar {
+  letter-spacing: normal;
+}
+
+.cp-footer-text-num {
+  direction: ltr;
+  unicode-bidi: embed;
+  letter-spacing: normal;
 }
 
 .cp-footer-icon {
@@ -5250,8 +5272,15 @@ button {
     border-image: none !important;
     font-size: 10.5px !important;
     gap: 5px !important;
+    flex-direction: row !important;
+    letter-spacing: normal !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .cp-footer-text {
+    letter-spacing: normal !important;
+    white-space: nowrap !important;
   }
 
   .cp-footer-icon {
