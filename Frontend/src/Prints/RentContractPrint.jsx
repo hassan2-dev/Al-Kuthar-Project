@@ -189,7 +189,7 @@ export default function RentContractPrint() {
                 </div>
               </div>
               <div className="cp-header-brand">
-                <img src="/al-kawthar-logo.png" alt="Al-Kawthar" className="cp-logo-img" />
+                <img src="/al-kawthar-logo-tight.png" alt="Al-Kawthar" className="cp-logo-img" />
               </div>
             </div>
 

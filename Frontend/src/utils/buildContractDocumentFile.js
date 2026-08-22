@@ -137,9 +137,9 @@ const SHARED_CSS = `
     justify-content: flex-end;
   }
   .cp-logo-img {
-    width: 98px;
-    height: auto;
-    max-height: 76px;
+    width: auto;
+    height: 92px;
+    max-width: 100%;
     object-fit: contain;
     display: block;
   }
@@ -477,7 +477,7 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
           </div>
         </div>
         <div class="cp-header-brand">
-          <img src="/al-kawthar-logo.png" alt="Al-Kawthar" class="cp-logo-img"/>
+          <img src="/al-kawthar-logo-tight.png" alt="Al-Kawthar" class="cp-logo-img"/>
         </div>
       </div>
 
@@ -641,7 +641,7 @@ export function buildRentContractArchiveHtml(form, contractId, docStatus) {
           </div>
         </div>
         <div class="cp-header-brand">
-          <img src="/al-kawthar-logo.png" alt="Al-Kawthar" class="cp-logo-img"/>
+          <img src="/al-kawthar-logo-tight.png" alt="Al-Kawthar" class="cp-logo-img"/>
         </div>
       </div>
 
