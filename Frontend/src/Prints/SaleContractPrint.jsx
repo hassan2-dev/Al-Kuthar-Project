@@ -26,7 +26,7 @@ export default function SaleContractPrint() {
   useEffect(() => {
     if (!form) return;
     let cancelled = false;
-    const t = window.setTimeout(() => {
+    const t = window.setTimeout(() => { 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (!cancelled) window.print();
