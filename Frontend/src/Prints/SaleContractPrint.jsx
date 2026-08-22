@@ -29,7 +29,7 @@ export default function SaleContractPrint() {
     const t = window.setTimeout(() => { 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          if (!cancelled) window.print();
+          if (!cancelled) window.print();    
         });
       });
     }, 200);
