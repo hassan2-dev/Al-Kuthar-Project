@@ -4191,53 +4191,6 @@ button {
   border-radius: 0 0 12px 12px;
 }
 
-/* ── Footer — contact info, golden divider matching the header branding ── */
-.cp-footer {
-  max-width: 860px;
-  margin: 16px auto 0;
-  padding: 14px 20px 4px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  text-align: center;
-  direction: rtl;
-  border-top: 1.5px solid;
-  border-image: linear-gradient(to left, transparent, #c8a97e 15%, #e8d080 50%, #c8a97e 85%, transparent) 1;
-  font-family: var(--font-ar, "El Messiri", "Segoe UI", Tahoma, sans-serif);
-  font-size: 13px;
-  font-weight: 600;
-  color: #a07828;
-  letter-spacing: normal;
-  position: relative;
-  z-index: 1;
-}
-
-.cp-footer-text {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  letter-spacing: normal;
-  white-space: nowrap;
-  direction: rtl;
-}
-
-.cp-footer-text-ar {
-  letter-spacing: normal;
-}
-
-.cp-footer-text-num {
-  direction: ltr;
-  unicode-bidi: embed;
-  letter-spacing: normal;
-}
-
-.cp-footer-icon {
-  flex-shrink: 0;
-  color: #a07828;
-}
-
 /* Date input in the cp-header */
 .cv-header-date-field {
   display: flex;
@@ -4536,7 +4489,7 @@ button {
 /* Logo — right in RTL */
 .cp-header-brand {
   flex-shrink: 0;
-  width: 110px;
+  width: 160px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -4606,7 +4559,7 @@ button {
 /* Meta — left in RTL */
 .cp-header-meta {
   flex-shrink: 0;
-  width: 120px;
+  width: 160px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -4626,6 +4579,22 @@ button {
   color: #a07828;
   font-weight: 600;
   line-height: 1.55;
+}
+
+/* Contact line — sits directly under the date */
+.cp-header-contact {
+  font-size: 11.5px;
+  color: #a07828;
+  font-weight: 600;
+  line-height: 1.55;
+  white-space: nowrap;
+  direction: rtl;
+}
+
+.cp-header-contact-num {
+  direction: ltr;
+  unicode-bidi: embed;
+  letter-spacing: normal;
 }
 
 /* Unused */
@@ -5002,21 +4971,23 @@ button {
    Print media rules
 ══════════════════ */
 @media print {
-  /* ── 1. Strip margins from html & body ── */
+  /* ── 1. Strip margins from html & body; height chain lets the frame fill the page ── */
   html, body {
     margin: 0 !important;
     padding: 0 !important;
     background: white !important;
+    height: 100% !important;
   }
 
   /* ── 2. Normal document flow for iOS/WebKit print (visibility + fixed caused blank previews) ── */
   body.print-contract-page .cp-page {
     position: static !important;
     overflow: visible !important;
-    padding: 0 0 30px !important;
+    padding: 0 !important;
     margin: 0 !important;
     background: white !important;
     min-height: unset !important;
+    height: 100% !important;
   }
 
   /* ── 3. Hide toolbar ── */
@@ -5032,9 +5003,14 @@ button {
     min-height: unset !important;
   }
 
+  /* Sheet fills the whole printable page so the frame hugs all four A4 edges */
   .cp-sheet {
     max-width: 100% !important;
     width: 100% !important;
+    min-height: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
     box-shadow: none !important;
     margin: 0 !important;
     border: 2pt double #c8a97e !important;
@@ -5042,8 +5018,16 @@ button {
     print-color-adjust: exact;
   }
 
+  .cp-outer-border {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+  }
+
   .cp-inner-border {
-    margin: 4pt 5pt 5pt !important;
+    flex: 1 1 auto !important;
+    margin: 3pt !important;
     border: 0.5pt solid rgba(200,169,126,0.4) !important;
     overflow: hidden !important;
     -webkit-print-color-adjust: exact;
@@ -5073,7 +5057,7 @@ button {
   }
 
   .cp-header-brand {
-    width: 96px !important;
+    width: 168px !important;
   }
 
   .cp-logo-img {
@@ -5083,8 +5067,13 @@ button {
   }
 
   .cp-header-meta {
-    min-width: 90px !important;
+    width: 168px !important;
     padding: 0 10px !important;
+    gap: 3px !important;
+  }
+
+  .cp-header-contact {
+    font-size: 12px !important;
   }
 
   .cp-bismillah {
@@ -5265,36 +5254,6 @@ button {
   .cp-rent-sig-row {
     padding: 3px 10px !important;
     font-size: 13.5px !important;
-  }
-
-  /* ── Footer — pinned to the physical bottom of the printed page ── */
-  .cp-footer {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-    padding: 5px 10px 3px !important;
-    background: white !important;
-    border-top: 1pt solid #c8a97e !important;
-    border-image: none !important;
-    font-size: 12.5px !important;
-    gap: 5px !important;
-    flex-direction: row !important;
-    letter-spacing: normal !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .cp-footer-text {
-    letter-spacing: normal !important;
-    white-space: nowrap !important;
-  }
-
-  .cp-footer-icon {
-    width: 11px !important;
-    height: 11px !important;
   }
 
   @page {

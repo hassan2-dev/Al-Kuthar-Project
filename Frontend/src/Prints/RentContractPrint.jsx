@@ -179,6 +179,9 @@ export default function RentContractPrint() {
               <div className="cp-header-meta">
                 <span className="cp-header-city">البصرة</span>
                 <span className="cp-header-date">التاريخ : {fillDate(form.contractDate)}</span>
+                <span className="cp-header-contact">
+                  للتواصل: محمد <span className="cp-header-contact-num" dir="ltr">07703137070</span>
+                </span>
               </div>
               <div className="cp-header-center">
                 <p className="cp-bismillah">بسم الله الرحمن الرحيم</p>
@@ -365,17 +368,6 @@ export default function RentContractPrint() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Footer — contact info, shown on screen and print */}
-      <div className="cp-footer" dir="rtl">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className="cp-footer-icon" aria-hidden="true">
-          <path d="M3.5 2h2.2l1 2.6-1.3 1.1a8 8 0 0 0 4.9 4.9l1.1-1.3 2.6 1v2.2c0 .6-.5 1-1 1C7.5 13.5 2.5 8.5 2.5 3c0-.5.4-1 1-1z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" strokeLinecap="round" />
-        </svg>
-        <span className="cp-footer-text">
-          <span className="cp-footer-text-ar">للتواصل والاستفسار:</span>
-          <span className="cp-footer-text-num" dir="ltr">07703137070</span>
-        </span>
       </div>
     </div>
   );

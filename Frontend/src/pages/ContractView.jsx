@@ -215,6 +215,9 @@ function SaleEditSheet({ form, onChange }) {
                 التاريخ :
                 <B type="date" name="contractYear" size="md" value={form.contractYear ?? form.contractDate} onChange={onChange} />
               </span>
+              <span className="cp-header-contact">
+                للتواصل: محمد <span className="cp-header-contact-num" dir="ltr">07703137070</span>
+              </span>
             </div>
             <div className="cp-header-center">
               <p className="cp-bismillah">بسم الله الرحمن الرحيم</p>
@@ -412,6 +415,9 @@ function RentEditSheet({ form, onChange }) {
               <span className="cp-header-date cv-header-date-field">
                 التاريخ :
                 <B type="date" name="contractDate" size="md" value={form.contractDate} onChange={onChange} />
+              </span>
+              <span className="cp-header-contact">
+                للتواصل: محمد <span className="cp-header-contact-num" dir="ltr">07703137070</span>
               </span>
             </div>
             <div className="cp-header-center">

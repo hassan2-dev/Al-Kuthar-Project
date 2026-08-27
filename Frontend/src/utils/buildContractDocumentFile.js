@@ -72,7 +72,7 @@ const SHARED_CSS = `
   }
   .cp-header-meta {
     flex-shrink: 0;
-    width: 120px;
+    width: 160px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -131,7 +131,7 @@ const SHARED_CSS = `
   }
   .cp-header-brand {
     flex-shrink: 0;
-    width: 110px;
+    width: 160px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -385,50 +385,23 @@ const SHARED_CSS = `
     display: block;
     min-width: 60px;
   }
-  .cp-footer {
-    max-width: 860px;
-    margin: 16px auto 0;
-    padding: 14px 20px 4px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    text-align: center;
-    direction: rtl;
-    border-top: 1.5px solid rgba(200,169,126,0.55);
-    font-family: 'El Messiri', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 13px;
-    font-weight: 600;
+  .cp-header-contact {
+    font-size: 11.5px;
     color: #a07828;
-    letter-spacing: normal;
-  }
-  .cp-footer-text {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    letter-spacing: normal;
+    font-weight: 600;
+    line-height: 1.55;
     white-space: nowrap;
     direction: rtl;
   }
-  .cp-footer-text-ar {
-    letter-spacing: normal;
-  }
-  .cp-footer-text-num {
+  .cp-header-contact-num {
     direction: ltr;
     unicode-bidi: embed;
     letter-spacing: normal;
   }
 `;
 
-function buildPrintFooterHtml() {
-  return `
-  <div class="cp-footer" dir="rtl">
-    <span class="cp-footer-text">
-      <span class="cp-footer-text-ar">للتواصل والاستفسار:</span>
-      <span class="cp-footer-text-num" dir="ltr">07703137070</span>
-    </span>
-  </div>`;
+function buildHeaderContactHtml() {
+  return `<span class="cp-header-contact">للتواصل: محمد <span class="cp-header-contact-num" dir="ltr">07703137070</span></span>`;
 }
 
 function wrapHtml(title, bodyContent) {
@@ -467,6 +440,7 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
         <div class="cp-header-meta">
           <span class="cp-header-city">البصرة</span>
           <span class="cp-header-date">التاريخ : ${dateDisplay}</span>
+          ${buildHeaderContactHtml()}
         </div>
         <div class="cp-header-center">
           <p class="cp-bismillah">بسم الله الرحمن الرحيم</p>
@@ -605,8 +579,7 @@ export function buildSaleContractArchiveHtml(form, contractId, docStatus) {
 
       </div>
     </div>
-  </div>
-  ${buildPrintFooterHtml()}`;
+  </div>`;
 
   return wrapHtml(`عقد بيع — ${docStatus} — ${contractId}`, body);
 }
@@ -631,6 +604,7 @@ export function buildRentContractArchiveHtml(form, contractId, docStatus) {
         <div class="cp-header-meta">
           <span class="cp-header-city">البصرة</span>
           <span class="cp-header-date">التاريخ : ${dateDisplay}</span>
+          ${buildHeaderContactHtml()}
         </div>
         <div class="cp-header-center">
           <p class="cp-bismillah">بسم الله الرحمن الرحيم</p>
@@ -786,8 +760,7 @@ export function buildRentContractArchiveHtml(form, contractId, docStatus) {
 
       </div>
     </div>
-  </div>
-  ${buildPrintFooterHtml()}`;
+  </div>`;
 
   return wrapHtml(`عقد إيجار — ${docStatus} — ${contractId}`, body);
 }
